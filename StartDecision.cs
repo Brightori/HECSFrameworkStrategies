@@ -1,6 +1,4 @@
-﻿using HECSFrameWork.Components;
-using Loggers;
-using UnityEngine;
+﻿using HECSFramework.Core;
 
 public class StartDecision : BaseDecisionNode
 {
@@ -10,7 +8,6 @@ public class StartDecision : BaseDecisionNode
 
     public override void Execute(IEntity entity)
     {
-        UnityLogger.Log(LoggerCategory.AI, "Executing " + TitleOfNode);
         startDecision.Execute(entity);
     }
 }

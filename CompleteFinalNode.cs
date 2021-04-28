@@ -1,4 +1,4 @@
-﻿using HECSFrameWork.Components;
+﻿using HECSFramework.Core;
 
 public class CompleteFinalNode : FinalDecision
 {

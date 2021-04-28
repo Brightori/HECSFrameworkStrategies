@@ -1,14 +1,9 @@
 ﻿using Components;
-using HECSFrameWork;
-using HECSFrameWork.Components;
+using HECSFramework.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Reflection.Emit;
-using Loggers;
 
 [CreateAssetMenu]
 public class Strategy : ScriptableObject
@@ -19,14 +14,6 @@ public class Strategy : ScriptableObject
 
     public void StartStrategy(IEntity entity)
     {
-        UnityLogger.Log(LoggerCategory.AI, "Strategy inside start==>>>>>>> " + name);
-
-        if (entity.IsHaveComponents(ComponentID.UntilSuccessStrategyNodeComponentID))
-        {
-            entity[ComponentID.UntilSuccessStrategyNodeComponentID].As<IUntilSuccessStrategyNodeComponent>().BaseDecisionNode.Execute(entity);
-            return;
-        }
-
         if (start == null)
             start = nodes.FirstOrDefault(x => x is StartDecision);
 
@@ -61,7 +48,7 @@ public abstract class UntilSuccesNode : BaseDecisionNode
 
     public override void Execute(IEntity entity)
     {
-        if (entity.IsHaveComponents(ComponentID.UntilSuccessStrategyNodeComponentID))
+        if (entity.ContainsMask<UntilSuccessStrategyNodeComponent>())
             LocalExecute(entity);
         else
         {
@@ -72,7 +59,7 @@ public abstract class UntilSuccesNode : BaseDecisionNode
 
     protected void Success(IEntity entity)
     {
-        entity.RemoveHecsComponent(ComponentID.UntilSuccessStrategyNodeComponentID);
+        entity.RemoveHecsComponent<UntilSuccessStrategyNodeComponent>();
         whenSuccess.Execute(entity);
     }
 
