@@ -5,96 +5,99 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-[CreateAssetMenu]
-public class Strategy : ScriptableObject
+namespace Strategies
 {
-    public List<BaseDecisionNode> nodes = new List<BaseDecisionNode>(16);
-
-    private BaseDecisionNode start;
-
-    public void StartStrategy(IEntity entity)
+    [CreateAssetMenu]
+    public class Strategy : ScriptableObject
     {
-        if (start == null)
-            start = nodes.FirstOrDefault(x => x is StartDecision);
+        public List<BaseDecisionNode> nodes = new List<BaseDecisionNode>(16);
 
-        if (start == null)
+        private BaseDecisionNode start;
+
+        public void StartStrategy(IEntity entity)
         {
-            Debug.LogAssertion("нет стартовой ноды у "+ this.name);
-            return;
-        }
+            if (start == null)
+                start = nodes.FirstOrDefault(x => x is StartDecision);
 
-        start.Execute(entity);
-    }
-}
+            if (start == null)
+            {
+                Debug.LogAssertion("нет стартовой ноды у " + this.name);
+                return;
+            }
 
-public abstract class BaseDecisionNode : ScriptableObject, IDecisionNode
-{
-    public abstract string TitleOfNode { get; }
-    public Vector2 coords;
-
-    public abstract void Execute(IEntity entity);
-}
-
-/// <summary>
-/// общая логика - лочим стратегию на этой ноде, проверяем условие по которому мы считаем что логика успешно завершена, 
-/// и вызываем метод Success
-/// в противном случае дергаем ноду proccess, подразумевается что мы там что то делаем что в итоге приведет к успеху
-/// </summary>
-public abstract class UntilSuccesNode : BaseDecisionNode
-{
-    [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode parent;
-    [Connection(ConnectionPointType.Link, "When Success")] public BaseDecisionNode whenSuccess;
-    [Connection(ConnectionPointType.Link, "Proccess")] public BaseDecisionNode proccess;
-
-    public override void Execute(IEntity entity)
-    {
-        if (entity.ContainsMask<UntilSuccessStrategyNodeComponent>())
-            LocalExecute(entity);
-        else
-        {
-            entity.AddHecsComponent(new UntilSuccessStrategyNodeComponent { BaseDecisionNode = this });
-            LocalExecute(entity);
+            start.Execute(entity);
         }
     }
 
-    protected void Success(IEntity entity)
+    public abstract class BaseDecisionNode : ScriptableObject, IDecisionNode
     {
-        entity.RemoveHecsComponent<UntilSuccessStrategyNodeComponent>();
-        whenSuccess.Execute(entity);
+        public abstract string TitleOfNode { get; }
+        public Vector2 coords;
+
+        public abstract void Execute(IEntity entity);
     }
 
-    public abstract void LocalExecute(IEntity entity);
-}
-
-public abstract class InterDecision : BaseDecisionNode
-{
-    [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode parent;
-    [Connection(ConnectionPointType.Link, "Next")] public BaseDecisionNode next;
-}
-
-public abstract class DilemmaDecision : BaseDecisionNode
-{
-    [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode parent;
-    [Connection(ConnectionPointType.Link, "Positive")] public BaseDecisionNode positive;
-    [Connection(ConnectionPointType.Link, "Negative")] public BaseDecisionNode negative;
-}
-
-public interface IDecisionNode
-{
-    void Execute(IEntity entity);
-}
-
-[AttributeUsage(AttributeTargets.Field)]
-public class ConnectionAttribute : Attribute
-{
-    public ConnectionPointType ConnectionPointType;
-    public string NameOfField = "Field";
-
-    public ConnectionAttribute(ConnectionPointType connectionPointType, string nameOfField)
+    /// <summary>
+    /// общая логика - лочим стратегию на этой ноде, проверяем условие по которому мы считаем что логика успешно завершена, 
+    /// и вызываем метод Success
+    /// в противном случае дергаем ноду proccess, подразумевается что мы там что то делаем что в итоге приведет к успеху
+    /// </summary>
+    public abstract class UntilSuccesNode : BaseDecisionNode
     {
-        ConnectionPointType = connectionPointType;
-        NameOfField = nameOfField;
-    }
-}
+        [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode parent;
+        [Connection(ConnectionPointType.Link, "When Success")] public BaseDecisionNode whenSuccess;
+        [Connection(ConnectionPointType.Link, "Proccess")] public BaseDecisionNode proccess;
 
-public enum ConnectionPointType { In, Out, Link, InSingle }
+        public override void Execute(IEntity entity)
+        {
+            if (entity.ContainsMask<UntilSuccessStrategyNodeComponent>())
+                LocalExecute(entity);
+            else
+            {
+                entity.AddHecsComponent(new UntilSuccessStrategyNodeComponent { BaseDecisionNode = this });
+                LocalExecute(entity);
+            }
+        }
+
+        protected void Success(IEntity entity)
+        {
+            entity.RemoveHecsComponent<UntilSuccessStrategyNodeComponent>();
+            whenSuccess.Execute(entity);
+        }
+
+        public abstract void LocalExecute(IEntity entity);
+    }
+
+    public abstract class InterDecision : BaseDecisionNode
+    {
+        [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode parent;
+        [Connection(ConnectionPointType.Link, "Next")] public BaseDecisionNode next;
+    }
+
+    public abstract class DilemmaDecision : BaseDecisionNode
+    {
+        [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode parent;
+        [Connection(ConnectionPointType.Link, "Positive")] public BaseDecisionNode positive;
+        [Connection(ConnectionPointType.Link, "Negative")] public BaseDecisionNode negative;
+    }
+
+    public interface IDecisionNode
+    {
+        void Execute(IEntity entity);
+    }
+
+    [AttributeUsage(AttributeTargets.Field)]
+    public class ConnectionAttribute : Attribute
+    {
+        public ConnectionPointType ConnectionPointType;
+        public string NameOfField = "Field";
+
+        public ConnectionAttribute(ConnectionPointType connectionPointType, string nameOfField)
+        {
+            ConnectionPointType = connectionPointType;
+            NameOfField = nameOfField;
+        }
+    }
+
+    public enum ConnectionPointType { In, Out, Link, InSingle }
+}

@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 
-public abstract class FinalDecision : BaseDecisionNode
+namespace Strategies
 {
-    [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode node;
+    public abstract class FinalDecision : BaseDecisionNode
+    {
+        [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode node;
+    }
 }
