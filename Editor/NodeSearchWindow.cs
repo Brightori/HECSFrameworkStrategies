@@ -64,6 +64,12 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider
             var d = t.GetProperty("TitleOfNode");
             var test = d.GetValue(instance);
 
+            if (test == null)
+            {
+                Debug.LogAssertion("не прописан тайтл у " + t.Name);
+                continue;
+            }
+
             tree.Add(new SearchTreeEntry(new GUIContent(test.ToString()))
             {
                 level = 1,
