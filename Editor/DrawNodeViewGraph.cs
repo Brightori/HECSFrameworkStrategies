@@ -451,10 +451,13 @@ public class StrategyGraphViewWIndow : EditorWindow
 
     private void OnDisable()
     {
-        rootVisualElement.Remove(graphView);
+        if (graphView != null)
+        {
+            rootVisualElement.Remove(graphView);
+            graphView.Dispose();
+        }
 
         EditorUtility.SetDirty(strategy);
         AssetDatabase.SaveAssets();
-        graphView.Dispose();
     }
 }
