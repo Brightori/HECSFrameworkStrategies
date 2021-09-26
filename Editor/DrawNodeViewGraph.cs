@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using HECSFramework.Core.Helpers;
 using Strategies;
+using HECSFramework.Unity;
 
 public class DrawNodeViewGraph : Node
 {
@@ -239,18 +240,7 @@ public class StrategyGraphView : GraphView, IDisposable
                             intField.RegisterValueChangedCallback((evt) => IntChangeReact(evt, m as FieldInfo, drawNode.InnerNode));
                             drawNode.contentContainer.Add(intField);
                         }
-
-                        if (field.FieldType == typeof(Strategy))
-                        {
-                            var objectField = new ObjectField(m.Name + ":") { objectType = typeof(Strategy) };
-                            objectField.value = (m as FieldInfo).GetValue(drawNode.InnerNode) as Strategy;
-
-                            objectField.RegisterValueChangedCallback((evt) => ChangeStrategy(evt, m as FieldInfo, drawNode.InnerNode));
-
-                            drawNode.contentContainer.Add(objectField);
-                        }
-
-                        if (field.FieldType.BaseType == typeof(Enum))
+                        else if (field.FieldType.BaseType == typeof(Enum))
                         {
                             var enumField = new EnumField(m.Name+":");
                             var property = so.FindProperty(m.Name);
@@ -260,21 +250,45 @@ public class StrategyGraphView : GraphView, IDisposable
                             enumField.RegisterValueChangedCallback((evt) => EnumChangeReact(evt, field, drawNode.InnerNode));
                             drawNode.contentContainer.Add(enumField);
                         }
-
-                        if (field.FieldType == typeof(float))
+                        else if (field.FieldType == typeof(float))
                         {
                             var floatField = new FloatField(m.Name + ":");
                             floatField.value = (float)field.GetValue(drawNode.InnerNode);
                             floatField.RegisterValueChangedCallback((evt) => FloatFieldReact(evt, field, drawNode.InnerNode));
                             drawNode.contentContainer.Add(floatField);
+                        }   
+                        else if (field.FieldType == typeof(string))
+                        {
+                            var floatField = new TextField(m.Name + ":");
+                            floatField.value = (string)field.GetValue(drawNode.InnerNode);
+                            floatField.RegisterValueChangedCallback((evt) => StringFieldReact(evt, field, drawNode.InnerNode));
+                            drawNode.contentContainer.Add(floatField);
                         }
-
-                        if (field.FieldType == typeof(bool))
+                        else if (field.FieldType == typeof(Vector3))
+                        {
+                            var floatField = new Vector3Field(m.Name + ":");
+                            floatField.value = (Vector3)field.GetValue(drawNode.InnerNode);
+                            floatField.RegisterValueChangedCallback((evt) => UpdateField(evt, field, drawNode.InnerNode));
+                            drawNode.contentContainer.Add(floatField);
+                        }
+                        else if (field.FieldType == typeof(bool))
                         {
                             var boolField = new Toggle(m.Name + ":");
                             boolField.value = (bool)field.GetValue(drawNode.InnerNode);
                             boolField.RegisterValueChangedCallback((evt) => BoolFieldReact(evt, field, drawNode.InnerNode));
                             drawNode.contentContainer.Add(boolField);
+                        }
+                        else
+                        {
+                            var objectField = new ObjectField(m.Name + ":") { objectType = field.FieldType };
+                            var value = (m as FieldInfo).GetValue(drawNode.InnerNode) as UnityEngine.Object;
+
+                            if (value == null)
+                                return;
+
+                            objectField.value = value;
+                            objectField.RegisterValueChangedCallback((evt) => SetEntityContainer(evt, m as FieldInfo, drawNode.InnerNode));
+                            drawNode.contentContainer.Add(objectField);
                         }
                         
                         drawNode.RefreshPorts();
@@ -283,6 +297,21 @@ public class StrategyGraphView : GraphView, IDisposable
                 }
             }
         }
+    }
+
+    private void UpdateField<T>(ChangeEvent<T> evt, FieldInfo field, BaseDecisionNode innerNode)
+    {
+        field.SetValue(innerNode, evt.newValue);
+    }
+ 
+    private void StringFieldReact(ChangeEvent<string> evt, FieldInfo field, BaseDecisionNode innerNode)
+    {
+        field.SetValue(innerNode, evt.newValue);
+    }
+
+    private void SetEntityContainer(ChangeEvent<UnityEngine.Object> evt, FieldInfo field, BaseDecisionNode baseDecisionNode)
+    {
+        field.SetValue(baseDecisionNode, evt.newValue);
     }
 
     private void BoolFieldReact(ChangeEvent<bool> evt, FieldInfo fieldInfo, BaseDecisionNode baseDecisionNode)
@@ -419,45 +448,5 @@ public class StrategyGraphView : GraphView, IDisposable
     public void Dispose()
     {
         graphViewChanged -= Changes;
-    }
-}
-
-public class StrategyGraphViewWIndow : EditorWindow
-{
-    private StrategyGraphView graphView;
-    private Strategy strategy;
-    private string assetPath;
-    private NodeSearchWindow _searchWindow;
-
-    internal void OnInit(Strategy strategy, string path)
-    {
-        this.strategy = strategy;
-        assetPath = path;
-
-        graphView = new StrategyGraphView(strategy, path);
-        graphView.StretchToParentSize();
-        rootVisualElement.Add(graphView);
-        CreateMiniMap();
-        graphView.AddSearchWindow(this);
-    }
-
-    private void CreateMiniMap()
-    {
-        var minimap = new MiniMap() { anchored = true };
-        minimap.SetPosition(new Rect(10,10, 200, 140));
-        
-        graphView.Add(minimap);
-    }
-
-    private void OnDisable()
-    {
-        if (graphView != null)
-        {
-            rootVisualElement.Remove(graphView);
-            graphView.Dispose();
-        }
-
-        EditorUtility.SetDirty(strategy);
-        AssetDatabase.SaveAssets();
     }
 }

@@ -1,17 +1,23 @@
 ﻿using Components;
 using HECSFramework.Core;
+using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Strategies
 {
     [CreateAssetMenu]
     public class Strategy : ScriptableObject
     {
+        public static event Action<Strategy, string> GetWindow;
+        
         public List<BaseDecisionNode> nodes = new List<BaseDecisionNode>(16);
-
         private BaseDecisionNode start;
 
         public void StartStrategy(IEntity entity)
@@ -27,7 +33,17 @@ namespace Strategies
 
             start.Execute(entity);
         }
+
+#if UNITY_EDITOR
+        [Button(ButtonSizes.Large)]
+        private void OpenStrategy()
+        {
+            var path = AssetDatabase.GetAssetPath(this);
+            GetWindow.Invoke(this, path);
+        }
+#endif
     }
+
 
     public abstract class BaseDecisionNode : ScriptableObject, IDecisionNode
     {
