@@ -283,9 +283,6 @@ public class StrategyGraphView : GraphView, IDisposable
                             var objectField = new ObjectField(m.Name + ":") { objectType = field.FieldType };
                             var value = (m as FieldInfo).GetValue(drawNode.InnerNode) as UnityEngine.Object;
 
-                            if (value == null)
-                                return;
-
                             objectField.value = value;
                             objectField.RegisterValueChangedCallback((evt) => SetEntityContainer(evt, m as FieldInfo, drawNode.InnerNode));
                             drawNode.contentContainer.Add(objectField);
