@@ -44,11 +44,10 @@ namespace Strategies
 #endif
     }
 
-
     public abstract class BaseDecisionNode : ScriptableObject, IDecisionNode
     {
         public abstract string TitleOfNode { get; }
-        public Vector2 coords;
+        [HideInInspector] public Vector2 coords;
 
         public abstract void Execute(IEntity entity);
     }
@@ -86,8 +85,8 @@ namespace Strategies
 
     public abstract class InterDecision : BaseDecisionNode
     {
-        [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode parent;
-        [Connection(ConnectionPointType.Link, "Next")] public BaseDecisionNode next;
+        [Connection(ConnectionPointType.In, "Input")][IgnoreDraw] public BaseDecisionNode parent;
+        [Connection(ConnectionPointType.Link, "Next")][IgnoreDraw] public BaseDecisionNode next;
     }
 
     public abstract class DilemmaDecision : BaseDecisionNode

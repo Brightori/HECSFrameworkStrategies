@@ -55,7 +55,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
         ConnectStrategyNodes();
         graphViewChanged += Changes;
-        
+
         FrameAll();
     }
 
@@ -146,7 +146,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
                 if (portinfo.Value.member is FieldInfo field)
                 {
-                    var data =  field.GetValue(dn.InnerNode);
+                    var data = field.GetValue(dn.InnerNode);
 
                     if (data != null)
                     {
@@ -199,7 +199,7 @@ public class StrategyGraphView : GraphView, IDisposable
         drawNodes.Add(node);
         return node;
     }
-   
+
     private DrawNodeViewGraph AddNodeToDecision(BaseDecisionNode node)
     {
         var drawNode = new DrawNodeViewGraph();
@@ -222,85 +222,135 @@ public class StrategyGraphView : GraphView, IDisposable
     {
         var so = new SerializedObject(drawNode.InnerNode);
 
+
         if (drawNode.InnerNode != null)
         {
-            foreach (var m in drawNode.InnerNode.GetType().GetMembers())
+            if (drawNode.InnerNode.GetType().GetCustomAttributes().Any(x => x is DrawInNodeAttribute))
             {
-                foreach (var a in m.GetCustomAttributes())
+                drawNode.contentContainer.Add(CreateEditorFromNodeData(drawNode.InnerNode));
+                drawNode.RefreshPorts();
+                drawNode.RefreshExpandedState();
+            }
+            else
+
+                foreach (var m in drawNode.InnerNode.GetType().GetMembers())
                 {
-                    if (a is SerializeField)
+                    foreach (var a in m.GetCustomAttributes())
                     {
-                        var field = m as FieldInfo;
+                        if (a is SerializeField)
+                        {
+                            var field = m as FieldInfo;
 
-                        if (field.FieldType == typeof(int))
-                        {
-                            var intField = new IntegerField(m.Name + ":");
-                            intField.value = (int)(m as FieldInfo).GetValue(drawNode.InnerNode);
+                            if (field.FieldType == typeof(int))
+                            {
+                                var intField = new IntegerField(m.Name + ":");
+                                intField.value = (int)(m as FieldInfo).GetValue(drawNode.InnerNode);
 
-                            intField.RegisterValueChangedCallback((evt) => IntChangeReact(evt, m as FieldInfo, drawNode.InnerNode));
-                            drawNode.contentContainer.Add(intField);
-                        }
-                        else if (field.FieldType.BaseType == typeof(Enum))
-                        {
-                            var enumField = new EnumField(m.Name+":");
-                            var property = so.FindProperty(m.Name);
-                            enumField.value = (Enum)Enum.ToObject(field.FieldType, field.GetValue(drawNode.InnerNode));
-                            enumField.Init((Enum)Enum.ToObject(field.FieldType, field.GetValue(drawNode.InnerNode)));
+                                intField.RegisterValueChangedCallback((evt) => IntChangeReact(evt, m as FieldInfo, drawNode.InnerNode));
+                                drawNode.contentContainer.Add(intField);
+                            }
+                            else if (field.FieldType.BaseType == typeof(Enum))
+                            {
+                                var enumField = new EnumField(m.Name + ":");
+                                var property = so.FindProperty(m.Name);
+                                enumField.value = (Enum)Enum.ToObject(field.FieldType, field.GetValue(drawNode.InnerNode));
+                                enumField.Init((Enum)Enum.ToObject(field.FieldType, field.GetValue(drawNode.InnerNode)));
 
-                            enumField.RegisterValueChangedCallback((evt) => EnumChangeReact(evt, field, drawNode.InnerNode));
-                            drawNode.contentContainer.Add(enumField);
-                        }
-                        else if (field.FieldType == typeof(float))
-                        {
-                            var floatField = new FloatField(m.Name + ":");
-                            floatField.value = (float)field.GetValue(drawNode.InnerNode);
-                            floatField.RegisterValueChangedCallback((evt) => FloatFieldReact(evt, field, drawNode.InnerNode));
-                            drawNode.contentContainer.Add(floatField);
-                        }   
-                        else if (field.FieldType == typeof(string))
-                        {
-                            var floatField = new TextField(m.Name + ":");
-                            floatField.value = (string)field.GetValue(drawNode.InnerNode);
-                            floatField.RegisterValueChangedCallback((evt) => StringFieldReact(evt, field, drawNode.InnerNode));
-                            drawNode.contentContainer.Add(floatField);
-                        }
-                        else if (field.FieldType == typeof(Vector3))
-                        {
-                            var floatField = new Vector3Field(m.Name + ":");
-                            floatField.value = (Vector3)field.GetValue(drawNode.InnerNode);
-                            floatField.RegisterValueChangedCallback((evt) => UpdateField(evt, field, drawNode.InnerNode));
-                            drawNode.contentContainer.Add(floatField);
-                        }
-                        else if (field.FieldType == typeof(bool))
-                        {
-                            var boolField = new Toggle(m.Name + ":");
-                            boolField.value = (bool)field.GetValue(drawNode.InnerNode);
-                            boolField.RegisterValueChangedCallback((evt) => BoolFieldReact(evt, field, drawNode.InnerNode));
-                            drawNode.contentContainer.Add(boolField);
-                        }
-                        else
-                        {
-                            var objectField = new ObjectField(m.Name + ":") { objectType = field.FieldType };
-                            var value = (m as FieldInfo).GetValue(drawNode.InnerNode) as UnityEngine.Object;
+                                enumField.RegisterValueChangedCallback((evt) => EnumChangeReact(evt, field, drawNode.InnerNode));
+                                drawNode.contentContainer.Add(enumField);
+                            }
+                            else if (field.FieldType == typeof(float))
+                            {
+                                var floatField = new FloatField(m.Name + ":");
+                                floatField.value = (float)field.GetValue(drawNode.InnerNode);
+                                floatField.RegisterValueChangedCallback((evt) => FloatFieldReact(evt, field, drawNode.InnerNode));
+                                drawNode.contentContainer.Add(floatField);
+                            }
+                            else if (field.FieldType == typeof(string))
+                            {
+                                var floatField = new TextField(m.Name + ":");
+                                floatField.value = (string)field.GetValue(drawNode.InnerNode);
+                                floatField.RegisterValueChangedCallback((evt) => StringFieldReact(evt, field, drawNode.InnerNode));
+                                drawNode.contentContainer.Add(floatField);
+                            }
+                            else if (field.FieldType == typeof(Vector3))
+                            {
+                                var floatField = new Vector3Field(m.Name + ":");
+                                floatField.value = (Vector3)field.GetValue(drawNode.InnerNode);
+                                floatField.RegisterValueChangedCallback((evt) => UpdateField(evt, field, drawNode.InnerNode));
+                                drawNode.contentContainer.Add(floatField);
+                            }
+                            else if (field.FieldType == typeof(bool))
+                            {
+                                var boolField = new Toggle(m.Name + ":");
+                                boolField.value = (bool)field.GetValue(drawNode.InnerNode);
+                                boolField.RegisterValueChangedCallback((evt) => BoolFieldReact(evt, field, drawNode.InnerNode));
+                                drawNode.contentContainer.Add(boolField);
+                            }
+                            else
+                            {
+                                var objectField = new ObjectField(m.Name + ":") { objectType = field.FieldType };
+                                var value = (m as FieldInfo).GetValue(drawNode.InnerNode) as UnityEngine.Object;
 
-                            objectField.value = value;
-                            objectField.RegisterValueChangedCallback((evt) => SetEntityContainer(evt, m as FieldInfo, drawNode.InnerNode));
-                            drawNode.contentContainer.Add(objectField);
+                                objectField.value = value;
+                                objectField.RegisterValueChangedCallback((evt) => SetEntityContainer(evt, m as FieldInfo, drawNode.InnerNode));
+                                drawNode.contentContainer.Add(objectField);
+                            }
+
+                            drawNode.RefreshPorts();
+                            drawNode.RefreshExpandedState();
                         }
-                        
-                        drawNode.RefreshPorts();
-                        drawNode.RefreshExpandedState();
                     }
                 }
-            }
         }
+    }
+
+    private VisualElement CreateEditorFromNodeData<T>(T obj) where T : UnityEngine.Object
+    {
+        SerializedObject soEditor = new UnityEditor.SerializedObject(obj);
+        var container = new VisualElement();
+
+        var it = soEditor.GetIterator();
+        if (!it.NextVisible(true))
+            return container;
+
+        //Descends through serialized property children & allows us to edit them.
+        do
+        {
+            var typeofProperty = it.serializedObject.targetObject.GetType();
+            var neededType = typeofProperty.GetField(it.propertyPath, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            if (neededType != null)
+            {
+                if (neededType.GetCustomAttributes().Any(x => x is IgnoreDrawAttribute))
+                    continue;
+            }
+
+            var propertyField = new PropertyField(it.Copy())
+            { name = "PropertyField:" + it.propertyPath };
+
+            //Bind the property so we can edit the values.
+            propertyField.Bind(soEditor);
+
+            //This ignores the label name field, it's ugly.
+            if (it.propertyPath == "m_Script" && soEditor.targetObject != null)
+            {
+                propertyField.SetEnabled(false);
+                propertyField.visible = false;
+            }
+
+            container.Add(propertyField);
+        }
+        while (it.NextVisible(false));
+
+        return container;
     }
 
     private void UpdateField<T>(ChangeEvent<T> evt, FieldInfo field, BaseDecisionNode innerNode)
     {
         field.SetValue(innerNode, evt.newValue);
     }
- 
+
     private void StringFieldReact(ChangeEvent<string> evt, FieldInfo field, BaseDecisionNode innerNode)
     {
         field.SetValue(innerNode, evt.newValue);
@@ -367,7 +417,7 @@ public class StrategyGraphView : GraphView, IDisposable
                     {
                         case ConnectionPointType.In:
                             var port = GeneratePort(drawNode, Direction.Input, connection.NameOfField, Port.Capacity.Multi);
-                            drawNode.ConnectedPorts.Add(port, (m,Direction.Input));
+                            drawNode.ConnectedPorts.Add(port, (m, Direction.Input));
                             break;
                         case ConnectionPointType.Out:
                         case ConnectionPointType.Link:
