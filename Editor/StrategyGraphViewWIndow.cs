@@ -16,7 +16,6 @@ public class StrategyGraphViewWIndow : EditorWindow
     static StrategyGraphViewWIndow()
     {
         Strategy.GetWindow += ShowWindowReact;
-        Debug.Log("is Inited");
     }
 
     private static void ShowWindowReact(Strategy strategy, string path)
