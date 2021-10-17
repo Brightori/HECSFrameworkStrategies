@@ -15,12 +15,13 @@ namespace Strategies
     [CreateAssetMenu]
     public class Strategy : ScriptableObject
     {
+#if UNITY_EDITOR //это для проброса в эдитор
         public static event Action<Strategy, string> GetWindow;
-        
+#endif
         public List<BaseDecisionNode> nodes = new List<BaseDecisionNode>(16);
         private BaseDecisionNode start;
 
-        public void StartStrategy(IEntity entity)
+        public void Execute(IEntity entity)
         {
             if (start == null)
                 start = nodes.FirstOrDefault(x => x is StartDecision);
