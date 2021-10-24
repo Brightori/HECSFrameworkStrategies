@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Helpers;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,8 +14,21 @@ using UnityEditor;
 namespace Strategies
 {
     [CreateAssetMenu]
+    [Documentation(Doc.GameLogic, "Это корневой объект для визуального редактора Decision Tree")]
     public class Strategy : ScriptableObject
     {
+        private int indexCash = -1;
+        public int StrategyIndex
+        {
+            get
+            {
+                if (indexCash == -1)
+                    indexCash = IndexGenerator.GenerateIndex(name);
+
+                return indexCash;
+            }
+        }
+
 #if UNITY_EDITOR //это для проброса в эдитор
         public static event Action<Strategy, string> GetWindow;
 #endif
@@ -86,8 +100,8 @@ namespace Strategies
 
     public abstract class InterDecision : BaseDecisionNode
     {
-        [Connection(ConnectionPointType.In, "Input")][IgnoreDraw] public BaseDecisionNode parent;
-        [Connection(ConnectionPointType.Link, "Next")][IgnoreDraw] public BaseDecisionNode next;
+        [Connection(ConnectionPointType.In, "Input")] [IgnoreDraw] public BaseDecisionNode parent;
+        [Connection(ConnectionPointType.Link, "Next")] [IgnoreDraw] public BaseDecisionNode next;
     }
 
     public abstract class DilemmaDecision : BaseDecisionNode
