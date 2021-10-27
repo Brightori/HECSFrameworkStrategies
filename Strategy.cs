@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Helpers;
+using HECSFramework.Documentation;
 
 #if UNITY_EDITOR
 using UnityEditor;
