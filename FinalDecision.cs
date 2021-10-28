@@ -4,6 +4,8 @@ namespace Strategies
 {
     public abstract class FinalDecision : BaseDecisionNode
     {
-        [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode node;
+        [HideInInspector]
+        [Connection(ConnectionPointType.In, "Input")] 
+        public BaseDecisionNode node;
     }
 }
