@@ -18,6 +18,9 @@ namespace Strategies
     public class Strategy : ScriptableObject
     {
         private int indexCash = -1;
+
+        public Strategy GetCopy => Instantiate(this);
+
         public int StrategyIndex
         {
             get
