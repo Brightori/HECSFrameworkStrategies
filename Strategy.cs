@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Helpers;
+using HECSFramework.Documentation;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -18,6 +18,9 @@ namespace Strategies
     public class Strategy : ScriptableObject
     {
         private int indexCash = -1;
+
+        public Strategy GetCopy => Instantiate(this);
+
         public int StrategyIndex
         {
             get
