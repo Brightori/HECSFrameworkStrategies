@@ -1,32 +1,46 @@
+using Components;
 using HECSFramework.Core;
 using HECSFramework.Documentation;
-using Strategies;
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using Systems;
 using UnityEngine;
 
 namespace Strategies
 {
-    [Serializable]
-    [Documentation(Doc.Strategy, Doc.AI, "Это подвид стратегии для ")]
-    public class State : Strategy, IState, IInitable
+    [CreateAssetMenu(menuName = "Strategies/State")]
+    [Documentation(Doc.Strategy, Doc.AI, "Это подвид стратегии FSM")]
+    public class State : Strategy, IState, IInitable, IDecisionNode
     {
-        private List<INeedGlobalStart> startNodes = new List<INeedGlobalStart>();
-        private List<IUpdatable> updatables = new List<IUpdatable>();
-        private List<ILateUpdatable> lateUpdatables = new List<ILateUpdatable>();
+        private Entity stateEntity;
+        public UpdateStateNode Update { get; private set; }
 
-        public void Pause()
+        private StateMainSystem stateMainSystem = new StateMainSystem();
+        private StateDataComponent stateData = new StateDataComponent();
+
+        public override void Init()
+        {
+            stateMainSystem = new StateMainSystem();
+            stateData = new StateDataComponent();
+
+            stateEntity = new Entity("State");
+            stateEntity.AddHecsComponent(stateData);
+            stateEntity.AddHecsSystem(stateMainSystem);
+            stateMainSystem.Init(this);
+            stateEntity.Init();
+            base.Init();
+        }
+
+        public void Pause(IEntity pause)
         {
             throw new NotImplementedException();
         }
 
-        public void Stop()
+        public void Stop(IEntity entity)
         {
-            throw new NotImplementedException();
+            stateData.RemoveFromState(entity);
         }
 
-        public void UnPause()
+        public void UnPause(IEntity entity)
         {
             throw new NotImplementedException();
         }
@@ -38,19 +52,16 @@ namespace Strategies
 
         public override void Execute(IEntity entity)
         {
-
-        }
-
-        public void Init()
-        {
-            throw new NotImplementedException();
+            stateData.AddToState(entity);
         }
     }
 
-    public interface IState : IUpdatable, IHavePause 
+    public interface IState  
     {
         void Execute(IEntity entity);
-        void Stop();
+        void Pause(IEntity entity);
+        void UnPause(IEntity entity);
+        void Stop(IEntity entity);
     }
 
     public enum StrategyState { Start, Run, Pause, Stop }

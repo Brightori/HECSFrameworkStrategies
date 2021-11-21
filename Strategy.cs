@@ -12,7 +12,7 @@ using UnityEditor;
 
 namespace Strategies
 {
-    [CreateAssetMenu]
+    [CreateAssetMenu(menuName = "Strategies/Base Strategy")]
     [Documentation(Doc.GameLogic, "Это корневой объект для визуального редактора Decision Tree")]
     public class Strategy : ScriptableObject, IInitable
     {
