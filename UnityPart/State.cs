@@ -24,7 +24,7 @@ namespace Strategies
         private void CheckNeeded()
         {
             AddNode<StartDecision>(new Vector2(443, 253));
-            AddNode<UpdateStateNode>(new Vector2(443, 253));
+            AddNode<UpdateStateNode>(new Vector2(443, 364));
             AddNode<ExitStateNode>(new Vector2(1274, 280));
         }
 
