@@ -150,12 +150,31 @@ public class StrategyGraphView : GraphView, IDisposable
 
                     if (data != null)
                     {
-                        foreach (var dnOverall in drawNodes)
+                        if (data is BaseDecisionNode)
                         {
-                            if ((BaseDecisionNode)data == dnOverall.InnerNode)
+                            foreach (var dnOverall in drawNodes)
                             {
-                                var port = dnOverall.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input);
-                                LinkNodesTogether(portinfo.Key, port.Key);
+                                if ((BaseDecisionNode)data == dnOverall.InnerNode)
+                                {
+                                    var port = dnOverall.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input);
+                                    LinkNodesTogether(portinfo.Key, port.Key);
+                                }
+                            }
+                        }
+
+                        if (data is List<BaseDecisionNode> list)
+                        {
+                         
+                            foreach (var drawNodeExit in list)
+                            {
+                                foreach (var dnOverall in drawNodes)
+                                {
+                                    if (drawNodeExit == dnOverall.InnerNode)
+                                    {
+                                        var port = dnOverall.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input);
+                                        LinkNodesTogether(portinfo.Key, port.Key);
+                                    }
+                                }
                             }
                         }
                     }

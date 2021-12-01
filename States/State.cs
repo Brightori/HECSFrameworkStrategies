@@ -1,18 +1,20 @@
 using Components;
 using HECSFramework.Core;
 using HECSFramework.Documentation;
-using System;
 using Systems;
 using UnityEngine;
 
 namespace Strategies
 {
     [CreateAssetMenu(menuName = "Strategies/State")]
-    [Documentation(Doc.Strategy, Doc.AI, "Это подвид стратегии FSM")]
-    public class State : Strategy, IState, IInitable, IDecisionNode
+    [Documentation(Doc.Strategy, Doc.AI, "Это подвид стратегии - FSM")]
+    public partial class State : Strategy, IState, IInitable, IDecisionNode
     {
         private Entity stateEntity;
+        
         public UpdateStateNode Update { get; private set; }
+        public StartDecision StartDecision { get; private set; }
+        public ExitStateNode Exit { get; private set;  }
 
         private StateMainSystem stateMainSystem = new StateMainSystem();
         private StateDataComponent stateData = new StateDataComponent();
@@ -22,7 +24,7 @@ namespace Strategies
             stateMainSystem = new StateMainSystem();
             stateData = new StateDataComponent();
 
-            stateEntity = new Entity("State");
+            stateEntity = new Entity("State " + name);
             stateEntity.AddHecsComponent(stateData);
             stateEntity.AddHecsSystem(stateMainSystem);
             stateMainSystem.Init(this);
@@ -32,7 +34,7 @@ namespace Strategies
 
         public void Pause(IEntity pause)
         {
-            throw new NotImplementedException();
+            stateData.Pause(pause);
         }
 
         public void Stop(IEntity entity)
@@ -42,17 +44,13 @@ namespace Strategies
 
         public void UnPause(IEntity entity)
         {
-            throw new NotImplementedException();
+            stateData.UnPause(entity);
         }
-
-        public void UpdateLocal()
-        {
-            throw new NotImplementedException();
-        }
-
+       
         public override void Execute(IEntity entity)
         {
             stateData.AddToState(entity);
+            StartDecision.Execute(entity);
         }
     }
 

@@ -41,9 +41,13 @@ namespace Strategies
         [Button(ButtonSizes.Large)]
         private void OpenStrategy()
         {
+            OnOpenActions();
             var path = AssetDatabase.GetAssetPath(this);
             GetWindow.Invoke(this, path);
         }
+
+        protected virtual void OnOpenActions() { }
+
 #endif
         #endregion
 

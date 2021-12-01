@@ -8,7 +8,7 @@ namespace Strategies
     public abstract class BaseDecisionNode : ScriptableObject, IDecisionNode
     {
         public abstract string TitleOfNode { get; }
-        [HideInInspector] public Vector2 coords;
+        public Vector2 coords;
 
         public abstract void Execute(IEntity entity);
     }

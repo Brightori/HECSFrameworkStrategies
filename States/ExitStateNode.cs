@@ -1,5 +1,4 @@
-﻿using Components;
-using HECSFramework.Core;
+﻿using HECSFramework.Core;
 using System;
 using System.Collections.Generic;
 
@@ -12,8 +11,8 @@ namespace Strategies
         [Connection(ConnectionPointType.In, "Input")]
         public StateNode Input;
 
-        [Connection(ConnectionPointType.In, "On Exit")]
-        public List<StateNode> CallNodesWhenExit;
+        [Connection(ConnectionPointType.Out, "On Exit")]
+        public BaseDecisionNode CallNodesWhenExit;
 
         private BaseDecisionNode exitDecision;
         private State currentState;
@@ -21,27 +20,13 @@ namespace Strategies
         protected override void ExecuteState(IEntity entity)
         {
             currentState.Stop(entity);
+            CallNodesWhenExit.Execute(entity);
+            exitDecision.Execute(entity);
         }
 
         public void AddState(State state)
         {
             currentState = state;
         }
-    }
-
-    public abstract class StateNode : BaseDecisionNode
-    {
-        private HECSMask stateInfoMask = HMasks.GetMask<StateInfoComponent>();
-
-        public override void Execute(IEntity entity)
-        {
-#if UNITY_EDITOR
-            var info = entity.GetOrAddComponent<StateInfoComponent>(stateInfoMask);
-            info.StateStack.Push(this);
-#endif
-            ExecuteState(entity);
-        }
-
-        protected abstract void ExecuteState(IEntity entity);
     }
 }

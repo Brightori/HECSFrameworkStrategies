@@ -4,7 +4,7 @@ namespace Strategies
 {
     public class StartDecision : BaseDecisionNode
     {
-        [Connection(ConnectionPointType.Link, "Start of Strategy")] public BaseDecisionNode startDecision;
+        [Connection(ConnectionPointType.Out, "Start of Strategy")] public BaseDecisionNode startDecision;
 
         public override string TitleOfNode => "Start";
 
