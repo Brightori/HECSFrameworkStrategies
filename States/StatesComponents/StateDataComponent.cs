@@ -14,6 +14,7 @@ namespace Components
         private Queue<IEntity> addQueue = new Queue<IEntity>(4);
         private Queue<IEntity> removeQueue = new Queue<IEntity>(4);
         private List<IEntity> onPause = new List<IEntity>(4);
+        public StrategyState State { get; private set; } = StrategyState.Run;
 
         public void Init()
         {
@@ -29,6 +30,11 @@ namespace Components
         public void RemoveFromState(IEntity entity)
         {
             removeQueue.Enqueue(entity);
+        }
+
+        public void ChangeState(StrategyState state)
+        {
+            State = state;
         }
 
         public void UpdateCollection()

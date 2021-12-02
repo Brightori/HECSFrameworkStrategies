@@ -17,10 +17,10 @@ namespace Strategies
         private BaseDecisionNode exitDecision;
         private State currentState;
 
-        protected override void ExecuteState(IEntity entity)
+        protected override void Run(IEntity entity)
         {
             currentState.Stop(entity);
-            CallNodesWhenExit.Execute(entity);
+            CallNodesWhenExit?.Execute(entity);
             exitDecision.Execute(entity);
         }
 

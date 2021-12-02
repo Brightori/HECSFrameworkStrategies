@@ -16,12 +16,12 @@ namespace Strategies
         public StartDecision StartDecision { get; private set; }
         public ExitStateNode Exit { get; private set;  }
 
-        private StateMainSystem stateMainSystem = new StateMainSystem();
+        private StateUpdateSystem stateMainSystem = new StateUpdateSystem();
         private StateDataComponent stateData = new StateDataComponent();
 
         public override void Init()
         {
-            stateMainSystem = new StateMainSystem();
+            stateMainSystem = new StateUpdateSystem();
             stateData = new StateDataComponent();
 
             stateEntity = new Entity("State " + name);
@@ -62,5 +62,5 @@ namespace Strategies
         void Stop(IEntity entity);
     }
 
-    public enum StrategyState { Start, Run, Pause, Stop }
+    public enum StrategyState { Run, Pause, Stop }
 }

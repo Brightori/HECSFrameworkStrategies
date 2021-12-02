@@ -21,9 +21,9 @@ namespace Strategies
 
     public abstract class DilemmaDecision : LogNode
     {
-        [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode parent;
-        [Connection(ConnectionPointType.Link, "Positive")] public BaseDecisionNode positive;
-        [Connection(ConnectionPointType.Link, "Negative")] public BaseDecisionNode negative;
+        [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode Input;
+        [Connection(ConnectionPointType.Link, "Positive")] public BaseDecisionNode Positive;
+        [Connection(ConnectionPointType.Link, "Negative")] public BaseDecisionNode Negative;
     }
 
     public interface IDecisionNode

@@ -11,7 +11,7 @@ namespace Strategies
 
         public override string TitleOfNode => "Chain End";
 
-        protected override void ExecuteState(IEntity entity)
+        protected override void Run(IEntity entity)
         {
         }
     }

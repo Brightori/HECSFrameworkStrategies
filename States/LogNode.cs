@@ -15,9 +15,9 @@ namespace Strategies
             var info = entity.GetOrAddComponent<StateInfoComponent>(stateInfoMask);
             info.StateStack.Push(this);
 #endif
-            ExecuteState(entity);
+            Run(entity);
         }
 
-        protected abstract void ExecuteState(IEntity entity);
+        protected abstract void Run(IEntity entity);
     }
 }

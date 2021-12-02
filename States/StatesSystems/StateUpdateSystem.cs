@@ -1,11 +1,10 @@
 ﻿using Components;
 using HECSFramework.Core;
 using Strategies;
-using System;
 
 namespace Systems
 {
-    public class StateMainSystem : BaseSystem, IUpdatable, IInitable<State>
+    public class StateUpdateSystem : BaseSystem, IUpdatable, IInitable<State>
     {
         private State state;
         private StateDataComponent dataComponent;
@@ -17,6 +16,9 @@ namespace Systems
 
         public void UpdateLocal()
         {
+            if (dataComponent.State != StrategyState.Run)
+                return;
+
             dataComponent.UpdateCollection();
 
             var states = dataComponent.EntitiesInCurrentState;
@@ -24,7 +26,10 @@ namespace Systems
 
             for (int i = 0; i < count; i++)
             {
-                state.Update.Execute(states[i]);
+                var needed = states[i];
+
+                if (needed.GetStateContextComponent().State != StrategyState.Run) continue;
+                state.Update.Execute(needed);
             }
         }
 
