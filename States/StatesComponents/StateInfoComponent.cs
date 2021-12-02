@@ -10,6 +10,6 @@ namespace Components
     public class StateInfoComponent : BaseComponent
     {
         //если у нас на ентити будет несколько стейтов, то скорее всего здесь будет дикшенарь стейтов
-        public Stack<StateNode> StateStack = new Stack<StateNode>();
+        public Stack<LogNode> StateStack = new Stack<LogNode>();
     }
 }

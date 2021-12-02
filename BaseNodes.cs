@@ -13,13 +13,13 @@ namespace Strategies
         public abstract void Execute(IEntity entity);
     }
 
-    public abstract class InterDecision : BaseDecisionNode
+    public abstract class InterDecision : LogNode
     {
         [Connection(ConnectionPointType.In, "Input")] [IgnoreDraw] public BaseDecisionNode parent;
         [Connection(ConnectionPointType.Link, "Next")] [IgnoreDraw] public BaseDecisionNode next;
     }
 
-    public abstract class DilemmaDecision : BaseDecisionNode
+    public abstract class DilemmaDecision : LogNode
     {
         [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode parent;
         [Connection(ConnectionPointType.Link, "Positive")] public BaseDecisionNode positive;

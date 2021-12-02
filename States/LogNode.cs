@@ -1,9 +1,11 @@
 ﻿using Components;
 using HECSFramework.Core;
+using HECSFramework.Documentation;
 
 namespace Strategies
 {
-    public abstract class StateNode : BaseDecisionNode
+    [Documentation(Doc.Strategy, "Это базовая нода, она логирует в отдельный компонент ноды по которым мы проходимся в стратегии")]
+    public abstract class LogNode : BaseDecisionNode
     {
         private HECSMask stateInfoMask = HMasks.GetMask<StateInfoComponent>();
 

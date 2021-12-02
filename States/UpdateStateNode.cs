@@ -2,12 +2,12 @@
 
 namespace Strategies
 {
-    public class UpdateStateNode : StateNode
+    public class UpdateStateNode : LogNode
     {
         public override string TitleOfNode { get; } = "Update";
         
         [Connection(ConnectionPointType.Out, "Update every tick")]
-        public StateNode Update;
+        public BaseDecisionNode Update;
 
         protected override void ExecuteState(IEntity entity)
         {

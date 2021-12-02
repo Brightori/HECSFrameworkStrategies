@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 namespace Strategies
 {
-    public class ExitStateNode : StateNode
+    public class ExitStateNode : LogNode
     {
         public override string TitleOfNode { get; } = "Exit State";
         
         [Connection(ConnectionPointType.In, "Input")]
-        public StateNode Input;
+        public LogNode Input;
 
         [Connection(ConnectionPointType.Out, "On Exit")]
         public BaseDecisionNode CallNodesWhenExit;
