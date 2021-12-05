@@ -8,6 +8,7 @@ namespace Strategies
 
         public override void Execute(IEntity entity)
         {
+
         }
     } 
 }

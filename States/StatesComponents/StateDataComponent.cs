@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Components
 {
     [Serializable, Documentation(Doc.AI, Doc.Strategy, Doc.State, "Это основной компонент стейта, он содержит сущности которые сейчас находятся в этом стейте, этот компонент лежит внутри ентити внутри " + nameof(State))]
-    public class StateDataComponent : BaseComponent 
+    public class StateDataComponent : BaseComponent, IInitable 
     {
         private List<IEntity> entitiesInCurrentState;
         public ReadonlyList<IEntity> EntitiesInCurrentState;

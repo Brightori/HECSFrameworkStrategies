@@ -28,7 +28,7 @@ namespace Systems
             {
                 var needed = states[i];
 
-                if (needed.GetStateContextComponent().State != StrategyState.Run) continue;
+                if (needed.GetStateContextComponent().StrategyState != StrategyState.Run) continue;
                 state.Update.Execute(needed);
             }
         }

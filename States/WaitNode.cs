@@ -15,12 +15,12 @@ namespace Strategies
         protected override async void Run(IEntity entity)
         {
             if (entity.TryGetHecsComponent(HMasks.StateContextComponent, out StateContextComponent stateContextComponent))
-                stateContextComponent.State = StrategyState.Pause;
+                stateContextComponent.StrategyState = StrategyState.Pause;
 
             await UniTask.Delay(waitForInMs);
 
             if (entity.TryGetHecsComponent(HMasks.StateContextComponent, out StateContextComponent stateContextComponentAfter))
-                stateContextComponentAfter.State = StrategyState.Run;
+                stateContextComponentAfter.StrategyState = StrategyState.Run;
 
             next.Execute(entity);
         }

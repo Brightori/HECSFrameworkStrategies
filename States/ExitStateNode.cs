@@ -14,14 +14,13 @@ namespace Strategies
         [Connection(ConnectionPointType.Out, "On Exit")]
         public BaseDecisionNode CallNodesWhenExit;
 
-        private BaseDecisionNode exitDecision;
         private State currentState;
 
         protected override void Run(IEntity entity)
         {
             currentState.Stop(entity);
             CallNodesWhenExit?.Execute(entity);
-            exitDecision.Execute(entity);
+            currentState.ExitNode?.Execute(entity);
         }
 
         public void AddState(State state)

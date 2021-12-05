@@ -2,7 +2,7 @@
 
 namespace Strategies
 {
-    public class SetStateNode : BaseDecisionNode
+    public class SetStateNode : BaseDecisionNode, IInitable
     {
         [Connection(ConnectionPointType.In, "Input")]
         public BaseDecisionNode Input;
@@ -18,6 +18,12 @@ namespace Strategies
         public override void Execute(IEntity entity)
         {
             State.Execute(entity);
+        }
+
+        public void Init()
+        {
+            State.Init();
+            State.AddExitNode(Exit);
         }
     }
 }
