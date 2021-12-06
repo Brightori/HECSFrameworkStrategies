@@ -13,11 +13,6 @@ namespace Strategies
     [Documentation(Doc.Strategy, Doc.AI, "Это подвид стратегии - FSM")]
     public partial class State : Strategy, IState, IInitable, IDecisionNode
     {
-        /// <summary>
-        /// сюда кладём идентификатор для стейта, чтобы потом можно было вызвать его 
-        /// </summary>
-        [SerializeField] private StrategyStateIdentifier stateIdentifier;
-
         private Entity stateEntity;
 
         public UpdateStateNode Update { get; private set; }

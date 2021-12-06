@@ -1,4 +1,5 @@
 ﻿using HECSFramework.Core;
+using HECSFramework.Core.Helpers;
 using HECSFramework.Documentation;
 using Strategies;
 using System;
@@ -11,9 +12,9 @@ namespace Components
     {
         private List<IEntity> entitiesInCurrentState;
         public ReadonlyList<IEntity> EntitiesInCurrentState;
-        private Queue<IEntity> addQueue = new Queue<IEntity>(4);
-        private Queue<IEntity> removeQueue = new Queue<IEntity>(4);
-        private List<IEntity> onPause = new List<IEntity>(4);
+        private Queue<IEntity> addQueue = new Queue<IEntity>(256);
+        private Queue<IEntity> removeQueue = new Queue<IEntity>(256);
+        private List<IEntity> onPause = new List<IEntity>(256);
         public StrategyState State { get; private set; } = StrategyState.Run;
 
         public void Init()
@@ -40,7 +41,7 @@ namespace Components
         public void UpdateCollection()
         {
             while (addQueue.Count > 0)
-                entitiesInCurrentState.Add(addQueue.Dequeue());
+                entitiesInCurrentState.AddUniqueElement(addQueue.Dequeue());
 
             while (removeQueue.Count > 0)
                 entitiesInCurrentState.Remove(removeQueue.Dequeue());

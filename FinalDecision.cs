@@ -2,7 +2,7 @@
 
 namespace Strategies
 {
-    public abstract class FinalDecision : BaseDecisionNode
+    public abstract class FinalDecision : LogNode
     {
         [HideInInspector, IgnoreDraw]
         [Connection(ConnectionPointType.In, "Input")] 

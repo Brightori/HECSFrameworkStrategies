@@ -1,4 +1,5 @@
-﻿using HECSFramework.Core;
+﻿using Commands;
+using HECSFramework.Core;
 
 namespace Strategies
 {
@@ -6,9 +7,9 @@ namespace Strategies
     {
         public override string TitleOfNode => "Strategy Complete";
 
-        public override void Execute(IEntity entity)
+        protected override void Run(IEntity entity)
         {
-
+            entity.Command(new NeedDecisionCommand());
         }
     } 
 }
