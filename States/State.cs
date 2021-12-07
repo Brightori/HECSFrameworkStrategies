@@ -78,6 +78,7 @@ namespace Strategies
             stateData.AddToState(entity);
             StartDecision.Execute(entity);
             entity.GetOrAddComponent<StateContextComponent>(HMasks.StateContextComponent).StateHolder = stateData;
+            entity.GetStateContextComponent().StrategyState = StrategyState.Run;
         }
     }
 
