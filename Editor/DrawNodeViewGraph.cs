@@ -21,12 +21,12 @@ public class DrawNodeViewGraph : Node
 
 public class StrategyGraphView : GraphView, IDisposable
 {
-    private readonly Strategy strategy;
+    private readonly BaseStrategy strategy;
     private readonly string path;
     private List<DrawNodeViewGraph> drawNodes = new List<DrawNodeViewGraph>(16);
     private NodeSearchWindow _searchWindow;
 
-    public StrategyGraphView(Strategy strategy, string path)
+    public StrategyGraphView(BaseStrategy strategy, string path)
     {
         styleSheets.Add(Resources.Load<StyleSheet>("StrategiesGraph"));
 
@@ -198,7 +198,7 @@ public class StrategyGraphView : GraphView, IDisposable
         this.Add(tempEdge);
     }
 
-    private DrawNodeViewGraph EntryPoint(Strategy strategy)
+    private DrawNodeViewGraph EntryPoint(BaseStrategy strategy)
     {
         var node = new DrawNodeViewGraph();
         var startNode = strategy.nodes.FirstOrDefault(x => x is StartDecision);
@@ -480,7 +480,7 @@ public class StrategyGraphView : GraphView, IDisposable
             strategy.nodes = new List<BaseDecisionNode>(10);
 
         var asset = ScriptableObject.CreateInstance(type);
-        var parent = AssetDatabase.LoadAssetAtPath<Strategy>(path);
+        var parent = AssetDatabase.LoadAssetAtPath<BaseStrategy>(path);
         asset.name = type.ToString();
         AssetDatabase.AddObjectToAsset(asset, parent);
         strategy.nodes.Add(asset as BaseDecisionNode);

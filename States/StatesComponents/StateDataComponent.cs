@@ -1,6 +1,7 @@
 ﻿using HECSFramework.Core;
 using HECSFramework.Core.Helpers;
 using HECSFramework.Documentation;
+using Sirenix.OdinInspector;
 using Strategies;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace Components
         private Queue<IEntity> removeQueue = new Queue<IEntity>(256);
         private List<IEntity> onPause = new List<IEntity>(256);
         public StrategyState State { get; private set; } = StrategyState.Run;
+        [ShowInInspector, ReadOnly] public string OwnerID => Owner.ID;
 
         public void Init()
         {

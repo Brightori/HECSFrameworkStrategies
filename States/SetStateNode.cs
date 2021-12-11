@@ -17,13 +17,12 @@ namespace Strategies
 
         public override void Execute(IEntity entity)
         {
-            State.Execute(entity);
+            State.Execute(entity, Exit);
         }
 
         public void Init()
         {
             State.Init();
-            State.AddExitNode(Exit);
         }
     }
 }

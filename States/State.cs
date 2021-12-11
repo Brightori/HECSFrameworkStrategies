@@ -11,13 +11,12 @@ namespace Strategies
 {
     [CreateAssetMenu(menuName = "Strategies/State")]
     [Documentation(Doc.Strategy, Doc.AI, "Это подвид стратегии - FSM")]
-    public partial class State : Strategy, IState, IInitable, IDecisionNode
+    public partial class State : BaseStrategy, IState, IInitable, IDecisionNode
     {
         private Entity stateEntity;
 
         public UpdateStateNode Update { get; private set; }
         public StartDecision StartDecision { get; private set; }
-        public BaseDecisionNode ExitNode { get; private set; }
 
         private StateUpdateSystem stateMainSystem = new StateUpdateSystem();
         private StateDataComponent stateData = new StateDataComponent();
@@ -56,12 +55,7 @@ namespace Strategies
         {
             stateData.Pause(pause);
         }
-
-        public void AddExitNode(BaseDecisionNode exit)
-        {
-            ExitNode = exit;
-        }
-
+      
         public void Stop(IEntity entity)
         {
             stateData.RemoveFromState(entity);
@@ -79,6 +73,12 @@ namespace Strategies
             StartDecision.Execute(entity);
             entity.GetOrAddComponent<StateContextComponent>(HMasks.StateContextComponent).StateHolder = stateData;
             entity.GetStateContextComponent().StrategyState = StrategyState.Run;
+        }
+
+        public void Execute(IEntity entity, BaseDecisionNode exitNode)
+        {
+            Execute(entity);
+            entity.GetStateContextComponent().ExitStateNode = exitNode;
         }
     }
 

@@ -10,11 +10,13 @@ namespace Components
     {
         public StrategyState StrategyState = StrategyState.Run;
         public StateDataComponent StateHolder;
+        public BaseDecisionNode ExitStateNode;
 
         public void ExitFromState()
         {
             StateHolder = null;
             StrategyState = StrategyState.Stop;
+            ExitStateNode = null;
         }
 
         public void Dispose()

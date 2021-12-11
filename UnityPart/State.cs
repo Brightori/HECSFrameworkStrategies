@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Strategies
 {
-    public partial class State : Strategy
+    public partial class State : BaseStrategy
     {
 #if UNITY_EDITOR
 

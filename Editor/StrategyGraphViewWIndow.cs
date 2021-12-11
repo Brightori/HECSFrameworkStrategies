@@ -9,23 +9,23 @@ using System;
 public class StrategyGraphViewWIndow : EditorWindow
 {
     private StrategyGraphView graphView;
-    private Strategy strategy;
+    private BaseStrategy strategy;
     private string assetPath;
     private NodeSearchWindow _searchWindow;
 
     static StrategyGraphViewWIndow()
     {
-        Strategy.GetWindow += ShowWindowReact;
+        BaseStrategy.GetWindow += ShowWindowReact;
     }
 
-    private static void ShowWindowReact(Strategy strategy, string path)
+    private static void ShowWindowReact(BaseStrategy strategy, string path)
     {
         var window = GetWindow<StrategyGraphViewWIndow>();
         window.titleContent = new GUIContent(strategy.name);
         window.OnInit(strategy, path);
     }
 
-    internal void OnInit(Strategy strategy, string path)
+    internal void OnInit(BaseStrategy strategy, string path)
     {
         this.strategy = strategy;
         assetPath = path;

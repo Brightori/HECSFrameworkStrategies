@@ -7,18 +7,23 @@ namespace Strategies
 {
     public delegate void WaitCallbackEntity(IEntity entity);
 
-    public class WaitNode : InterDecision
+    public class WaitNode : InterDecision, IInitable
     {
         public override string TitleOfNode { get; } = "Wait";
 
         [SerializeField] public float WaitTime = 1;
+
+        private WaitAndCallbackCommand cacheTest;
+
 
         protected override void Run(IEntity entity)
         {
             if (entity.TryGetHecsComponent(HMasks.StateContextComponent, out StateContextComponent stateContextComponent))
                 stateContextComponent.StrategyState = StrategyState.Pause;
 
-            EntityManager.Command(new WaitAndCallbackCommand { CallBackWaiter = entity, Timer = WaitTime, CallBack = React });
+            cacheTest.CallBackWaiter = entity;
+
+            EntityManager.Command(cacheTest);
         }
 
         public void React(IEntity entity)
@@ -27,6 +32,12 @@ namespace Strategies
                 stateContextComponentAfter.StrategyState = StrategyState.Run;
 
             next.Execute(entity);
+        }
+
+        public void Init()
+        {
+            cacheTest.CallBack = React;
+            cacheTest.Timer = WaitTime;
         }
     }
 }

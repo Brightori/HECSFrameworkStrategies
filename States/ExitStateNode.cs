@@ -1,6 +1,5 @@
-﻿using HECSFramework.Core;
-using System;
-using System.Collections.Generic;
+﻿using Components;
+using HECSFramework.Core;
 
 namespace Strategies
 {
@@ -18,9 +17,12 @@ namespace Strategies
 
         protected override void Run(IEntity entity)
         {
+            var exitNode = entity.GetStateContextComponent()?.ExitStateNode;    
+
             currentState.Stop(entity);
             CallNodesWhenExit?.Execute(entity);
-            currentState.ExitNode?.Execute(entity);
+
+            exitNode?.Execute(entity);
         }
 
         public void AddState(State state)
