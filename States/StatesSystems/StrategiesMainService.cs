@@ -1,4 +1,5 @@
-﻿using HECSFramework.Core;
+﻿using Components;
+using HECSFramework.Core;
 using HECSFramework.Documentation;
 
 namespace Systems
@@ -7,11 +8,13 @@ namespace Systems
     public class StrategiesMainServiceSystem : BaseSystem
     {
         private ConcurrencyList<IEntity> stackInfos;
+        private HECSMask StateInfoComponentMask = HMasks.GetMask<StateInfoComponent>();
+
 
         public override void InitSystem()
         {
             Owner.World.GlobalUpdateSystem.FinishUpdate += React;
-            stackInfos = Owner.World.Filter(HMasks.StateInfoComponent);
+            stackInfos = Owner.World.Filter(StateInfoComponentMask);
         }
 
         private void React()
@@ -21,7 +24,7 @@ namespace Systems
             var direct = stackInfos.DirectAccess();
 
             for (int i = 0; i < count; i++)
-                direct[i].GetStateInfoComponent().StateStack.Clear();
+                direct[i].GetHECSComponent<StateInfoComponent>(ref StateInfoComponentMask).StateStack.Clear();
 #endif
         }
     }

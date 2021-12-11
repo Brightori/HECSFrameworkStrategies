@@ -14,11 +14,12 @@ namespace Strategies
         [SerializeField] public float WaitTime = 1;
 
         private WaitAndCallbackCommand cacheTest;
+        private HECSMask StateContextComponent = HMasks.GetMask<StateContextComponent>();
 
 
         protected override void Run(IEntity entity)
         {
-            if (entity.TryGetHecsComponent(HMasks.StateContextComponent, out StateContextComponent stateContextComponent))
+            if (entity.TryGetHecsComponent(StateContextComponent, out StateContextComponent stateContextComponent))
                 stateContextComponent.StrategyState = StrategyState.Pause;
 
             cacheTest.CallBackWaiter = entity;
@@ -28,7 +29,7 @@ namespace Strategies
 
         public void React(IEntity entity)
         {
-            if (entity.TryGetHecsComponent(HMasks.StateContextComponent, out StateContextComponent stateContextComponentAfter))
+            if (entity.TryGetHecsComponent(StateContextComponent, out StateContextComponent stateContextComponentAfter))
                 stateContextComponentAfter.StrategyState = StrategyState.Run;
 
             next.Execute(entity);

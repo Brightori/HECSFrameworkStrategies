@@ -20,6 +20,8 @@ namespace Strategies
 
         private StateUpdateSystem stateMainSystem = new StateUpdateSystem();
         private StateDataComponent stateData = new StateDataComponent();
+        private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
+
 
         [NonSerialized] private bool isInited; //это чтобы избежать рекурсии при ссылке инит нод друг на друга
 
@@ -59,7 +61,7 @@ namespace Strategies
         public void Stop(IEntity entity)
         {
             stateData.RemoveFromState(entity);
-            entity.RemoveHecsComponent(HMasks.StateContextComponent);
+            entity.RemoveHecsComponent(StateContextComponentMask);
         }
 
         public void UnPause(IEntity entity)
@@ -71,14 +73,15 @@ namespace Strategies
         {
             stateData.AddToState(entity);
             StartDecision.Execute(entity);
-            entity.GetOrAddComponent<StateContextComponent>(HMasks.StateContextComponent).StateHolder = stateData;
-            entity.GetStateContextComponent().StrategyState = StrategyState.Run;
+            var context = entity.GetOrAddComponent<StateContextComponent>(StateContextComponentMask);
+            context.StateHolder = stateData;
+            context.StrategyState = StrategyState.Run;
         }
 
         public void Execute(IEntity entity, BaseDecisionNode exitNode)
         {
             Execute(entity);
-            entity.GetStateContextComponent().ExitStateNode = exitNode;
+            entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).ExitStateNode = exitNode;
         }
     }
 

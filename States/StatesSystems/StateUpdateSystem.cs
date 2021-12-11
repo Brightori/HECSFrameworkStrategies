@@ -8,6 +8,7 @@ namespace Systems
     {
         private State state;
         private StateDataComponent dataComponent;
+        private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
 
         public override void InitSystem()
         {
@@ -28,7 +29,7 @@ namespace Systems
             {
                 var needed = states[i];
 
-                if (needed.GetStateContextComponent().StrategyState != StrategyState.Run) continue;
+                if (needed.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState != StrategyState.Run) continue;
                 state.Update.Execute(needed);
             }
         }
