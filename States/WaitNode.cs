@@ -12,8 +12,9 @@ namespace Strategies
         public override string TitleOfNode { get; } = "Wait";
 
         [SerializeField] public float WaitTime = 1;
+        [SerializeField] public float MaxWaitTime = 1;
 
-        private WaitAndCallbackCommand cacheTest;
+        private WaitAndCallbackCommand waitCommand;
         private HECSMask StateContextComponent = HMasks.GetMask<StateContextComponent>();
 
 
@@ -22,9 +23,10 @@ namespace Strategies
             if (entity.TryGetHecsComponent(StateContextComponent, out StateContextComponent stateContextComponent))
                 stateContextComponent.StrategyState = StrategyState.Pause;
 
-            cacheTest.CallBackWaiter = entity;
-
-            EntityManager.Command(cacheTest);
+            waitCommand.Timer = Random.Range(WaitTime, MaxWaitTime);
+            waitCommand.CallBackWaiter = entity;
+            
+            EntityManager.Command(waitCommand);
         }
 
         public void React(IEntity entity)
@@ -37,8 +39,8 @@ namespace Strategies
 
         public void Init()
         {
-            cacheTest.CallBack = React;
-            cacheTest.Timer = WaitTime;
+            waitCommand.CallBack = React;
+            waitCommand.Timer = WaitTime;
         }
     }
 }
