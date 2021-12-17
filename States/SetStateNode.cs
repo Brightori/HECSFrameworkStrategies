@@ -1,4 +1,5 @@
 ﻿using HECSFramework.Core;
+using System;
 
 namespace Strategies
 {
@@ -13,11 +14,22 @@ namespace Strategies
         [UnityEngine.SerializeField]
         public State State;
 
+        //тут мы выставляем стейт если запускаем этот стейт из стейта, чтобы мы могли вернуться в текущий стейт при выходе из того стейта что запустим
+        [NonSerialized] public (bool weHaveFromState, State FromState) ExternalState; 
+
         public override string TitleOfNode { get; } = "Set State";
 
         public override void Execute(IEntity entity)
         {
-            State.Execute(entity, Exit);
+            State.Execute(entity, this);
+        }
+
+        public void OnExit(IEntity entity)
+        {
+            if (ExternalState.weHaveFromState)
+                ExternalState.FromState.SetupState(entity);
+
+            Exit.Execute(entity);
         }
 
         public void Init()

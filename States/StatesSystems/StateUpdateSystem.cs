@@ -1,6 +1,7 @@
 ﻿using Components;
 using HECSFramework.Core;
 using Strategies;
+using System;
 
 namespace Systems
 {
@@ -29,8 +30,15 @@ namespace Systems
             {
                 var needed = states[i];
 
-                if (needed.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState != StrategyState.Run) continue;
-                state.Update.Execute(needed);
+                try
+                {
+                    if (needed.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState != StrategyState.Run) continue;
+                    state.Update.Execute(needed);
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
         }
 

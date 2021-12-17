@@ -9,9 +9,12 @@ namespace Components
     public class StateContextComponent : BaseComponent, IDisposable
     {
         public StrategyState StrategyState = StrategyState.Run;
+        
         public StateDataComponent StateHolder;
-        public BaseDecisionNode ExitStateNode;
-
+        public StateDataComponent PreviousStateHolder;
+        
+        public SetStateNode ExitStateNode;
+        
         public void ExitFromState()
         {
             StateHolder = null;

@@ -23,7 +23,7 @@ namespace Strategies
             currentState.Stop(entity);
             CallNodesWhenExit?.Execute(entity);
 
-            exitNode?.Execute(entity);
+            exitNode?.OnExit(entity);
         }
 
         public void AddState(State state)

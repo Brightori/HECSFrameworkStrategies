@@ -50,6 +50,7 @@ namespace Strategies
             StartDecision = nodes.FirstOrDefault(x => x is StartDecision) as StartDecision;
             Update = nodes.FirstOrDefault(x => x is UpdateStateNode) as UpdateStateNode;
             nodes.OfType<ExitStateNode>().ForEach(x => x.AddState(this));
+            nodes.OfType<SetStateNode>().ForEach(x => x.ExternalState = (true,this));
             nodes.OfType<IInitable>().ForEach(x => x.Init());
         }
 
@@ -57,7 +58,7 @@ namespace Strategies
         {
             stateData.Pause(pause);
         }
-      
+
         public void Stop(IEntity entity)
         {
             stateData.RemoveFromState(entity);
@@ -71,17 +72,27 @@ namespace Strategies
 
         public override void Execute(IEntity entity)
         {
-            stateData.AddToState(entity);
-            StartDecision.Execute(entity);
-            var context = entity.GetOrAddComponent<StateContextComponent>(StateContextComponentMask);
-            context.StateHolder = stateData;
-            context.StrategyState = StrategyState.Run;
+            SetupState(entity);
+            StartDecision?.Execute(entity);
         }
 
-        public void Execute(IEntity entity, BaseDecisionNode exitNode)
+        public void Execute(IEntity entity, SetStateNode exitNode)
         {
             Execute(entity);
             entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).ExitStateNode = exitNode;
+        }
+
+        public void SetupState(IEntity entity)
+        {
+            stateData.AddToState(entity);
+
+            var context = entity.GetOrAddComponent<StateContextComponent>(StateContextComponentMask);
+
+            if (context.StrategyState == StrategyState.Run)
+                context.ExitFromState();
+
+            context.StateHolder = stateData;
+            context.StrategyState = StrategyState.Run;
         }
     }
 
