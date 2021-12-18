@@ -10,7 +10,7 @@ namespace Strategies
 
         public override void Execute(IEntity entity)
         {
-            startDecision.Execute(entity);
+            startDecision?.Execute(entity);
         }
     }
 }

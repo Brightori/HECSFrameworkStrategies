@@ -24,21 +24,14 @@ namespace Systems
             dataComponent.UpdateCollection();
 
             var states = dataComponent.EntitiesInCurrentState;
-            var count =  states.Count;
+            var count = states.Count;
 
             for (int i = 0; i < count; i++)
             {
                 var needed = states[i];
 
-                try
-                {
-                    if (needed.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState != StrategyState.Run) continue;
-                    state.Update.Execute(needed);
-                }
-                catch (Exception ex)
-                {
-
-                }
+                if (needed.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState != StrategyState.Run) continue;
+                state.Update.Execute(needed);
             }
         }
 

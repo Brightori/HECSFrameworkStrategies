@@ -42,11 +42,11 @@ namespace Components
 
         public void UpdateCollection()
         {
-            while (addQueue.Count > 0)
-                entitiesInCurrentState.AddUniqueElement(addQueue.Dequeue());
-
             while (removeQueue.Count > 0)
                 entitiesInCurrentState.Remove(removeQueue.Dequeue());
+
+            while (addQueue.Count > 0)
+                entitiesInCurrentState.AddUniqueElement(addQueue.Dequeue());
         }
 
         public void Pause(IEntity entity)

@@ -1,6 +1,6 @@
 ﻿using Components;
 using HECSFramework.Core;
-using HECSFramework.Documentation;
+using System.Linq;
 
 namespace Systems
 {
@@ -13,19 +13,32 @@ namespace Systems
 
         public override void InitSystem()
         {
-            Owner.World.GlobalUpdateSystem.FinishUpdate += React;
             stackInfos = Owner.World.Filter(StateInfoComponentMask);
+
+#if UNITY_EDITOR
+            Owner.World.GlobalUpdateSystem.FinishUpdate += React;
+#endif
         }
 
+#if UNITY_EDITOR
         private void React()
         {
-#if UNITY_EDITOR
             var count = stackInfos.Count;
             var direct = stackInfos.DirectAccess();
 
             for (int i = 0; i < count; i++)
-                direct[i].GetHECSComponent<StateInfoComponent>(ref StateInfoComponentMask).StateStack.Clear();
-#endif
+            {
+                var info = direct[i].GetHECSComponent<StateInfoComponent>(ref StateInfoComponentMask);
+
+                if (info.NeedInfo)
+                {
+                    info.PreviousFrame.Clear();
+                    info.PreviousFrame = info.StateStack.ToList();
+                }
+
+                info.StateStack.Clear();
+            }
         }
+#endif
     }
 }

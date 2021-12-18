@@ -1,4 +1,5 @@
-﻿using HECSFramework.Core;
+﻿using Components;
+using HECSFramework.Core;
 using System;
 
 namespace Strategies
@@ -21,6 +22,12 @@ namespace Strategies
 
         public override void Execute(IEntity entity)
         {
+            if (entity.TryGetHecsComponent(HMasks.StateContextComponent, out StateContextComponent stateContextComponent))
+            {
+                stateContextComponent.StateHolder.RemoveFromState(entity);
+                stateContextComponent.ExitFromState();
+            }
+
             State.Execute(entity, this);
         }
 

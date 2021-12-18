@@ -11,8 +11,6 @@ namespace Components
         public StrategyState StrategyState = StrategyState.Run;
         
         public StateDataComponent StateHolder;
-        public StateDataComponent PreviousStateHolder;
-        
         public SetStateNode ExitStateNode;
         
         public void ExitFromState()
