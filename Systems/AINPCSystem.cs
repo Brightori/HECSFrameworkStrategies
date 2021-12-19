@@ -61,6 +61,17 @@ namespace Systems
             currentStrategy = aIStrategyComponent.Strategy;
             isNeedDecision = true;
         }
+
+        public override void Dispose()
+        {
+            if (Owner.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
+            {
+                if (stateContextComponent.StateHolder != null)
+                {
+                    stateContextComponent.StateHolder.RemoveFromState(Owner);
+                }
+            }
+        }
     }
 
 
