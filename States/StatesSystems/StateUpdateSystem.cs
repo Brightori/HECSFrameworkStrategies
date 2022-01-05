@@ -1,7 +1,6 @@
 ﻿using Components;
 using HECSFramework.Core;
 using Strategies;
-using System;
 
 namespace Systems
 {

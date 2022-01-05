@@ -1,6 +1,5 @@
 using Components;
 using HECSFramework.Core;
-using HECSFramework.Documentation;
 using Sirenix.Utilities;
 using System;
 using System.Linq;

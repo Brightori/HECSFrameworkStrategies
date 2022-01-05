@@ -3,7 +3,6 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Strategies;
-using System;
 
 [InitializeOnLoad]
 public class StrategyGraphViewWIndow : EditorWindow

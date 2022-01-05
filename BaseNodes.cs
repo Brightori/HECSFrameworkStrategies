@@ -1,5 +1,4 @@
-﻿using Components;
-using HECSFramework.Core;
+﻿using HECSFramework.Core;
 using System;
 using UnityEngine;
 

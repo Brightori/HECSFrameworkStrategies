@@ -1,6 +1,4 @@
 ﻿using HECSFramework.Core;
-using HECSFramework.Documentation;
-using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using Strategies;
 using System;
