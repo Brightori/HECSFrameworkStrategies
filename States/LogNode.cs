@@ -12,7 +12,9 @@ namespace Strategies
         {
 #if UNITY_EDITOR
             var info = entity.GetOrAddComponent<StateInfoComponent>(stateInfoMask);
-            info.StateStack.Push(this);
+
+            if (info.NeedInfo)
+                info.StateStack.Add(this);
 #endif
             Run(entity);
         }

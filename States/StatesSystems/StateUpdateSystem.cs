@@ -4,6 +4,7 @@ using Strategies;
 
 namespace Systems
 {
+    [Documentation(Doc.AI, Doc.Strategy, Doc.State, Doc.HECS, "система которая отвечает за апдейт состояния")]
     public class StateUpdateSystem : BaseSystem, IUpdatable, IInitable<State>
     {
         private State state;
@@ -29,7 +30,16 @@ namespace Systems
             {
                 var needed = states[i];
 
-                if (needed.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState != StrategyState.Run) continue;
+                if (needed.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
+                {
+                    if (stateContextComponent.StrategyState != StrategyState.Run) continue;
+                }
+                else
+                {
+                    HECSDebug.Log("нет стейт компонента у " + needed.ID + " " + needed.GUID);
+                    continue;
+                }
+                    
                 state.Update.Execute(needed);
             }
         }

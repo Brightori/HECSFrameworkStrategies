@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Systems
 {
-    [Documentation(Doc.GameLogic, Doc.Strategy, "Эта система живет  мире и добавляется через парт часть гейм контроллера, она отвечает за поддержку глобальной логики для стратегий")]
+    [Documentation(Doc.GameLogic, Doc.AI, Doc.Strategy, "Эта система живет  мире и добавляется через парт часть гейм контроллера, она отвечает за поддержку глобальной логики для стратегий")]
     public class StrategiesMainServiceSystem : BaseSystem
     {
         private ConcurrencyList<IEntity> stackInfos;
@@ -32,11 +32,18 @@ namespace Systems
 
                 if (info.NeedInfo)
                 {
-                    info.PreviousFrame.Clear();
-                    info.PreviousFrame = info.StateStack.ToList();
-                }
+                    if (info.NeedClean)
+                    {
+                        info.StateStack.Clear();
+                        info.CurrentCycle = 0;
+                        info.NeedClean = false;
+                    }
 
-                info.StateStack.Clear();
+                    if (info.CurrentCycle > info.MaxCycles)
+                        info.NeedInfo = false;
+
+                    info.CurrentCycle++;
+                }
             }
         }
 #endif
