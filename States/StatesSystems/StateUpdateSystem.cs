@@ -29,8 +29,15 @@ namespace Systems
             {
                 var needed = states[i];
 
-                if (needed.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState != StrategyState.Run) continue;
-                state.Update.Execute(needed);
+                if (needed.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
+                {
+                    if (stateContextComponent.StrategyState != StrategyState.Run) continue;
+                    state.Update.Execute(needed);
+                }
+                else
+                {
+                    HECSDebug.LogError("нет стейт компонента у " + needed.ID + " " + state.name);
+                }
             }
         }
 
