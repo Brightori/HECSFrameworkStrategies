@@ -33,14 +33,12 @@ namespace Systems
                 if (needed.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
                 {
                     if (stateContextComponent.StrategyState != StrategyState.Run) continue;
+                    state.Update.Execute(needed);
                 }
                 else
                 {
                     HECSDebug.Log("нет стейт компонента у " + needed.ID + " " + needed.GUID);
-                    continue;
                 }
-                    
-                state.Update.Execute(needed);
             }
         }
 
