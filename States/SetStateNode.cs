@@ -22,12 +22,6 @@ namespace Strategies
 
         public override void Execute(IEntity entity)
         {
-            if (entity.TryGetHecsComponent(HMasks.StateContextComponent, out StateContextComponent stateContextComponent))
-            {
-                stateContextComponent.StateHolder.RemoveFromState(entity);
-                stateContextComponent.ExitFromState();
-            }
-
             State.Execute(entity, this);
         }
 

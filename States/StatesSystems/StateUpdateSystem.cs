@@ -4,47 +4,34 @@ using Strategies;
 
 namespace Systems
 {
-    [Documentation(Doc.AI, Doc.Strategy, Doc.State, Doc.HECS, "система которая отвечает за апдейт состояния")]
-    public class StateUpdateSystem : BaseSystem, IUpdatable, IInitable<State>
+    [Documentation(Doc.AI, Doc.Strategy, Doc.State, Doc.HECS, "это глобальная система которая отвечает за апдейт состояний")]
+    public class StateUpdateSystem : BaseSystem, IUpdatable 
     {
-        private State state;
-        private StateDataComponent dataComponent;
         private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
+        private ConcurrencyList<IEntity> statesEntities;
+        private HECSMask ContextComponent = HMasks.GetMask<StateContextComponent>();
+        private IEntity[] directAccess;
 
         public override void InitSystem()
         {
-            Owner.TryGetHecsComponent(out dataComponent);
+            statesEntities = Owner.World.Filter(ContextComponent);
+            directAccess = statesEntities.DirectAccess();
         }
 
         public void UpdateLocal()
         {
-            if (dataComponent.State != StrategyState.Run)
-                return;
-
-            dataComponent.UpdateCollection();
-
-            var states = dataComponent.EntitiesInCurrentState;
-            var count = states.Count;
+            var count = statesEntities.Count;
 
             for (int i = 0; i < count; i++)
             {
-                var needed = states[i];
+                var needed = directAccess[i];
 
                 if (needed.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
                 {
                     if (stateContextComponent.StrategyState != StrategyState.Run) continue;
-                    state.Update.Execute(needed);
-                }
-                else
-                {
-                    HECSDebug.Log("нет стейт компонента у " + needed.ID + " " + needed.GUID);
+                    stateContextComponent.CurrentState.Update.Execute(needed);
                 }
             }
-        }
-
-        public void Init(State state)
-        {
-            this.state = state;
         }
     }
 }

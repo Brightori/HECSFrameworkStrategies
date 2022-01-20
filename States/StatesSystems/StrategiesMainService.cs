@@ -1,6 +1,5 @@
 ﻿using Components;
 using HECSFramework.Core;
-using System.Linq;
 
 namespace Systems
 {

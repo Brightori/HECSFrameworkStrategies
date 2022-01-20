@@ -34,11 +34,7 @@ namespace Systems
         public void CommandReact(IsDeadCommand command)
         {
             if (Owner.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
-            {
                 stateContextComponent.StrategyState = StrategyState.Stop;
-                stateContextComponent.StateHolder.RemoveFromState(Owner);
-                Owner.RemoveHecsComponent(stateContextComponent);
-            }
 
             isStoped = true;
         }
@@ -65,12 +61,7 @@ namespace Systems
         public override void Dispose()
         {
             if (Owner.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
-            {
-                if (stateContextComponent.StateHolder != null)
-                {
-                    stateContextComponent.StateHolder.RemoveFromState(Owner);
-                }
-            }
+                stateContextComponent.Dispose();
         }
     }
 

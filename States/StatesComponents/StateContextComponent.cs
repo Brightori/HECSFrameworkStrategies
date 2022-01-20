@@ -4,24 +4,23 @@ using System;
 
 namespace Components
 {
-    [Serializable, Documentation(Doc.Tag, Doc.AI, Doc.State, "Это компонент в котором мы храним контекст относительно стейта")]
+    [Serializable, Documentation(Doc.Tag, Doc.AI, Doc.State, "Это компонент всю ключевую информацию про состояние персонажа")]
     public class StateContextComponent : BaseComponent, IDisposable
     {
-        public StrategyState StrategyState = StrategyState.Run;
+        public StrategyState StrategyState = StrategyState.Stop;
+        public State CurrentState;
         
-        public StateDataComponent StateHolder;
-        public SetStateNode ExitStateNode;
-        
+        public SetStateNode ExitStateNode; //выход из текущего стейта, сеттим на входе в стейт
+
         public void ExitFromState()
         {
-            StateHolder = null;
             StrategyState = StrategyState.Stop;
-            ExitStateNode = null;
         }
 
         public void Dispose()
         {
             ExitFromState();
+            CurrentState = null;
         }
     }
 }

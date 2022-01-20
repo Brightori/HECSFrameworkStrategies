@@ -1,9 +1,8 @@
+using System;
+using System.Linq;
 using Components;
 using HECSFramework.Core;
 using Sirenix.Utilities;
-using System;
-using System.Linq;
-using Systems;
 using UnityEngine;
 
 namespace Strategies
@@ -12,15 +11,9 @@ namespace Strategies
     [Documentation(Doc.Strategy, Doc.AI, "Это подвид стратегии - FSM")]
     public partial class State : BaseStrategy, IState, IInitable, IDecisionNode
     {
-        private Entity stateEntity;
-
         public UpdateStateNode Update { get; private set; }
         public StartDecision StartDecision { get; private set; }
-
-        private StateUpdateSystem stateMainSystem = new StateUpdateSystem();
-        private StateDataComponent stateData = new StateDataComponent();
         private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
-
 
         [NonSerialized] private bool isInited; //это чтобы избежать рекурсии при ссылке инит нод друг на друга
 
@@ -29,15 +22,6 @@ namespace Strategies
             if (isInited) return;
 
             InitNodes();
-            stateMainSystem = new StateUpdateSystem();
-            stateData = new StateDataComponent();
-
-            stateEntity = new Entity("State " + name);
-            stateEntity.AddHecsComponent(stateData);
-            stateEntity.AddHecsSystem(stateMainSystem);
-            stateMainSystem.Init(this);
-            stateEntity.GenerateGuid();
-            stateEntity.Init();
         }
 
         private void InitNodes()
@@ -49,48 +33,41 @@ namespace Strategies
             StartDecision = nodes.FirstOrDefault(x => x is StartDecision) as StartDecision;
             Update = nodes.FirstOrDefault(x => x is UpdateStateNode) as UpdateStateNode;
             nodes.OfType<ExitStateNode>().ForEach(x => x.AddState(this));
-            nodes.OfType<SetStateNode>().ForEach(x => x.ExternalState = (true,this));
+            nodes.OfType<SetStateNode>().ForEach(x => x.ExternalState = (true, this));
             nodes.OfType<IInitable>().ForEach(x => x.Init());
         }
 
         public void Pause(IEntity pause)
         {
-            stateData.Pause(pause);
+            pause.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Pause;
         }
 
         public void Stop(IEntity entity)
         {
-            stateData.RemoveFromState(entity);
-            entity.RemoveHecsComponent(StateContextComponentMask);
+            entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Stop;
         }
 
         public void UnPause(IEntity entity)
         {
-            stateData.UnPause(entity);
+            entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Run;
         }
 
         public override void Execute(IEntity entity)
         {
-            SetupState(entity);
             StartDecision?.Execute(entity);
         }
 
         public void Execute(IEntity entity, SetStateNode exitNode)
         {
+            SetupState(entity);
             Execute(entity);
             entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).ExitStateNode = exitNode;
         }
 
         public void SetupState(IEntity entity)
         {
-            stateData.AddToState(entity);
-
             var context = entity.GetOrAddComponent<StateContextComponent>(StateContextComponentMask);
-
-            if (context.StrategyState == StrategyState.Run)
-                context.ExitFromState();
-
-            context.StateHolder = stateData;
+            context.CurrentState = this;
             context.StrategyState = StrategyState.Run;
         }
     }
