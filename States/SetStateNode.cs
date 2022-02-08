@@ -4,7 +4,7 @@ using System;
 
 namespace Strategies
 {
-    public class SetStateNode : BaseDecisionNode, IInitable
+    public class SetStateNode : LogNode, IInitable
     {
         [Connection(ConnectionPointType.In, "Input")]
         public BaseDecisionNode Input;
@@ -22,7 +22,7 @@ namespace Strategies
 
         public override void Execute(IEntity entity)
         {
-            State.Execute(entity, this);
+           Run(entity);
         }
 
         public void OnExit(IEntity entity)
@@ -36,6 +36,11 @@ namespace Strategies
         public void Init()
         {
             State.Init();
+        }
+
+        protected override void Run(IEntity entity)
+        {
+            State.Execute(entity, this);
         }
     }
 }

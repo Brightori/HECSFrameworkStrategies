@@ -60,9 +60,10 @@ namespace Strategies
         public void Execute(IEntity entity, SetStateNode exitNode)
         {
             SetupState(entity);
-            Execute(entity);
             entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).ExitStateNode = exitNode;
+            Execute(entity);
         }
+
 
         public void SetupState(IEntity entity)
         {

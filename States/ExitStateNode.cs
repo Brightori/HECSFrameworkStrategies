@@ -1,4 +1,5 @@
-﻿using Components;
+﻿using Commands;
+using Components;
 using HECSFramework.Core;
 
 namespace Strategies
@@ -18,11 +19,15 @@ namespace Strategies
 
         protected override void Run(IEntity entity)
         {
-            var exitNode = entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask)?.ExitStateNode;
-
             currentState.Stop(entity);
             CallNodesWhenExit?.Execute(entity);
 
+            EntityManager.Command(new WaitAndCallbackCommand { CallBack = React, CallBackWaiter = entity, Timer = 0.01f });
+        }
+
+        private void React(IEntity entity)
+        {
+            var exitNode = entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask)?.ExitStateNode;
             exitNode?.OnExit(entity);
         }
 
