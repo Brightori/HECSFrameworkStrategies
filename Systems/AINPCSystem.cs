@@ -43,6 +43,7 @@ namespace Systems
         public void CommandReact(ChangeStrategyCommand command)
         {
             currentStrategy = command.Strategy;
+            command.Strategy.Init();
             Owner.GetStateContextComponent().StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }

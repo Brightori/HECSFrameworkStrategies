@@ -16,6 +16,8 @@ namespace Strategies
         private int indexCash = -1;
         public List<BaseDecisionNode> nodes = new List<BaseDecisionNode>(16);
         private BaseDecisionNode start;
+        private bool isInited;
+
 
         public int StrategyIndex
         {
@@ -63,6 +65,9 @@ namespace Strategies
 
         public virtual void Init()
         {
+            //if (isInited) return;
+            //isInited = true;
+
             foreach (var node in nodes)
             {
                 if (node is IInitable initable)

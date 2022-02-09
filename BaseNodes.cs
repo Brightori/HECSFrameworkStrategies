@@ -1,6 +1,7 @@
 ﻿using HECSFramework.Core;
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Strategies
 {
@@ -15,6 +16,8 @@ namespace Strategies
     public abstract class InterDecision : LogNode
     {
         [Connection(ConnectionPointType.In, "Input")] [IgnoreDraw] public BaseDecisionNode parent;
+        
+        [FormerlySerializedAs("next")]
         [Connection(ConnectionPointType.Link, "Next")] [IgnoreDraw] public BaseDecisionNode Next;
     }
 
