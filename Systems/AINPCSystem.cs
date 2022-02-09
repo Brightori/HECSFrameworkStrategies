@@ -20,6 +20,7 @@ namespace Systems
 
         public void CommandReact(NeedDecisionCommand command)
         {
+            Owner.GetStateContextComponent().StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
@@ -42,6 +43,7 @@ namespace Systems
         public void CommandReact(ChangeStrategyCommand command)
         {
             currentStrategy = command.Strategy;
+            Owner.GetStateContextComponent().StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
@@ -55,6 +57,7 @@ namespace Systems
         public void CommandReact(SetDefaultStrategyCommand command)
         {
             currentStrategy = aIStrategyComponent.Strategy;
+            Owner.GetStateContextComponent().StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
@@ -64,7 +67,6 @@ namespace Systems
                 stateContextComponent.Dispose();
         }
     }
-
 
     public interface IAINPCSystem : ISystem, IUpdatable,
         IReactCommand<NeedDecisionCommand>,

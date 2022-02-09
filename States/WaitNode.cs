@@ -34,7 +34,7 @@ namespace Strategies
             if (entity.TryGetHecsComponent(StateContextComponent, out StateContextComponent stateContextComponentAfter))
                 stateContextComponentAfter.StrategyState = StrategyState.Run;
 
-            next.Execute(entity);
+            Next.Execute(entity);
         }
 
         public void Init()

@@ -15,7 +15,7 @@ namespace Strategies
     public abstract class InterDecision : LogNode
     {
         [Connection(ConnectionPointType.In, "Input")] [IgnoreDraw] public BaseDecisionNode parent;
-        [Connection(ConnectionPointType.Link, "Next")] [IgnoreDraw] public BaseDecisionNode next;
+        [Connection(ConnectionPointType.Link, "Next")] [IgnoreDraw] public BaseDecisionNode Next;
     }
 
     public abstract class DilemmaDecision : LogNode
