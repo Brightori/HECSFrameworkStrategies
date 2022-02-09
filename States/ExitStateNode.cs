@@ -22,13 +22,15 @@ namespace Strategies
             currentState.Stop(entity);
             CallNodesWhenExit?.Execute(entity);
 
-            EntityManager.Command(new WaitAndCallbackCommand { CallBack = React, CallBackWaiter = entity, Timer = 0.01f });
+            var exitNode = entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask)?.ExitStateNode;
+            exitNode?.OnExit(entity);
+
+            //EntityManager.Command(new WaitAndCallbackCommand { CallBack = React, CallBackWaiter = entity, Timer = 0.01f });
         }
 
         private void React(IEntity entity)
         {
-            var exitNode = entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask)?.ExitStateNode;
-            exitNode?.OnExit(entity);
+          
         }
 
         public void AddState(State state)

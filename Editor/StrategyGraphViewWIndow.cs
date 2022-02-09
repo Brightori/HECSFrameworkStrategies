@@ -19,7 +19,7 @@ public class StrategyGraphViewWIndow : EditorWindow
 
     private static void ShowWindowReact(BaseStrategy strategy, string path)
     {
-        var window = GetWindow<StrategyGraphViewWIndow>();
+        var window = CreateWindow<StrategyGraphViewWIndow>();
         window.titleContent = new GUIContent(strategy.name);
         window.OnInit(strategy, path);
     }
