@@ -20,7 +20,7 @@ namespace Systems
 
         public void CommandReact(NeedDecisionCommand command)
         {
-            Owner.GetStateContextComponent().StrategyState = StrategyState.Stop;
+            Owner.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
@@ -44,7 +44,7 @@ namespace Systems
         {
             currentStrategy = command.Strategy;
             command.Strategy.Init();
-            Owner.GetStateContextComponent().StrategyState = StrategyState.Stop;
+            Owner.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
@@ -58,7 +58,7 @@ namespace Systems
         public void CommandReact(SetDefaultStrategyCommand command)
         {
             currentStrategy = aIStrategyComponent.Strategy;
-            Owner.GetStateContextComponent().StrategyState = StrategyState.Stop;
+            Owner.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
