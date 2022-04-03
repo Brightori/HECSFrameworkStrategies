@@ -15,7 +15,7 @@ namespace Systems
         public override void InitSystem()
         {
             statesEntities = Owner.World.Filter(ContextComponent);
-            directAccess = statesEntities.DirectAccess();
+            directAccess = statesEntities.Data;
         }
 
         public void UpdateLocal()

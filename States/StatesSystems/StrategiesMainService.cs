@@ -23,7 +23,7 @@ namespace Systems
         private void React()
         {
             var count = stackInfos.Count;
-            var direct = stackInfos.DirectAccess();
+            var direct = stackInfos.Data;
 
             for (int i = 0; i < count; i++)
             {
