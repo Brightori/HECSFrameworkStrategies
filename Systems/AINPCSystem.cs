@@ -29,6 +29,10 @@ namespace Systems
             Owner.TryGetHecsComponent(out aIStrategyComponent);
             currentStrategy = aIStrategyComponent.Strategy;
             currentStrategy?.Init();
+
+            if (currentStrategy == null)
+                isStoped = true;
+
             isNeedDecision = true;
         }
 
