@@ -48,7 +48,7 @@ namespace Systems
         {
             currentStrategy = command.Strategy;
             command.Strategy.Init();
-            Owner.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Stop;
+            Owner.GetOrAddComponent<StateContextComponent>(StateContextComponentMask).StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
@@ -62,7 +62,7 @@ namespace Systems
         public void CommandReact(SetDefaultStrategyCommand command)
         {
             currentStrategy = aIStrategyComponent.Strategy;
-            Owner.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Stop;
+            Owner.GetOrAddComponent<StateContextComponent>(StateContextComponentMask).StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
@@ -71,13 +71,28 @@ namespace Systems
             if (Owner.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
                 stateContextComponent.Dispose();
         }
+
+        public void CommandReact(ForceStartAICommand command)
+        {
+            isStoped = false;
+            isNeedDecision = true;
+        }
+
+        public void CommandReact(ForceStopAICommand command)
+        {
+            Owner.GetOrAddComponent<StateContextComponent>(StateContextComponentMask).StrategyState = StrategyState.Stop;
+            isNeedDecision = false;
+            isStoped = true;
+        }
     }
 
     public interface IAINPCSystem : ISystem, IUpdatable,
         IReactCommand<NeedDecisionCommand>,
         IReactCommand<IsDeadCommand>,
         IReactCommand<SetDefaultStrategyCommand>,
-        IReactCommand<ChangeStrategyCommand>
+        IReactCommand<ChangeStrategyCommand>,
+        IReactCommand<ForceStopAICommand>,
+        IReactCommand<ForceStartAICommand>
     {
     }
 }
