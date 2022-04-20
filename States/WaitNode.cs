@@ -14,7 +14,7 @@ namespace Strategies
         [SerializeField] public float WaitTime = 1;
         [SerializeField] public float MaxWaitTime = 1;
 
-        private WaitAndCallbackCommand waitCommand;
+        private WaitAndEntityCallbackCommand waitCommand;
         private HECSMask StateContextComponent = HMasks.GetMask<StateContextComponent>();
 
 
