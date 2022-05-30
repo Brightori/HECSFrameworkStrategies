@@ -9,6 +9,9 @@ namespace Strategies
         [Connection(ConnectionPointType.In, "Input")]
         public BaseDecisionNode Input;
 
+        [Connection(ConnectionPointType.In, "Execute on Start")]
+        public BaseDecisionNode OnStartStateNodes;
+
         [Connection(ConnectionPointType.Out, "Exit")]
         public BaseDecisionNode Exit;
 
