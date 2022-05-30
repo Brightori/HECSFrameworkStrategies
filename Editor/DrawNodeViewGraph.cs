@@ -69,8 +69,15 @@ public class StrategyGraphView : GraphView, IDisposable
         }
     }
 
+    /// <summary>
+    /// here we react on drag and drop connections and set values to nodes
+    /// </summary>
+    /// <param name="graphViewChange"></param>
+    /// <returns></returns>
     private GraphViewChange Changes(GraphViewChange graphViewChange)
     {
+        
+        //moving and update coords of node
         if (graphViewChange.movedElements != null)
         {
             foreach (var moved in graphViewChange.movedElements)
@@ -80,6 +87,7 @@ public class StrategyGraphView : GraphView, IDisposable
             }
         }
 
+        //create connection
         if (graphViewChange.edgesToCreate != null)
         {
             foreach (var e in graphViewChange.edgesToCreate)
@@ -88,9 +96,11 @@ public class StrategyGraphView : GraphView, IDisposable
                 var output = NeededNode(e.output, Direction.Output);
 
                 ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
+                ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
             }
         }
 
+        //clean connection
         if (graphViewChange.elementsToRemove != null)
         {
             foreach (var remove in graphViewChange.elementsToRemove)
@@ -102,6 +112,11 @@ public class StrategyGraphView : GraphView, IDisposable
                         foreach (var portInfo in dn.ConnectedPorts.ToArray())
                         {
                             if (portInfo.Key == edge.output && portInfo.Value.direction == Direction.Output)
+                            {
+                                ((FieldInfo)portInfo.Value.member)?.SetValue(dn.InnerNode, null);
+                            }
+
+                            if (portInfo.Key == edge.input && portInfo.Value.direction == Direction.Input)
                             {
                                 ((FieldInfo)portInfo.Value.member)?.SetValue(dn.InnerNode, null);
                             }
@@ -145,7 +160,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
                 if (portinfo.Value.member is FieldInfo field)
                 {
-                    var data = field.GetValue(dn.InnerNode);
+                    var data = field.GetValue(dn.InnerNode) as BaseDecisionNode;
 
                     if (data != null)
                     {
@@ -155,23 +170,17 @@ public class StrategyGraphView : GraphView, IDisposable
                             {
                                 if ((BaseDecisionNode)data == dnOverall.InnerNode)
                                 {
-                                    var port = dnOverall.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input);
-                                    LinkNodesTogether(portinfo.Key, port.Key);
-                                }
-                            }
-                        }
+                                    //var port = dnOverall.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input);
 
-                        if (data is List<BaseDecisionNode> list)
-                        {
-                         
-                            foreach (var drawNodeExit in list)
-                            {
-                                foreach (var dnOverall in drawNodes)
-                                {
-                                    if (drawNodeExit == dnOverall.InnerNode)
+                                    foreach (var connection in dnOverall.ConnectedPorts)
                                     {
-                                        var port = dnOverall.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input);
-                                        LinkNodesTogether(portinfo.Key, port.Key);
+                                        if (connection.Value.direction == Direction.Input)
+                                        {
+                                            var connectedNode = (connection.Value.member as FieldInfo).GetValue(dnOverall.InnerNode) as BaseDecisionNode;
+
+                                            if (connectedNode == dn.InnerNode)
+                                                LinkNodesTogether(portinfo.Key, connection.Key);
+                                        }
                                     }
                                 }
                             }
@@ -434,12 +443,12 @@ public class StrategyGraphView : GraphView, IDisposable
                     switch (connection.ConnectionPointType)
                     {
                         case ConnectionPointType.In:
-                            var port = GeneratePort(drawNode, Direction.Input, connection.NameOfField, Port.Capacity.Multi);
+                            var port = GeneratePort(drawNode, Direction.Input, connection.NameOfField, Port.Capacity.Single);
                             drawNode.ConnectedPorts.Add(port, (m, Direction.Input));
                             break;
+
                         case ConnectionPointType.Out:
-                        case ConnectionPointType.Link:
-                            var port2 = GeneratePort(drawNode, Direction.Output, connection.NameOfField);
+                            var port2 = GeneratePort(drawNode, Direction.Output, connection.NameOfField, Port.Capacity.Single);
                             drawNode.ConnectedPorts.Add(port2, (m, Direction.Output));
                             break;
                     }

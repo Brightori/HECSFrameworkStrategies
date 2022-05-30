@@ -8,16 +8,14 @@ namespace Strategies
     public abstract class BaseDecisionNode : ScriptableObject, IDecisionNode
     {
         public abstract string TitleOfNode { get; }
-        public Vector2 coords;
+        [IgnoreDraw] public Vector2 coords;
 
         public abstract void Execute(IEntity entity);
     }
 
     public abstract class InterDecision : LogNode
     {
-        [Connection(ConnectionPointType.Out, "Input")] [IgnoreDraw] public BaseDecisionNode parent;
-        
-        [FormerlySerializedAs("next")]
+        [Connection(ConnectionPointType.In, "Input")] [IgnoreDraw] public BaseDecisionNode parent;
         [Connection(ConnectionPointType.Out, "Next")] [IgnoreDraw] public BaseDecisionNode Next;
     }
 
