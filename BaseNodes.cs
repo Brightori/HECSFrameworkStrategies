@@ -15,17 +15,17 @@ namespace Strategies
 
     public abstract class InterDecision : LogNode
     {
-        [Connection(ConnectionPointType.In, "Input")] [IgnoreDraw] public BaseDecisionNode parent;
+        [Connection(ConnectionPointType.Out, "Input")] [IgnoreDraw] public BaseDecisionNode parent;
         
         [FormerlySerializedAs("next")]
-        [Connection(ConnectionPointType.Link, "Next")] [IgnoreDraw] public BaseDecisionNode Next;
+        [Connection(ConnectionPointType.Out, "Next")] [IgnoreDraw] public BaseDecisionNode Next;
     }
 
     public abstract class DilemmaDecision : LogNode
     {
         [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode Input;
-        [Connection(ConnectionPointType.Link, "Positive")] public BaseDecisionNode Positive;
-        [Connection(ConnectionPointType.Link, "Negative")] public BaseDecisionNode Negative;
+        [Connection(ConnectionPointType.Out, "Positive")] public BaseDecisionNode Positive;
+        [Connection(ConnectionPointType.Out, "Negative")] public BaseDecisionNode Negative;
     }
 
     public interface IDecisionNode
@@ -46,5 +46,5 @@ namespace Strategies
         }
     }
 
-    public enum ConnectionPointType { In, Out, Link, InSingle }
+    public enum ConnectionPointType { In, Out }
 }
