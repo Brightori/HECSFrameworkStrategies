@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using HECSFramework.Core.Helpers;
+using Strategies;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using HECSFramework.Core.Helpers;
-using Strategies;
 
 public class DrawNodeViewGraph : Node
 {
@@ -16,6 +17,24 @@ public class DrawNodeViewGraph : Node
     public string Name;
     public BaseDecisionNode InnerNode;
     public Dictionary<Port, (MemberInfo member, Direction direction)> ConnectedPorts = new Dictionary<Port, (MemberInfo member, Direction direction)>();
+
+    public void ClearConnections()
+    {
+        foreach (var connection in ConnectedPorts)
+        {
+            if (connection.Value.member is FieldInfo fieldInfo)
+            {
+                fieldInfo.SetValue(InnerNode, null);
+            }
+        }
+    }
+}
+
+public struct CopyNode
+{
+    public Type Type;
+    public Vector3 Coord;
+    public string Data;
 }
 
 public class StrategyGraphView : GraphView, IDisposable
@@ -24,6 +43,7 @@ public class StrategyGraphView : GraphView, IDisposable
     private readonly string path;
     private List<DrawNodeViewGraph> drawNodes = new List<DrawNodeViewGraph>(16);
     private NodeSearchWindow _searchWindow;
+    public static List<CopyNode> copyNodes = new List<CopyNode>();
 
     public StrategyGraphView(BaseStrategy strategy, string path)
     {
@@ -55,7 +75,36 @@ public class StrategyGraphView : GraphView, IDisposable
         ConnectStrategyNodes();
         graphViewChanged += Changes;
 
+        DelayFrameAll();
+    }
+
+    /// this because graph dont calculate data properly yet, and we need w8 for something
+    private async void DelayFrameAll()
+    {
+        await Task.Delay(80);
         FrameAll();
+    }
+
+    protected void DuplicateNode()
+    {
+        var newSelection = new List<ISelectable>();
+
+        foreach (var node in selection)
+        {
+            if (node is DrawNodeViewGraph drawNode)
+            {
+                var toJSON = JsonUtility.ToJson(drawNode.InnerNode);
+                var newNode = AddNodeToStrategyGraph(drawNode.GetPosition().center + new Vector2(2, 0), drawNode.InnerNode.GetType());
+                JsonUtility.FromJsonOverwrite(toJSON, newNode.node);
+                newSelection.Add(newNode.drawNode);
+                newNode.drawNode.ClearConnections();
+            }
+        }
+
+        ClearSelection();
+
+        foreach (var n in newSelection)
+            AddToSelection(n);
     }
 
     public override void AddToSelection(ISelectable selectable)
@@ -69,6 +118,49 @@ public class StrategyGraphView : GraphView, IDisposable
         }
     }
 
+    public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+    {
+        base.BuildContextualMenu(evt);
+        evt.menu.InsertAction(0, "Duplicate", (x) => DuplicateNode());
+        evt.menu.InsertAction(1, "Copy", (x) => CopyNodes());
+        evt.menu.InsertAction(2, "Paste Nodes", (x) => PasteNode());
+    }
+
+    private void CopyNodes()
+    {
+        copyNodes.Clear();
+
+        foreach (var n in selection)
+        {
+            if (n is DrawNodeViewGraph draw)
+            {
+                copyNodes.Add(new CopyNode
+                {
+                    Coord = draw.InnerNode.coords,
+                    Data = JsonUtility.ToJson(draw.InnerNode),
+                    Type = draw.InnerNode.GetType(),
+                });
+            }
+        }
+    }
+
+    private void PasteNode()
+    {
+        ClearSelection();
+        var toSelection = new List<ISelectable>();
+
+        foreach (var n in copyNodes)
+        {
+            var newNode = AddNodeToStrategyGraph(n.Coord, n.Type);
+            JsonUtility.FromJsonOverwrite(n.Data, newNode.node);
+            toSelection.Add(newNode.drawNode);
+            newNode.drawNode.ClearConnections();
+        }
+
+        foreach (var s in toSelection)
+            AddToSelection(s);
+    }
+
     /// <summary>
     /// here we react on drag and drop connections and set values to nodes
     /// </summary>
@@ -76,7 +168,7 @@ public class StrategyGraphView : GraphView, IDisposable
     /// <returns></returns>
     private GraphViewChange Changes(GraphViewChange graphViewChange)
     {
-        
+
         //moving and update coords of node
         if (graphViewChange.movedElements != null)
         {
@@ -476,10 +568,11 @@ public class StrategyGraphView : GraphView, IDisposable
             SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), _searchWindow);
     }
 
-    public void AddNodeToStrategyGraph(Vector2 position, Type type)
+    public (BaseDecisionNode node, DrawNodeViewGraph drawNode) AddNodeToStrategyGraph(Vector2 position, Type type)
     {
         var newNode = OnClickAddNode(position, type);
-        AddNodeToDecision(newNode);
+        var drawNode = AddNodeToDecision(newNode);
+        return (newNode, drawNode);
     }
 
     private BaseDecisionNode OnClickAddNode(Vector2 mousePosition, Type type)

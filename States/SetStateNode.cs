@@ -43,6 +43,7 @@ namespace Strategies
 
         protected override void Run(IEntity entity)
         {
+            OnStartStateNodes?.Execute(entity);
             State.Execute(entity, this);
         }
     }
