@@ -15,7 +15,9 @@ namespace Systems
         private bool isNeedDecision;
         private bool isStoped;
 
-        [Required] private AIStrategyComponent aIStrategyComponent;
+        [Required] 
+        public AIStrategyComponent aIStrategyComponent;
+        
         private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
 
         public void CommandReact(NeedDecisionCommand command)
@@ -26,7 +28,7 @@ namespace Systems
 
         public override void InitSystem()
         {
-            Owner.TryGetHecsComponent(out aIStrategyComponent);
+            Owner.GetOrAddComponent<StateContextComponent>();
             currentStrategy = aIStrategyComponent.Strategy;
             currentStrategy?.Init();
 

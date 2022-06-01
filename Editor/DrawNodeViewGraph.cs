@@ -121,9 +121,9 @@ public class StrategyGraphView : GraphView, IDisposable
     public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
     {
         base.BuildContextualMenu(evt);
-        evt.menu.InsertAction(0, "Duplicate", (x) => DuplicateNode());
-        evt.menu.InsertAction(1, "Copy", (x) => CopyNodes());
-        evt.menu.InsertAction(2, "Paste Nodes", (x) => PasteNode());
+        evt.menu.InsertAction(1, "Duplicate", (x) => DuplicateNode());
+        evt.menu.InsertAction(2, "Copy", (x) => CopyNodes());
+        evt.menu.InsertAction(3, "Paste Nodes", (x) => PasteNode());
     }
 
     private void CopyNodes()
