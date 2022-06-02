@@ -4,7 +4,7 @@ using HECSFramework.Core;
 
 namespace Strategies
 {
-    public class ExitStateNode : LogNode
+    public class ExitStateNode : LogNode, IAddStateNode
     {
         public override string TitleOfNode { get; } = "Exit State";
 
@@ -21,16 +21,7 @@ namespace Strategies
         {
             currentState.Stop(entity);
             CallNodesWhenExit?.Execute(entity);
-
-            var exitNode = entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask)?.ExitStateNode;
-            exitNode?.OnExit(entity);
-
-            //EntityManager.Command(new WaitAndCallbackCommand { CallBack = React, CallBackWaiter = entity, Timer = 0.01f });
-        }
-
-        private void React(IEntity entity)
-        {
-          
+            currentState.ExitNode?.Execute(entity);
         }
 
         public void AddState(State state)

@@ -23,17 +23,11 @@ namespace Strategies
 
         public override string TitleOfNode { get; } = "Set State";
 
+        private HECSMask stateContextMask = HMasks.GetMask<StateContextComponent>(); 
+
         public override void Execute(IEntity entity)
         {
            Run(entity);
-        }
-
-        public void OnExit(IEntity entity)
-        {
-            if (ExternalState.weHaveFromState)
-                ExternalState.FromState.SetupState(entity);
-
-            Exit.Execute(entity);
         }
 
         public void Init()
@@ -44,7 +38,7 @@ namespace Strategies
         protected override void Run(IEntity entity)
         {
             OnStartStateNodes?.Execute(entity);
-            State.Execute(entity, this);
+            State.Execute(entity, Exit);
         }
     }
 }

@@ -13,6 +13,8 @@ namespace Strategies
     {
         public UpdateStateNode Update { get; private set; }
         public StartDecision StartDecision { get; private set; }
+        public IDecisionNode ExitNode { get; private set; }
+        
         private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
 
         [NonSerialized] private bool isInited; //это чтобы избежать рекурсии при ссылке инит нод друг на друга
@@ -32,7 +34,7 @@ namespace Strategies
 
             StartDecision = nodes.FirstOrDefault(x => x is StartDecision) as StartDecision;
             Update = nodes.FirstOrDefault(x => x is UpdateStateNode) as UpdateStateNode;
-            nodes.OfType<ExitStateNode>().ForEach(x => x.AddState(this));
+            nodes.OfType<IAddStateNode>().ForEach(x => x.AddState(this));
             nodes.OfType<SetStateNode>().ForEach(x => x.ExternalState = (true, this));
             nodes.OfType<IInitable>().ForEach(x => x.Init());
         }
@@ -57,13 +59,12 @@ namespace Strategies
             StartDecision?.Execute(entity);
         }
 
-        public void Execute(IEntity entity, SetStateNode exitNode)
+        public void Execute(IEntity entity, IDecisionNode exitNode)
         {
             SetupState(entity);
-            entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).ExitStateNode = exitNode;
+            ExitNode = exitNode;
             Execute(entity);
         }
-
 
         public void SetupState(IEntity entity)
         {
@@ -79,6 +80,11 @@ namespace Strategies
         void Pause(IEntity entity);
         void UnPause(IEntity entity);
         void Stop(IEntity entity);
+    }
+
+    public interface IAddStateNode
+    {
+        void AddState(State state);
     }
 
     public enum StrategyState { Run, Pause, Stop }
