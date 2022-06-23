@@ -8,7 +8,7 @@ namespace Systems
 {
     [Serializable]
     [RequiredAtContainer(typeof(NavMeshAgentComponent), typeof(AIStrategyComponent))]
-    [Documentation(Doc.NPC, Doc.AI, "Это система которая является основным мозгом для NPC")]
+    [Documentation(Doc.NPC, Doc.AI, Doc.HECS,  "This is default system for operate strategies on NPC")]
     public class AINPCSystem : BaseSystem, IAINPCSystem
     {
         private Strategy currentStrategy;
