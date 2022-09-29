@@ -4,7 +4,7 @@ using Systems;
 
 namespace Commands
 {
-	[Documentation(Doc.AI, Doc.Strategy, "Эта команда означает что пора перезапустить стратегию и пройти всю логическую цепочку заново, отправляется обычно из " + nameof(CompleteFinalNode) + " обрабатывается обычно в " + nameof(AINPCSystem))]
+	[Documentation(Doc.AI, Doc.Strategy, "this command we send from strategy node " + nameof(CompleteFinalNode) + "and wait new decision result (start new strategy for example)" + nameof(AINPCSystem))]
 	public struct NeedDecisionCommand : ICommand
 	{
 	}
