@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using HECSFramework.Core;
 using HECSFramework.Core.Helpers;
 using Strategies;
 using UnityEditor;
@@ -342,6 +343,7 @@ public class StrategyGraphView : GraphView, IDisposable
         var so = new SerializedObject(drawNode.InnerNode);
 
 
+
         if (drawNode.InnerNode != null)
         {
             if (drawNode.InnerNode.GetType().GetCustomAttributes().Any(x => x is DrawInNodeAttribute))
@@ -356,6 +358,28 @@ public class StrategyGraphView : GraphView, IDisposable
                 {
                     foreach (var a in m.GetCustomAttributes())
                     {
+                        if (a is ComponentMaskDropDownAttribute)
+                        {
+                            var field = m as FieldInfo;
+                            var componentsList = new TypesProvider().MapIndexes.OrderBy(x => x.Value.ComponentName);
+
+                            var newList = new List<string>(512);
+
+                            foreach (var c in componentsList)
+                            {
+                                newList.Add(c.Value.ComponentName);
+                            }
+
+                            var currentValue = (HECSMask)field.GetValue(drawNode.InnerNode);
+                            var lookForCurrentStringName = componentsList.FirstOrDefault(x => x.Key == currentValue.TypeHashCode);
+
+                            var defaultIndex = lookForCurrentStringName.Key == 0 ? 0 : newList.IndexOf(lookForCurrentStringName.Value.ComponentName);
+
+                            var dropDown = new DropdownField("Choose component", newList, defaultIndex);
+                            dropDown.RegisterValueChangedCallback((evt) => ComponentsDropDownReact(evt, field, drawNode.InnerNode));
+                            drawNode.contentContainer.Add(dropDown);
+                        }
+
                         if (a is SerializeField)
                         {
                             var field = m as FieldInfo;
@@ -422,6 +446,12 @@ public class StrategyGraphView : GraphView, IDisposable
                     }
                 }
         }
+    }
+
+    private void ComponentsDropDownReact(ChangeEvent<string> evt, FieldInfo field, BaseDecisionNode innerNode)
+    {
+        var mask = new TypesProvider().MapIndexes[IndexGenerator.GenerateIndex(evt.newValue)];
+        field.SetValue(innerNode, mask.ComponentsMask);
     }
 
     private VisualElement CreateEditorFromNodeData<T>(T obj) where T : UnityEngine.Object
