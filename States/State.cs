@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Strategies
 {
     [CreateAssetMenu(menuName = "Strategies/State")]
-    [Documentation(Doc.Strategy, Doc.AI, "Это подвид стратегии - FSM")]
+    [Documentation(Doc.Strategy, Doc.AI, "Р­С‚Рѕ РїРѕРґРІРёРґ СЃС‚СЂР°С‚РµРіРёРё - FSM")]
     public partial class State : BaseStrategy, IState, IInitable, IDecisionNode
     {
         public UpdateStateNode Update { get; private set; }
@@ -17,7 +17,7 @@ namespace Strategies
         
         private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
 
-        [NonSerialized] private bool isInited; //это чтобы избежать рекурсии при ссылке инит нод друг на друга
+        [NonSerialized] private bool isInited; //СЌС‚Рѕ С‡С‚РѕР±С‹ РёР·Р±РµР¶Р°С‚СЊ СЂРµРєСѓСЂСЃРёРё РїСЂРё СЃСЃС‹Р»РєРµ РёРЅРёС‚ РЅРѕРґ РґСЂСѓРі РЅР° РґСЂСѓРіР°
 
         public override void Init()
         {
