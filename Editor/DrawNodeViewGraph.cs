@@ -5,12 +5,16 @@ using System.Reflection;
 using System.Threading.Tasks;
 using HECSFramework.Core;
 using HECSFramework.Core.Helpers;
+using HECSFramework.Unity;
+using HECSFramework.Unity.Helpers;
 using Strategies;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Button = UnityEngine.UIElements.Button;
+using Toggle = UnityEngine.UIElements.Toggle;
 
 public class DrawNodeViewGraph : Node
 {
@@ -188,8 +192,17 @@ public class StrategyGraphView : GraphView, IDisposable
                 var input = NeededNode(e.input, Direction.Input);
                 var output = NeededNode(e.output, Direction.Output);
 
-                ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
-                ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
+                try
+                {
+                    ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
+                    ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
+                }
+                catch(Exception ex)
+                {
+                    Debug.LogWarning("nodes not match " + ex.Message);
+                    graphViewChange.edgesToCreate.Remove(e);
+                    return default;
+                }
             }
         }
 
@@ -376,11 +389,29 @@ public class StrategyGraphView : GraphView, IDisposable
                             var defaultIndex = lookForCurrentStringName.Key == 0 ? 0 : newList.IndexOf(lookForCurrentStringName.Value.ComponentName);
 
                             var dropDown = new DropdownField("Choose component", newList, defaultIndex);
+
+                            var button = new Button(()=>ReactOnComponentSearchClick(dropDown)) { text = "Search"};
+                            dropDown.Add(button);
                             dropDown.RegisterValueChangedCallback((evt) => ComponentsDropDownReact(evt, field, drawNode.InnerNode));
                             drawNode.contentContainer.Add(dropDown);
                         }
 
-                        if (a is SerializeField)
+                        if (a is AnimParameterDropDownAttribute)
+                        {
+                            DrawAnimParameterDropDown(m, drawNode);
+                        }
+
+                        if (a is AbilityIDDropDownAttribute)
+                        {
+                            DrawAbilityDropDown(m, drawNode);
+                        }
+
+                        if (a is DropDownIdentifierAttribute dropDownIdentifierAttribute)
+                        {
+                            DrawIdentifierDropDown(m, drawNode, dropDownIdentifierAttribute.IdentifierType);
+                        }
+
+                        if (a is SerializeField || a is ExposeFieldAttribute)
                         {
                             var field = m as FieldInfo;
 
@@ -446,6 +477,119 @@ public class StrategyGraphView : GraphView, IDisposable
                     }
                 }
         }
+    }
+
+    private void DrawAnimParameterDropDown(MemberInfo m, DrawNodeViewGraph drawNode)
+    {
+        var field = m as FieldInfo;
+        var abilitiesList = AnimParametersMap.AnimParameters.OrderBy(x => x.Key);
+
+        var newList = new List<string>(512);
+
+        foreach (var c in abilitiesList)
+        {
+            newList.Add(c.Key);
+        }
+
+        var currentValue = (int)field.GetValue(drawNode.InnerNode);
+        var lookForCurrentStringName = abilitiesList.FirstOrDefault(x => x.Value == currentValue);
+
+        var defaultIndex = lookForCurrentStringName.Value == 0 ? 0 : newList.IndexOf(lookForCurrentStringName.Key);
+
+        var dropDown = new DropdownField("Select parameter", newList, defaultIndex);
+
+        var button = new Button(() => ReactOnComponentSearchClick(dropDown)) { text = "Search" };
+        dropDown.Add(button);
+        dropDown.RegisterValueChangedCallback((evt) => AnimParameterDropDownReact(evt, field, drawNode.InnerNode));
+        drawNode.contentContainer.Add(dropDown);
+    }
+
+    private void DrawIdentifierDropDown(MemberInfo m, DrawNodeViewGraph drawNode, string identifierType)
+    {
+        var field = m as FieldInfo;
+        var neededType = Type.GetType(identifierType);
+
+        //if (neededType == null)
+        //{
+        //    throw new Exception(drawNode.name + " looks for missed type " + identifierType);
+        //}
+
+        var abilitiesList = new SOProvider<IdentifierContainer>().GetCollection().ToList();
+
+        foreach (var a in abilitiesList.ToArray())
+        {
+            if (a.GetType().Name != identifierType)
+                abilitiesList.Remove(a);
+        }
+
+        var newList = new List<string>(512);
+
+        foreach (var c in abilitiesList)
+        {
+            newList.Add(c.name);
+        }
+
+        var currentValue = (int)field.GetValue(drawNode.InnerNode);
+        var lookForCurrentStringName = abilitiesList.FirstOrDefault(x => x.Id== currentValue);
+
+        var defaultIndex = lookForCurrentStringName == null ? 0 : newList.IndexOf(lookForCurrentStringName.name);
+
+        var dropDown = new DropdownField("Select ability", newList, defaultIndex);
+
+        var button = new Button(() => ReactOnComponentSearchClick(dropDown)) { text = "Search" };
+        dropDown.Add(button);
+        dropDown.RegisterValueChangedCallback((evt) => IdentifierDropDownReact(evt, field, drawNode.InnerNode));
+        drawNode.contentContainer.Add(dropDown);
+    }
+
+    private void DrawAbilityDropDown(MemberInfo m, DrawNodeViewGraph drawNode)
+    {
+        var field = m as FieldInfo;
+        var abilitiesList = AbilitiesMap.AbilitiesToIdentifiersMap.OrderBy(x => x.Key);
+
+        var newList = new List<string>(512);
+
+        foreach (var c in abilitiesList)
+        {
+            newList.Add(c.Key);
+        }
+
+        var currentValue = (int)field.GetValue(drawNode.InnerNode);
+        var lookForCurrentStringName = abilitiesList.FirstOrDefault(x => x.Value == currentValue);
+
+        var defaultIndex = lookForCurrentStringName.Value == 0 ? 0 : newList.IndexOf(lookForCurrentStringName.Key);
+
+        var dropDown = new DropdownField("Select ability", newList, defaultIndex);
+
+        var button = new Button(() => ReactOnComponentSearchClick(dropDown)) { text = "Search" };
+        dropDown.Add(button);
+        dropDown.RegisterValueChangedCallback((evt) => AbilityDropDownReact(evt, field, drawNode.InnerNode));
+        drawNode.contentContainer.Add(dropDown);
+    }
+
+    private void IdentifierDropDownReact(ChangeEvent<string> evt, FieldInfo field, BaseDecisionNode innerNode)
+    {
+        var identifier = IndexGenerator.GenerateIndex(evt.newValue);
+        field.SetValue(innerNode, identifier);
+    }
+
+    private void AbilityDropDownReact(ChangeEvent<string> evt, FieldInfo field, BaseDecisionNode innerNode)
+    {
+        var abilityIndex = AbilitiesMap.AbilitiesToIdentifiersMap[evt.newValue];
+        field.SetValue(innerNode, abilityIndex);
+    }
+
+    private void AnimParameterDropDownReact(ChangeEvent<string> evt, FieldInfo field, BaseDecisionNode innerNode)
+    {
+        var abilityIndex = AnimParametersMap.AnimParameters[evt.newValue];
+        field.SetValue(innerNode, abilityIndex);
+    }
+
+
+    private void ReactOnComponentSearchClick(DropdownField dropDown)
+    {
+        var winow = EditorWindow.GetWindow<SearchComponentsWindow>();
+        winow.Init(dropDown);
     }
 
     private void ComponentsDropDownReact(ChangeEvent<string> evt, FieldInfo field, BaseDecisionNode innerNode)

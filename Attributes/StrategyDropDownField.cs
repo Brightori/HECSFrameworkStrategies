@@ -1,9 +1,19 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-public class ComponentMaskDropDownAttribute : Attribute
+namespace Strategies
 {
-   
+    public class ComponentMaskDropDownAttribute : Attribute
+    {
+
+    }
+
+    public class DropDownIdentifierAttribute : Attribute
+    {
+        public string IdentifierType;
+
+        public DropDownIdentifierAttribute(string identifierType)
+        {
+            IdentifierType = identifierType;
+        }
+    }
 }

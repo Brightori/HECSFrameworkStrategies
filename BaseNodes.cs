@@ -19,6 +19,11 @@ namespace Strategies
         [Connection(ConnectionPointType.Out, "Next")] [IgnoreDraw] public BaseDecisionNode Next;
     }
 
+    public abstract class SetNode : LogNode
+    {
+        [Connection(ConnectionPointType.Out, "Set")][IgnoreDraw] public BaseDecisionNode Set;
+    }
+
     public abstract class DilemmaDecision : LogNode
     {
         [Connection(ConnectionPointType.In, "Input")] public BaseDecisionNode Input;
