@@ -4,13 +4,10 @@ using System.Linq;
 using System.Reflection;
 using HECSFramework.Core;
 using HECSFramework.Core.Generator;
-using HECSFramework.Unity;
 using HECSFramework.Unity.Editor;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
-using Strategies;
 using UnityEditor;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class GenerateValueNodeFromComponentWindow : OdinEditorWindow
 {
@@ -98,24 +95,6 @@ public class GenerateValueNodeFromComponentWindow : OdinEditorWindow
         InstallHECS.CheckFolder(InstallHECS.ScriptPath + InstallHECS.HECSGenerated + StrategyNodes);
         InstallHECS.SaveToFile(tree.ToString(), InstallHECS.ScriptPath + InstallHECS.HECSGenerated + StrategyNodes + $"{Component.Name}Get{Field}.cs");
         AssetDatabase.SaveAssets();
-    }
-}
-
-public class ProjectileComponentGetProjectile : GenericNode<EntityContainer>
-{
-    public override string TitleOfNode { get; } = "ProjectileComponentGetProjectile";
-
-
-    [Connection(ConnectionPointType.Out, "<float> Out")]
-    public BaseDecisionNode Out;
-
-    public override void Execute(IEntity entity)
-    {
-    }
-
-    public override EntityContainer Value(IEntity entity)
-    {
-        return entity.GetAbilityProjectileHolderComponent().Projectile;
     }
 }
 
