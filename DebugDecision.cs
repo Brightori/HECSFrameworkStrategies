@@ -1,5 +1,4 @@
 ﻿using HECSFramework.Core;
-using UnityEngine;
 
 namespace Strategies
 {
@@ -13,7 +12,7 @@ namespace Strategies
         protected override void Run(IEntity entity)
         {
 #if UNITY_EDITOR
-            HECSDebug.Log($"{entity.GUID.ToString()} -- {DebugMessage}");
+            HECSDebug.LogWarning($"{entity.GUID.ToString()} -- {DebugMessage}");
 #endif
             Next.Execute(entity);
         }

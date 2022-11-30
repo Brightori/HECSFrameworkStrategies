@@ -9,8 +9,8 @@ namespace Strategies
     {
         public override string TitleOfNode { get; } = "Set Float Counter";
 
-        [SerializeField]
-        public CounterIdentifierContainer CounterIdentifier;
+        [DropDownIdentifier("CounterIdentifierContainer")]
+        public int Counter;
 
         [SerializeField]
         public float Value;
@@ -20,7 +20,7 @@ namespace Strategies
         protected override void Run(IEntity entity)
         {
             entity.GetHECSComponent<CountersHolderComponent>(ref CounterHolderMask)
-                .GetCounter<ICounter<float>>(CounterIdentifier.Id).SetValue(Value);
+                .GetCounter<ICounter<float>>(Counter).SetValue(Value);
             
             Next.Execute(entity);
         }

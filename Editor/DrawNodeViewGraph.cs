@@ -438,6 +438,7 @@ public class StrategyGraphView : GraphView, IDisposable
                                 var floatField = new FloatField(m.Name + ":");
                                 floatField.value = (float)field.GetValue(drawNode.InnerNode);
                                 floatField.RegisterValueChangedCallback((evt) => FloatFieldReact(evt, field, drawNode.InnerNode));
+                                floatField.style.minWidth = 20;
                                 drawNode.contentContainer.Add(floatField);
                             }
                             else if (field.FieldType == typeof(string))

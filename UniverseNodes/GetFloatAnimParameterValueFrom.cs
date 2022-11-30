@@ -30,6 +30,7 @@ public sealed class GetFloatAnimParameterValueFrom : GenericNode<float>
             }
         }
 
-        return 0;
+        //todo if we dont have parameter on state, we think its should be 1, but better will alrdy have it from animator helper for example
+        return 1;
     }
 }
