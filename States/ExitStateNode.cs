@@ -1,4 +1,4 @@
-﻿using Commands;
+﻿using System;
 using Components;
 using HECSFramework.Core;
 
@@ -13,6 +13,8 @@ namespace Strategies
 
         [Connection(ConnectionPointType.Out, "On Exit")]
         public BaseDecisionNode CallNodesWhenExit;
+
+        [NonSerialized]
         private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
 
         private State currentState;
@@ -21,7 +23,7 @@ namespace Strategies
         {
             currentState.Stop(entity);
             CallNodesWhenExit?.Execute(entity);
-            currentState.ExitNode?.Execute(entity);
+            entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).ExitStateNodes.Pop().Execute(entity);
         }
 
         public void AddState(State state)

@@ -23,7 +23,7 @@ namespace Strategies
 
         public override string TitleOfNode { get; } = "Set State";
 
-        private HECSMask stateContextMask = HMasks.GetMask<StateContextComponent>(); 
+        private readonly HECSMask stateContextMask = HMasks.GetMask<StateContextComponent>(); 
 
         public override void Execute(IEntity entity)
         {

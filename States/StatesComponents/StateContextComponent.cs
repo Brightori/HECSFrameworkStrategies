@@ -1,6 +1,7 @@
 ﻿using HECSFramework.Core;
 using Strategies;
 using System;
+using System.Collections.Generic;
 
 namespace Components
 {
@@ -10,7 +11,7 @@ namespace Components
         public StrategyState StrategyState = StrategyState.Stop;
         public State CurrentState;
         
-        public SetStateNode ExitStateNode; //выход из текущего стейта, сеттим на входе в стейт
+        public Stack<IDecisionNode> ExitStateNodes = new Stack<IDecisionNode>(3); //выход из текущего стейта, сеттим на входе в стейт
 
         public void ExitFromState()
         {

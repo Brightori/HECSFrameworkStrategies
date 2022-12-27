@@ -13,9 +13,8 @@ namespace Strategies
     {
         public UpdateStateNode Update { get; private set; }
         public StartDecision StartDecision { get; private set; }
-        public IDecisionNode ExitNode { get; private set; }
         
-        private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
+        private readonly HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
 
         [NonSerialized] private bool isInited; //это чтобы избежать рекурсии при ссылке инит нод друг на друга
 
@@ -41,17 +40,20 @@ namespace Strategies
 
         public void Pause(IEntity pause)
         {
-            pause.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Pause;
+            var mask = StateContextComponentMask;
+            pause.GetHECSComponent<StateContextComponent>(ref mask).StrategyState = StrategyState.Pause;
         }
 
         public void Stop(IEntity entity)
         {
-            entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Stop;
+            var mask = StateContextComponentMask;
+            entity.GetHECSComponent<StateContextComponent>(ref mask).StrategyState = StrategyState.Stop;
         }
 
         public void UnPause(IEntity entity)
         {
-            entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Run;
+            var mask = StateContextComponentMask;
+            entity.GetHECSComponent<StateContextComponent>(ref mask).StrategyState = StrategyState.Run;
         }
 
         public override void Execute(IEntity entity)
@@ -61,16 +63,11 @@ namespace Strategies
 
         public void Execute(IEntity entity, IDecisionNode exitNode)
         {
-            SetupState(entity);
-            ExitNode = exitNode;
-            Execute(entity);
-        }
-
-        public void SetupState(IEntity entity)
-        {
             var context = entity.GetOrAddComponent<StateContextComponent>(StateContextComponentMask);
             context.CurrentState = this;
+            context.ExitStateNodes.Push(exitNode);
             context.StrategyState = StrategyState.Run;
+            Execute(entity);
         }
     }
 
