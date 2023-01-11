@@ -2,7 +2,7 @@
 
 namespace Strategies
 {
-    [Documentation(Doc.Strategy, Doc.StrategiesUniversalNodes, Doc.HECS, "this multiple two float values")]
+    [Documentation(Doc.Strategy, Doc.UniversalNodes, Doc.HECS, "this multiple two float values")]
     public sealed class FloatMultiplier : GenericNode<float>
     {
         public override string TitleOfNode { get; } = "FloatMultiplier";

@@ -2,7 +2,7 @@
 
 namespace Strategies
 {
-    [Documentation(Doc.Strategy, Doc.StrategiesUniversalNodes, Doc.HECS, "this divide two float values")]
+    [Documentation(Doc.Strategy, Doc.UniversalNodes, Doc.HECS, "this divide two float values")]
     public sealed class FloatDivideNode : GenericNode<float>
     {
         public override string TitleOfNode { get; } = "FloatDivideNode";
