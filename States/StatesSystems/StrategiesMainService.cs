@@ -6,7 +6,7 @@ namespace Systems
     [Documentation(Doc.GameLogic, Doc.AI, Doc.Strategy, "Эта система живет  мире и добавляется через парт часть гейм контроллера, она отвечает за поддержку глобальной логики для стратегий")]
     public class StrategiesMainServiceSystem : BaseSystem
     {
-        private ConcurrencyList<IEntity> stackInfos;
+        private HECSList<IEntity> stackInfos;
         private HECSMask StateInfoComponentMask = HMasks.GetMask<StateInfoComponent>();
 
 
