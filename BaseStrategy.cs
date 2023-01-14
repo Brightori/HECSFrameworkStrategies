@@ -16,8 +16,9 @@ namespace Strategies
         private int indexCash = -1;
         public List<BaseDecisionNode> nodes = new List<BaseDecisionNode>(16);
         private BaseDecisionNode start;
-        private bool isInited;
 
+        [NonSerialized]
+        protected bool isInited;
 
         public int StrategyIndex
         {

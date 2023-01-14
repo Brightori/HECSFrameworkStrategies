@@ -3,7 +3,7 @@ using HECSFramework.Core;
 
 namespace Strategies
 {
-    [Documentation(Doc.HECS, Doc.StrategiesUniversalNodes, Doc.Animation, "this node return diff from event to end of animation clip")]
+    [Documentation(Doc.HECS, Doc.UniversalNodes, Doc.Animation, "this node return diff from event to end of animation clip")]
     public sealed class GetTimeFromEventToEndOfClip : GenericNode<float>
     {
         public override string TitleOfNode { get; } = "GetTimeFromEventToEndOfClip";
