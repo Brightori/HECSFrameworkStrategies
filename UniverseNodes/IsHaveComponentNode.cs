@@ -14,7 +14,7 @@ namespace Strategies
 
         protected override void Run(IEntity entity)
         {
-            if (entity.ContainsMask(ref ComponentMask))
+            if (entity.ContainsMask(ComponentMask.TypeHashCode))
                 Positive.Execute(entity);
             else
                 Negative.Execute(entity);

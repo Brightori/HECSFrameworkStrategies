@@ -17,11 +17,11 @@ public sealed class CheckAbilityIsReady : DilemmaDecision
 
     protected override void Run(IEntity entity)
     {
-        if (entity.TryGetHecsComponent(abilitiesHolderMask, out AbilitiesHolderComponent abilitiesHolderComponent))
+        if (entity.TryGetComponent(out AbilitiesHolderComponent abilitiesHolderComponent))
         {
             if (abilitiesHolderComponent.IndexToAbility.TryGetValue(AbilityIndex, out var ability))
             {
-                if (ability.TryGetHecsComponent(predicatesMask, out AbilityPredicateComponent predicatesComponent))
+                if (ability.TryGetComponent(out AbilityPredicateComponent predicatesComponent))
                 {
                     if (!predicatesComponent.TargetPredicates.IsReady(Target?.Value(entity), ability))
                     {

@@ -13,17 +13,14 @@ namespace Strategies
         [DropDownIdentifier("CounterIdentifierContainer")]
         public int CounterID;
 
-        private HECSMask CacheCountersMask = HMasks.GetMask<CacheCounterValuesComponent>();
-        private HECSMask CounterHolderMask = HMasks.GetMask<CountersHolderComponent>();
-
         protected override void Run(IEntity entity)
         {
 
-            if (entity.TryGetHecsComponent(CounterHolderMask, out CountersHolderComponent countersHolderComponent))
+            if (entity.TryGetComponent(out CountersHolderComponent countersHolderComponent))
             {
                 if (countersHolderComponent.TryGetCounter<ICounter<float>>(CounterID, out var counter))
                 {
-                    var dic = entity.GetOrAddComponent<CacheCounterValuesComponent>(CacheCountersMask).Values;
+                    var dic = entity.GetOrAddComponent<CacheCounterValuesComponent>().Values;
                     dic.AddOrReplace(CounterID, counter.Value);
                 }
             }

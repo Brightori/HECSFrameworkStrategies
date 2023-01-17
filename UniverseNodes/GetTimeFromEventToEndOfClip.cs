@@ -14,15 +14,13 @@ namespace Strategies
         [Connection(ConnectionPointType.Out, "<float> Out")]
         public BaseDecisionNode Out;
 
-        private HECSMask checkOutMask = HMasks.GetMask<AnimationCheckOutsHolderComponent>();
-
         public override void Execute(IEntity entity)
         {
         }
 
         public override float Value(IEntity entity)
         {
-            if (entity.TryGetHecsComponent(checkOutMask, out AnimationCheckOutsHolderComponent animationCheckOutsHolder))
+            if (entity.TryGetComponent(out AnimationCheckOutsHolderComponent animationCheckOutsHolder))
             {
                 if (animationCheckOutsHolder.TryGetCheckoutInfo(AnimationEventID, out var info))
                 {

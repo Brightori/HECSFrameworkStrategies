@@ -16,7 +16,6 @@ namespace Strategies
         
         private readonly HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
 
-        [NonSerialized] private bool isInited; //это чтобы избежать рекурсии при ссылке инит нод друг на друга
 
         public override void Init()
         {
@@ -40,20 +39,17 @@ namespace Strategies
 
         public void Pause(IEntity pause)
         {
-            var mask = StateContextComponentMask;
-            pause.GetHECSComponent<StateContextComponent>(ref mask).StrategyState = StrategyState.Pause;
+            pause.GetComponent<StateContextComponent>().StrategyState = StrategyState.Pause;
         }
 
         public void Stop(IEntity entity)
         {
-            var mask = StateContextComponentMask;
-            entity.GetHECSComponent<StateContextComponent>(ref mask).StrategyState = StrategyState.Stop;
+            entity.GetComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
         }
 
         public void UnPause(IEntity entity)
         {
-            var mask = StateContextComponentMask;
-            entity.GetHECSComponent<StateContextComponent>(ref mask).StrategyState = StrategyState.Run;
+            entity.GetComponent<StateContextComponent>().StrategyState = StrategyState.Run;
         }
 
         public override void Execute(IEntity entity)
@@ -63,7 +59,7 @@ namespace Strategies
 
         public void Execute(IEntity entity, IDecisionNode exitNode)
         {
-            var context = entity.GetOrAddComponent<StateContextComponent>(StateContextComponentMask);
+            var context = entity.GetOrAddComponent<StateContextComponent>();
             context.CurrentState = this;
             context.ExitStateNodes.Push(exitNode);
             context.StrategyState = StrategyState.Run;

@@ -17,12 +17,10 @@ namespace Systems
 
         [Required] 
         public AIStrategyComponent aIStrategyComponent;
-        
-        private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
 
         public void CommandReact(NeedDecisionCommand command)
         {
-            Owner.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).StrategyState = StrategyState.Stop;
+            Owner.GetComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
@@ -40,7 +38,7 @@ namespace Systems
 
         public void CommandReact(IsDeadCommand command)
         {
-            if (Owner.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
+            if (Owner.TryGetComponent(out StateContextComponent stateContextComponent))
                 stateContextComponent.StrategyState = StrategyState.Stop;
 
             isStoped = true;
@@ -50,7 +48,7 @@ namespace Systems
         {
             currentStrategy = command.Strategy;
             command.Strategy.Init();
-            Owner.GetOrAddComponent<StateContextComponent>(StateContextComponentMask).StrategyState = StrategyState.Stop;
+            Owner.GetOrAddComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
@@ -64,13 +62,13 @@ namespace Systems
         public void CommandReact(SetDefaultStrategyCommand command)
         {
             currentStrategy = aIStrategyComponent.Strategy;
-            Owner.GetOrAddComponent<StateContextComponent>(StateContextComponentMask).StrategyState = StrategyState.Stop;
+            Owner.GetOrAddComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
             isNeedDecision = true;
         }
 
         public override void Dispose()
         {
-            if (Owner.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
+            if (Owner.TryGetComponent(out StateContextComponent stateContextComponent))
                 stateContextComponent.Dispose();
         }
 
@@ -82,7 +80,7 @@ namespace Systems
 
         public void CommandReact(ForceStopAICommand command)
         {
-            Owner.GetOrAddComponent<StateContextComponent>(StateContextComponentMask).StrategyState = StrategyState.Stop;
+            Owner.GetOrAddComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
             isNeedDecision = false;
             isStoped = true;
         }

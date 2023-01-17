@@ -22,7 +22,7 @@ public sealed class GetFloatAnimParameterValueFrom : GenericNode<float>
 
     public override float Value(IEntity entity)
     {
-        if (entity.TryGetHecsComponent(animatorStateComponentMask, out AnimatorStateComponent animatorStateComponent))
+        if (entity.TryGetComponent(out AnimatorStateComponent animatorStateComponent))
         {
             if (animatorStateComponent.State.TryGetFloat(AnimIdentifer, out var parameter))
             {

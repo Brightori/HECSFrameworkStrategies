@@ -23,7 +23,7 @@ namespace Strategies
         {
             currentState.Stop(entity);
             CallNodesWhenExit?.Execute(entity);
-            entity.GetHECSComponent<StateContextComponent>(ref StateContextComponentMask).ExitStateNodes.Pop().Execute(entity);
+            entity.GetComponent<StateContextComponent>().ExitStateNodes.Pop().Execute(entity);
         }
 
         public void AddState(State state)

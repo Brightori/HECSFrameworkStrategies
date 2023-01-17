@@ -14,7 +14,6 @@ namespace Strategies
         [NonSerialized] private State state;
 
         public override string TitleOfNode => "Chain End";
-        private readonly HECSMask stateContextMask = HMasks.GetMask<StateContextComponent>();
 
         public void AddState(State state)
         {
@@ -23,8 +22,7 @@ namespace Strategies
 
         protected override void Run(IEntity entity)
         {
-            var mask = stateContextMask;
-            var context = entity.GetHECSComponent<StateContextComponent>(ref mask);
+            var context = entity.GetComponent<StateContextComponent>();
             context.CurrentState = state;
             context.StrategyState = StrategyState.Run;
         }

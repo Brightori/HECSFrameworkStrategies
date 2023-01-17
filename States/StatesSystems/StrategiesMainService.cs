@@ -7,12 +7,11 @@ namespace Systems
     public class StrategiesMainServiceSystem : BaseSystem
     {
         private HECSList<IEntity> stackInfos;
-        private HECSMask StateInfoComponentMask = HMasks.GetMask<StateInfoComponent>();
-
 
         public override void InitSystem()
         {
-            stackInfos = Owner.World.Filter(StateInfoComponentMask);
+            //todo filter
+            //stackInfos = Owner.World.Filter(StateInfoComponentMask);
 
 #if UNITY_EDITOR
             Owner.World.GlobalUpdateSystem.FinishUpdate += React;
@@ -27,7 +26,7 @@ namespace Systems
 
             for (int i = 0; i < count; i++)
             {
-                var info = direct[i].GetHECSComponent<StateInfoComponent>(ref StateInfoComponentMask);
+                var info = direct[i].GetComponent<StateInfoComponent>();
 
                 if (info.NeedInfo)
                 {

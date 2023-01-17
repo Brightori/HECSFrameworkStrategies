@@ -11,12 +11,9 @@ namespace Strategies
         [DropDownIdentifier("CounterIdentifierContainer")]
         public int CounterID;
 
-        private HECSMask CacheCountersMask = HMasks.GetMask<CacheCounterValuesComponent>();
-        private HECSMask CounterHolderMask = HMasks.GetMask<CountersHolderComponent>();
-
         public override float Value(IEntity entity)
         {
-            if (entity.TryGetHecsComponent(CacheCountersMask, out CacheCounterValuesComponent cacheCounterValuesComponent))
+            if (entity.TryGetComponent(out CacheCounterValuesComponent cacheCounterValuesComponent))
             {
                 if (cacheCounterValuesComponent.Values.TryGetValue(CounterID, out var counter))
                 {

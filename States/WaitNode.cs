@@ -15,12 +15,10 @@ namespace Strategies
         [SerializeField] public float MaxWaitTime = 1;
 
         private WaitAndEntityCallbackCommand waitCommand;
-        private HECSMask StateContextComponent = HMasks.GetMask<StateContextComponent>();
-
 
         protected override void Run(IEntity entity)
         {
-            if (entity.TryGetHecsComponent(StateContextComponent, out StateContextComponent stateContextComponent))
+            if (entity.TryGetComponent(out StateContextComponent stateContextComponent))
                 stateContextComponent.StrategyState = StrategyState.Pause;
 
             waitCommand.Timer = Random.Range(WaitTime, MaxWaitTime);
@@ -31,7 +29,7 @@ namespace Strategies
 
         public void React(IEntity entity)
         {
-            if (entity.TryGetHecsComponent(StateContextComponent, out StateContextComponent stateContextComponentAfter))
+            if (entity.TryGetComponent(out StateContextComponent stateContextComponentAfter))
                 stateContextComponentAfter.StrategyState = StrategyState.Run;
 
             Next.Execute(entity);

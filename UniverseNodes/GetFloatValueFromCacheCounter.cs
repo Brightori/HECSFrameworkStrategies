@@ -11,8 +11,6 @@ namespace Strategies
         [DropDownIdentifier("CounterIdentifierContainer")]
         public int CounterID;
 
-        private HECSMask cacheCountersMask = HMasks.GetMask<CacheCounterValuesComponent>();
-
         [Connection(ConnectionPointType.Out, "<float> Out")]
         public BaseDecisionNode Out;
 
@@ -22,7 +20,7 @@ namespace Strategies
 
         public override float Value(IEntity entity)
         {
-            if (entity.TryGetHecsComponent(cacheCountersMask, out CacheCounterValuesComponent cacheCounterValuesComponent))
+            if (entity.TryGetComponent(out CacheCounterValuesComponent cacheCounterValuesComponent))
             {
                 if (cacheCounterValuesComponent.Values.TryGetValue(CounterID, out var counterValue))
                 {

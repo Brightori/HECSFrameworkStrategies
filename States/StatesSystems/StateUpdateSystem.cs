@@ -14,7 +14,8 @@ namespace Systems
 
         public override void InitSystem()
         {
-            statesEntities = Owner.World.Filter(ContextComponent);
+            //todo filter
+            //statesEntities = Owner.World.Filter(ContextComponent);
         }
 
         public void UpdateLocal()
@@ -25,7 +26,7 @@ namespace Systems
             {
                 var needed = statesEntities.Data[i];
 
-                if (needed.TryGetHecsComponent(StateContextComponentMask, out StateContextComponent stateContextComponent))
+                if (needed.TryGetComponent(out StateContextComponent stateContextComponent))
                 {
                     if (stateContextComponent.StrategyState != StrategyState.Run) continue;
                     stateContextComponent.CurrentState.Update.Execute(needed);

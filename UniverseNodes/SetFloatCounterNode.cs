@@ -15,11 +15,9 @@ namespace Strategies
         [SerializeField]
         public float Value;
 
-        private HECSMask CounterHolderMask = HMasks.GetMask<CountersHolderComponent>();
-
         protected override void Run(IEntity entity)
         {
-            entity.GetHECSComponent<CountersHolderComponent>(ref CounterHolderMask)
+            entity.GetComponent<CountersHolderComponent>()
                 .GetCounter<ICounter<float>>(Counter).SetValue(Value);
             
             Next.Execute(entity);

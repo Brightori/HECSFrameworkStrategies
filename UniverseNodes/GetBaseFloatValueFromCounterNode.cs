@@ -14,7 +14,6 @@ public class GetBaseFloatValueFromCounterNode : GenericNode<float>
     [DropDownIdentifier("CounterIdentifierContainer")]
     public int CounterID = 0;
 
-    private HECSMask countersHolderMask = HMasks.GetMask<CountersHolderComponent>();
 
     public override void Execute(IEntity entity)
     {
@@ -22,7 +21,7 @@ public class GetBaseFloatValueFromCounterNode : GenericNode<float>
 
     public override float Value(IEntity entity)
     {
-        if (entity.TryGetHecsComponent(countersHolderMask, out CountersHolderComponent countersHolderComponent))
+        if (entity.TryGetComponent(out CountersHolderComponent countersHolderComponent))
         {
             if (countersHolderComponent.TryGetCounter<IBaseValue<float>>(CounterID, out var counter))
             {

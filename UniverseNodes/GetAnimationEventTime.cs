@@ -9,7 +9,6 @@ using UnityEngine;
 public sealed class GetAnimationEventTime : GenericNode<float>
 {
     public override string TitleOfNode { get; } = "GetAnimationEventTime";
-    private HECSMask AnimationCheckouts = HMasks.GetMask<AnimationCheckOutsHolderComponent>();
 
     [DropDownIdentifier("AnimationEventIdentifier")]
     public int AnimationEventID;
@@ -22,7 +21,7 @@ public sealed class GetAnimationEventTime : GenericNode<float>
     
     public override float Value(IEntity entity)
     {
-        if (entity.TryGetHecsComponent(AnimationCheckouts, out AnimationCheckOutsHolderComponent animationCheckOutsHolder))
+        if (entity.TryGetComponent(out AnimationCheckOutsHolderComponent animationCheckOutsHolder))
         {
             if (animationCheckOutsHolder.TryGetCheckoutInfo(AnimationEventID, out var info))
             {

@@ -11,7 +11,7 @@ namespace HECSFramework.Unity
             var strategiesController = new Entity("Strategies Controller");
             strategiesController.AddHecsSystem(new StrategiesMainServiceSystem());
             strategiesController.AddHecsSystem(new StateUpdateSystem());
-            strategiesController.Init();
+            strategiesController.Init(EntityManager.Default);
         }
     }
 }

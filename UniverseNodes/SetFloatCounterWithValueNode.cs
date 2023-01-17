@@ -15,11 +15,9 @@ namespace Strategies
         [Connection(ConnectionPointType.In, "<float> In")]
         public GenericNode<float> FloatIn;
 
-        private HECSMask CounterHolderMask = HMasks.GetMask<CountersHolderComponent>();
-
         protected override void Run(IEntity entity)
         {
-            entity.GetHECSComponent<CountersHolderComponent>(ref CounterHolderMask)
+            entity.GetComponent<CountersHolderComponent>()
                 .GetCounter<ICounter<float>>(Counter).SetValue(FloatIn.Value(entity));
 
             Next.Execute(entity);
