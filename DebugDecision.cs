@@ -9,7 +9,7 @@ namespace Strategies
         public string DebugMessage = "Debug";
         public override string TitleOfNode { get; } = "Debug Node";
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
 #if UNITY_EDITOR
             HECSDebug.LogWarning($"{entity.GUID.ToString()} -- {DebugMessage}");

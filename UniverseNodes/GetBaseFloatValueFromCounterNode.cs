@@ -15,11 +15,11 @@ public class GetBaseFloatValueFromCounterNode : GenericNode<float>
     public int CounterID = 0;
 
 
-    public override void Execute(IEntity entity)
+    public override void Execute(Entity entity)
     {
     }
 
-    public override float Value(IEntity entity)
+    public override float Value(Entity entity)
     {
         if (entity.TryGetComponent(out CountersHolderComponent countersHolderComponent))
         {

@@ -15,7 +15,7 @@ namespace Strategies
         [SerializeField]
         public float Value;
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             entity.GetComponent<CountersHolderComponent>()
                 .GetCounter<ICounter<float>>(Counter).SetValue(Value);

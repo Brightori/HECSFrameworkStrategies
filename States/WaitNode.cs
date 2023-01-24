@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Strategies
 {
-    public delegate void WaitCallbackEntity(IEntity entity);
+    public delegate void WaitCallbackEntity(Entity entity);
 
     public class WaitNode : InterDecision, IInitable
     {
@@ -16,7 +16,7 @@ namespace Strategies
 
         private WaitAndEntityCallbackCommand waitCommand;
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             if (entity.TryGetComponent(out StateContextComponent stateContextComponent))
                 stateContextComponent.StrategyState = StrategyState.Pause;
@@ -27,7 +27,7 @@ namespace Strategies
             EntityManager.Command(waitCommand);
         }
 
-        public void React(IEntity entity)
+        public void React(Entity entity)
         {
             if (entity.TryGetComponent(out StateContextComponent stateContextComponentAfter))
                 stateContextComponentAfter.StrategyState = StrategyState.Run;

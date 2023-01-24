@@ -20,7 +20,7 @@ namespace Strategies
             this.state = state;
         }
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             var context = entity.GetComponent<StateContextComponent>();
             context.CurrentState = state;

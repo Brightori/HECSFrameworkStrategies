@@ -9,7 +9,7 @@ namespace Strategies
         [ExposeField]
         public DilemmaStrategy Strategy;
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             Strategy.Execute(entity);
         }

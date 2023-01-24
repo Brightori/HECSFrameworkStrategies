@@ -10,7 +10,7 @@ namespace Strategies
         public abstract string TitleOfNode { get; }
         [IgnoreDraw] public Vector2 coords;
 
-        public abstract void Execute(IEntity entity);
+        public abstract void Execute(Entity entity);
     }
 
     public abstract class InterDecision : LogNode
@@ -33,7 +33,7 @@ namespace Strategies
 
     public interface IDecisionNode
     {
-        void Execute(IEntity entity);
+        void Execute(Entity entity);
     }
 
     [AttributeUsage(AttributeTargets.Field)]

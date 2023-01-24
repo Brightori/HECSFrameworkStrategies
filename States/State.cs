@@ -37,27 +37,27 @@ namespace Strategies
             nodes.OfType<IInitable>().ForEach(x => x.Init());
         }
 
-        public void Pause(IEntity pause)
+        public void Pause(Entity pause)
         {
             pause.GetComponent<StateContextComponent>().StrategyState = StrategyState.Pause;
         }
 
-        public void Stop(IEntity entity)
+        public void Stop(Entity entity)
         {
             entity.GetComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
         }
 
-        public void UnPause(IEntity entity)
+        public void UnPause(Entity entity)
         {
             entity.GetComponent<StateContextComponent>().StrategyState = StrategyState.Run;
         }
 
-        public override void Execute(IEntity entity)
+        public override void Execute(Entity entity)
         {
             StartDecision?.Execute(entity);
         }
 
-        public void Execute(IEntity entity, IDecisionNode exitNode)
+        public void Execute(Entity entity, IDecisionNode exitNode)
         {
             var context = entity.GetOrAddComponent<StateContextComponent>();
             context.CurrentState = this;
@@ -69,10 +69,10 @@ namespace Strategies
 
     public interface IState
     {
-        void Execute(IEntity entity);
-        void Pause(IEntity entity);
-        void UnPause(IEntity entity);
-        void Stop(IEntity entity);
+        void Execute(Entity entity);
+        void Pause(Entity entity);
+        void UnPause(Entity entity);
+        void Stop(Entity entity);
     }
 
     public interface IAddStateNode

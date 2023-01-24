@@ -13,7 +13,7 @@ namespace Strategies
         [DropDownIdentifier("CounterIdentifierContainer")]
         public int CounterID;
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
 
             if (entity.TryGetComponent(out CountersHolderComponent countersHolderComponent))

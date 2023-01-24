@@ -16,11 +16,11 @@ namespace Strategies
         [Connection(ConnectionPointType.Out, "<float> A*B Result")]
         public BaseDecisionNode Out;
 
-        public override void Execute(IEntity entity)
+        public override void Execute(Entity entity)
         {
         }
 
-        public override float Value(IEntity entity)
+        public override float Value(Entity entity)
         {
             return ValueA.Value(entity) * ValueB.Value(entity);
         }

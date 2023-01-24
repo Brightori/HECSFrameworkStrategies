@@ -9,7 +9,7 @@ namespace Strategies
         [Connection(ConnectionPointType.Out, "Update every tick")]
         public BaseDecisionNode Update;
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             Update?.Execute(entity);
         }

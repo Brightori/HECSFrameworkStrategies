@@ -50,7 +50,7 @@ namespace Strategies
 #endif
         #endregion
 
-        public virtual void Execute(IEntity entity)
+        public virtual void Execute(Entity entity)
         {
             if (start == null)
                 start = nodes.FirstOrDefault(x => x is StartDecision);

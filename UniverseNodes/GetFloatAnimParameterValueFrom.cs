@@ -16,11 +16,11 @@ public sealed class GetFloatAnimParameterValueFrom : GenericNode<float>
     [NonSerialized]
     private HECSMask animatorStateComponentMask = HMasks.GetMask<AnimatorStateComponent>();
 
-    public override void Execute(IEntity entity)
+    public override void Execute(Entity entity)
     {
     }
 
-    public override float Value(IEntity entity)
+    public override float Value(Entity entity)
     {
         if (entity.TryGetComponent(out AnimatorStateComponent animatorStateComponent))
         {

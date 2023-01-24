@@ -15,7 +15,7 @@ namespace Strategies
         [Connection(ConnectionPointType.In, "<float> In")]
         public GenericNode<float> Time;
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             entity.GetOrAddComponent<WaitStateComponent>().CurrentWaitTimer = Time.Value(entity); ;
         }

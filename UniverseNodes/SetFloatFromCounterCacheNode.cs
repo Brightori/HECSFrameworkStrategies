@@ -11,7 +11,7 @@ namespace Strategies
         [DropDownIdentifier("CounterIdentifierContainer")]
         public int CounterID;
 
-        public override float Value(IEntity entity)
+        public override float Value(Entity entity)
         {
             if (entity.TryGetComponent(out CacheCounterValuesComponent cacheCounterValuesComponent))
             {
@@ -24,7 +24,7 @@ namespace Strategies
             return 0;
         }
 
-        public override void Execute(IEntity entity)
+        public override void Execute(Entity entity)
         {
         }
     }

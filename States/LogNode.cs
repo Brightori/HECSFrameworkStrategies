@@ -6,7 +6,7 @@ namespace Strategies
     [Documentation(Doc.Strategy, "Это базовая нода, она логирует в отдельный компонент ноды по которым мы проходимся в стратегии")]
     public abstract class LogNode : BaseDecisionNode
     {
-        public override void Execute(IEntity entity)
+        public override void Execute(Entity entity)
         {
 #if UNITY_EDITOR
             var info = entity.GetOrAddComponent<StateInfoComponent>();
@@ -17,6 +17,6 @@ namespace Strategies
             Run(entity);
         }
 
-        protected abstract void Run(IEntity entity);
+        protected abstract void Run(Entity entity);
     }
 }

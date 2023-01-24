@@ -15,7 +15,7 @@ namespace Strategies
         [Connection(ConnectionPointType.In, "<float> In")]
         public GenericNode<float> FloatIn;
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             entity.GetComponent<CountersHolderComponent>()
                 .GetCounter<ICounter<float>>(Counter).SetValue(FloatIn.Value(entity));

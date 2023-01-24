@@ -14,10 +14,10 @@ namespace Strategies
         [ExposeField]
         public bool IgnorePredicates;
 
-        [Connection(ConnectionPointType.In, "<IEntity> Target")]
-        public GenericNode<IEntity> Target;
+        [Connection(ConnectionPointType.In, "<Entity> Target")]
+        public GenericNode<Entity> Target;
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             entity.Command(new ExecuteAbilityByIDCommand
             {

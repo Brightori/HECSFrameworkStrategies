@@ -8,7 +8,7 @@ namespace Strategies
     {
         public override string TitleOfNode => "Strategy Complete";
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             entity.Command(new NeedDecisionCommand());
         }

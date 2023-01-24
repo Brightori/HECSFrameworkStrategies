@@ -7,7 +7,7 @@ namespace Strategies
     {
         public override string TitleOfNode { get; } = "Set Default Strategy";
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             entity.Command(new SetDefaultStrategyCommand());
         }

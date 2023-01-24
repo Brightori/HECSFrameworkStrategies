@@ -9,7 +9,7 @@ namespace Systems
     public class StateUpdateSystem : BaseSystem, IUpdatable
     {
         private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
-        private HECSList<IEntity> statesEntities;
+        private HECSList<Entity> statesEntities;
         private HECSMask ContextComponent = HMasks.GetMask<StateContextComponent>();
 
         public override void InitSystem()

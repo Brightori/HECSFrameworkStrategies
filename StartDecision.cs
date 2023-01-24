@@ -8,7 +8,7 @@ namespace Strategies
 
         public override string TitleOfNode => "Start";
 
-        public override void Execute(IEntity entity)
+        public override void Execute(Entity entity)
         {
             startDecision?.Execute(entity);
         }

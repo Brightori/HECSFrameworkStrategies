@@ -19,7 +19,7 @@ namespace Strategies
 
         private State currentState;
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             currentState.Stop(entity);
             CallNodesWhenExit?.Execute(entity);

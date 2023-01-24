@@ -25,7 +25,7 @@ namespace Strategies
 
         private readonly HECSMask stateContextMask = HMasks.GetMask<StateContextComponent>(); 
 
-        public override void Execute(IEntity entity)
+        public override void Execute(Entity entity)
         {
            Run(entity);
         }
@@ -35,7 +35,7 @@ namespace Strategies
             State.Init();
         }
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             OnStartStateNodes?.Execute(entity);
             State.Execute(entity, Exit);

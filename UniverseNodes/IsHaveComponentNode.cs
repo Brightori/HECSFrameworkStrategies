@@ -12,7 +12,7 @@ namespace Strategies
         [ComponentMaskDropDown]
         public HECSMask ComponentMask;
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             if (entity.ContainsMask(ComponentMask.TypeHashCode))
                 Positive.Execute(entity);

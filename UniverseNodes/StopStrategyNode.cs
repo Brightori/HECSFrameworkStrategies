@@ -6,7 +6,7 @@ public class StopStrategyNode : FinalDecision
 {
     public override string TitleOfNode { get; } = "Stop strategy";
 
-    protected override void Run(IEntity entity)
+    protected override void Run(Entity entity)
     {
         entity.Command(new ForceStopAICommand());
     }

@@ -14,11 +14,11 @@ namespace Strategies
         [Connection(ConnectionPointType.Out, "<float> Out")]
         public BaseDecisionNode Out;
 
-        public override void Execute(IEntity entity)
+        public override void Execute(Entity entity)
         {
         }
 
-        public override float Value(IEntity entity)
+        public override float Value(Entity entity)
         {
             if (entity.TryGetComponent(out CacheCounterValuesComponent cacheCounterValuesComponent))
             {

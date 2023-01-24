@@ -19,7 +19,7 @@ public sealed class GetAnimationEventTime : GenericNode<float>
     [Connection(ConnectionPointType.Out, "<float Out>")]
     public BaseDecisionNode Out;
     
-    public override float Value(IEntity entity)
+    public override float Value(Entity entity)
     {
         if (entity.TryGetComponent(out AnimationCheckOutsHolderComponent animationCheckOutsHolder))
         {
@@ -34,7 +34,7 @@ public sealed class GetAnimationEventTime : GenericNode<float>
         throw new Exception("we dont have checkout component on " + entity.ID);
     }
 
-    public override void Execute(IEntity entity)
+    public override void Execute(Entity entity)
     {
     }
 }

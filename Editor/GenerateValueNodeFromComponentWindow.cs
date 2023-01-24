@@ -80,11 +80,11 @@ public class GenerateValueNodeFromComponentWindow : OdinEditorWindow
         tree.Add(new TabSimpleSyntax(2, $"[Connection(ConnectionPointType.Out, {CParse.Quote}<{field.FieldType.Name}> Out{CParse.Quote})]"));
         tree.Add(new TabSimpleSyntax(2, "public BaseDecisionNode Out;"));
 
-        tree.Add(new TabSimpleSyntax(2, "public override void Execute(IEntity entity)"));
+        tree.Add(new TabSimpleSyntax(2, "public override void Execute(Entity entity)"));
         tree.Add(new LeftScopeSyntax(2));
         tree.Add(new RightScopeSyntax(2));
 
-        tree.Add(new TabSimpleSyntax(2, $"public override {field.FieldType.Name} Value(IEntity entity)"));
+        tree.Add(new TabSimpleSyntax(2, $"public override {field.FieldType.Name} Value(Entity entity)"));
         tree.Add(new LeftScopeSyntax(2));
         tree.Add(new TabSimpleSyntax(3, $"return entity.Get{Component.Name}().{Field}; "));
         tree.Add(new RightScopeSyntax(2));

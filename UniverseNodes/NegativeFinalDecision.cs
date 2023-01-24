@@ -7,7 +7,7 @@ namespace Strategies
         public override string TitleOfNode { get; } = "NegativeFinalDecision";
         public BaseDecisionNode Negative { get; set; }
 
-        protected override void Run(IEntity entity)
+        protected override void Run(Entity entity)
         {
             Negative.Execute(entity);
         }

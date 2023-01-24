@@ -5,8 +5,8 @@ using Strategies;
 [Documentation(Doc.Strategy, Doc.HECS, "here we check predicates of needed ability")]
 public sealed class CheckAbilityIsReady : DilemmaDecision
 {
-    [Connection(ConnectionPointType.In, "<IEntity> Target")]
-    public GenericNode<IEntity> Target;
+    [Connection(ConnectionPointType.In, "<Entity> Target")]
+    public GenericNode<Entity> Target;
     public override string TitleOfNode { get; } = "Check Ability Is Ready";
     
     private HECSMask predicatesMask = HMasks.GetMask<AbilityPredicateComponent>();
@@ -15,7 +15,7 @@ public sealed class CheckAbilityIsReady : DilemmaDecision
     [AbilityIDDropDown]
     public int AbilityIndex;
 
-    protected override void Run(IEntity entity)
+    protected override void Run(Entity entity)
     {
         if (entity.TryGetComponent(out AbilitiesHolderComponent abilitiesHolderComponent))
         {
