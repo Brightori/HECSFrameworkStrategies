@@ -8,9 +8,6 @@ public sealed class CheckAbilityIsReady : DilemmaDecision
     [Connection(ConnectionPointType.In, "<Entity> Target")]
     public GenericNode<Entity> Target;
     public override string TitleOfNode { get; } = "Check Ability Is Ready";
-    
-    private HECSMask predicatesMask = HMasks.GetMask<AbilityPredicateComponent>();
-    private HECSMask abilitiesHolderMask = HMasks.GetMask<AbilitiesHolderComponent>();
 
     [AbilityIDDropDown]
     public int AbilityIndex;
