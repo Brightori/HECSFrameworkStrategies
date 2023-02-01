@@ -1,5 +1,4 @@
-﻿using System;
-using Components;
+﻿using Components;
 using HECSFramework.Core;
 using Strategies;
 
@@ -8,24 +7,20 @@ namespace Systems
     [Documentation(Doc.AI, Doc.Strategy, Doc.State, Doc.HECS, "это глобальная система которая отвечает за апдейт состояний")]
     public class StateUpdateSystem : BaseSystem, IUpdatable
     {
-        private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
-        private HECSList<Entity> statesEntities;
-        private HECSMask ContextComponent = HMasks.GetMask<StateContextComponent>();
+        private EntitiesFilter statesEntities;
 
         public override void InitSystem()
         {
             //todo filter
-            //statesEntities = Owner.World.Filter(ContextComponent);
+            statesEntities = Owner.World.GetFilter<StateContextComponent>();
         }
 
         public void UpdateLocal()
         {
             var count = statesEntities.Count;
 
-            for (int i = 0; i < count; i++)
+            foreach (var needed in statesEntities)
             {
-                var needed = statesEntities.Data[i];
-
                 if (needed.TryGetComponent(out StateContextComponent stateContextComponent))
                 {
                     if (stateContextComponent.StrategyState != StrategyState.Run) continue;
