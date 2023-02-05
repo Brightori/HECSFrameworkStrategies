@@ -1,3 +1,4 @@
+using System;
 using Components;
 using HECSFramework.Core;
 using Strategies;
@@ -9,7 +10,10 @@ public sealed class CheckAbilityIsReady : DilemmaDecision
     public GenericNode<IEntity> Target;
     public override string TitleOfNode { get; } = "Check Ability Is Ready";
     
+    [NonSerialized]    
     private HECSMask predicatesMask = HMasks.GetMask<AbilityPredicateComponent>();
+
+    [NonSerialized]
     private HECSMask abilitiesHolderMask = HMasks.GetMask<AbilitiesHolderComponent>();
 
     [AbilityIDDropDown]
