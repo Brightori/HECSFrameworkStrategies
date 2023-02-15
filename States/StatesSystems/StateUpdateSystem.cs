@@ -11,7 +11,6 @@ namespace Systems
 
         public override void InitSystem()
         {
-            //todo filter
             statesEntities = Owner.World.GetFilter<StateContextComponent>();
         }
 
