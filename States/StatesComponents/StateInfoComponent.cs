@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Components
 {
     [Serializable, Documentation(Doc.AI, Doc.Strategy, Doc.State, Doc.Debug, "Компонент который вешается на ентити которая участвует в данном стейте, нужен для дебага")]
-    public class StateInfoComponent : BaseComponent
+    public partial class StateInfoComponent : BaseComponent
     {
         public bool NeedInfo = false;
         public bool NeedClean = false;
