@@ -70,6 +70,9 @@ namespace Systems
         {
             if (Owner.TryGetComponent(out StateContextComponent stateContextComponent))
                 stateContextComponent.Dispose();
+
+            isNeedDecision = false;
+            isStoped = false;
         }
 
         public void CommandReact(ForceStartAICommand command)

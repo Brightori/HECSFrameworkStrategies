@@ -21,6 +21,7 @@ namespace Components
         public void Dispose()
         {
             ExitFromState();
+            ExitStateNodes.Clear();
             CurrentState = null;
         }
     }
