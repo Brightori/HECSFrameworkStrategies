@@ -3,7 +3,7 @@ using HECSFramework.Core;
 
 namespace Strategies
 {
-    internal class ChangeStrategyDecision : FinalDecision
+    public class ChangeStrategyDecision : FinalDecision
     {
         public override string TitleOfNode { get; } = "Change Strategy";
         [UnityEngine.SerializeField] public Strategy Strategy;
