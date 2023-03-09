@@ -10,6 +10,7 @@ namespace Components
     {
         public StrategyState StrategyState = StrategyState.Stop;
         public State CurrentState;
+        public IDecisionNode EarlyUpdateNode;
         
         public Stack<IDecisionNode> ExitStateNodes = new Stack<IDecisionNode>(3); //выход из текущего стейта, сеттим на входе в стейт
 
@@ -23,6 +24,7 @@ namespace Components
             ExitFromState();
             ExitStateNodes.Clear();
             CurrentState = null;
+            EarlyUpdateNode = null;
         }
     }
 }

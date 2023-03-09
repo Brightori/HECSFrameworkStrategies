@@ -12,6 +12,9 @@ namespace Strategies
         [Connection(ConnectionPointType.In, "Execute on Start")]
         public BaseDecisionNode OnStartStateNodes;
 
+        [Connection(ConnectionPointType.Out, "Early Update")]
+        public BaseDecisionNode EarlyUpdateNodes;
+
         [Connection(ConnectionPointType.Out, "Exit")]
         public BaseDecisionNode Exit;
 
@@ -38,6 +41,8 @@ namespace Strategies
         protected override void Run(Entity entity)
         {
             OnStartStateNodes?.Execute(entity);
+            var context = entity.GetOrAddComponent<StateContextComponent>();
+            context.EarlyUpdateNode = EarlyUpdateNodes;
             State.Execute(entity, Exit);
         }
     }

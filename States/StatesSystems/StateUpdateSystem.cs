@@ -1,4 +1,5 @@
-﻿using Components;
+﻿using System;
+using Components;
 using HECSFramework.Core;
 using Strategies;
 
@@ -16,13 +17,12 @@ namespace Systems
 
         public void UpdateLocal()
         {
-            var count = statesEntities.Count;
-
             foreach (var needed in statesEntities)
             {
                 if (needed.TryGetComponent(out StateContextComponent stateContextComponent))
                 {
                     if (stateContextComponent.StrategyState != StrategyState.Run) continue;
+                    stateContextComponent.EarlyUpdateNode?.Execute(needed);
                     stateContextComponent.CurrentState.Update.Execute(needed);
                 }
             }

@@ -5,11 +5,13 @@ namespace Strategies
 {
     [Serializable]
     [Documentation(Doc.Strategy, "this node checks => entity have this component or not")]
+    [HECSResolver]
     public class IsHaveComponentNode : DilemmaDecision, IInitable
     {
         public override string TitleOfNode { get; } = "Is Have Component";
 
         [ComponentMaskDropDown]
+        [Field(0, typeof(HECSMaskResolver))]
         public HECSMask ComponentMask;
 
         protected override void Run(Entity entity)

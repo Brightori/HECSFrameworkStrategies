@@ -14,9 +14,6 @@ namespace Strategies
         [Connection(ConnectionPointType.Out, "On Exit")]
         public BaseDecisionNode CallNodesWhenExit;
 
-        [NonSerialized]
-        private HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
-
         private State currentState;
 
         protected override void Run(Entity entity)

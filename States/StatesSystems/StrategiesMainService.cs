@@ -21,24 +21,24 @@ namespace Systems
         private void React()
         {
            foreach (var entity in stackInfos)
-            {
-                var info = entity.GetComponent<StateInfoComponent>();
+           {
+               var info = entity.GetComponent<StateInfoComponent>();
 
-                if (info.NeedInfo)
-                {
-                    if (info.NeedClean)
-                    {
-                        info.StateStack.Clear();
-                        info.CurrentCycle = 0;
-                        info.NeedClean = false;
-                    }
+               if (info.NeedInfo)
+               {
+                   if (info.NeedClean)
+                   {
+                       info.StateStack.Clear();
+                       info.CurrentCycle = 0;
+                       info.NeedClean = false;
+                   }
 
-                    if (info.CurrentCycle > info.MaxCycles)
-                        info.NeedInfo = false;
+                   if (info.CurrentCycle > info.MaxCycles)
+                       info.NeedInfo = false;
 
-                    info.CurrentCycle++;
-                }
-            }
+                   info.CurrentCycle++;
+               }
+           }
         }
 #endif
     }
