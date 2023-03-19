@@ -7,6 +7,8 @@ namespace Strategies
 
     }
 
+    public class DrawEntitiesFilterAttribute : Attribute { }
+
     public class DropDownIdentifierAttribute : Attribute
     {
         public string IdentifierType;

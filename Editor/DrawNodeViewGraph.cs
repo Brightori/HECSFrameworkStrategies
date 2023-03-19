@@ -383,8 +383,15 @@ public class StrategyGraphView : GraphView, IDisposable
                                 newList.Add(c.Value.ComponentName);
                             }
 
-                            var currentValue = (HECSMask)field.GetValue(drawNode.InnerNode);
-                            var lookForCurrentStringName = componentsList.FirstOrDefault(x => x.Key == currentValue.TypeHashCode);
+                            var currentValue = (int)field.GetValue(drawNode.InnerNode);
+
+                            if (currentValue == 0)
+                            {
+                                currentValue = componentsList.First().Key;
+                                field.SetValue(drawNode.InnerNode, currentValue);
+                            }
+
+                            var lookForCurrentStringName = componentsList.FirstOrDefault(x => x.Key == currentValue);
 
                             var defaultIndex = lookForCurrentStringName.Key == 0 ? 0 : newList.IndexOf(lookForCurrentStringName.Value.ComponentName);
 
@@ -395,6 +402,9 @@ public class StrategyGraphView : GraphView, IDisposable
                             dropDown.RegisterValueChangedCallback((evt) => ComponentsDropDownReact(evt, field, drawNode.InnerNode));
                             drawNode.contentContainer.Add(dropDown);
                         }
+
+                        if (a is DrawEntitiesFilterAttribute)
+                            DrawFilter(m, drawNode, so);
 
                         if (a is AnimParameterDropDownAttribute)
                         {
@@ -478,6 +488,18 @@ public class StrategyGraphView : GraphView, IDisposable
                     }
                 }
         }
+    }
+
+    private void DrawFilter(MemberInfo m, DrawNodeViewGraph drawNode, SerializedObject so)
+    {
+        var button = new Button(() => ReactOnFilterClick(m, drawNode, so)) { text = m.Name };
+        drawNode.Add(button);
+    }
+    
+    private void ReactOnFilterClick(MemberInfo memberInfo, DrawNodeViewGraph drawNode, SerializedObject so)
+    {
+        var window = EditorWindow.GetWindow<SetFilterWindow>();
+        window.DrawFilter(memberInfo, drawNode, so);
     }
 
     private void DrawAnimParameterDropDown(MemberInfo m, DrawNodeViewGraph drawNode)
@@ -596,7 +618,7 @@ public class StrategyGraphView : GraphView, IDisposable
     private void ComponentsDropDownReact(ChangeEvent<string> evt, FieldInfo field, BaseDecisionNode innerNode)
     {
         var mask = new TypesProvider().MapIndexes[IndexGenerator.GenerateIndex(evt.newValue)];
-        field.SetValue(innerNode, mask.ComponentsMask);
+        field.SetValue(innerNode, mask.ComponentsMask.TypeHashCode);
     }
 
     private VisualElement CreateEditorFromNodeData<T>(T obj) where T : UnityEngine.Object
