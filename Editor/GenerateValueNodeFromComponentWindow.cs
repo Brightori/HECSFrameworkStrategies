@@ -68,7 +68,8 @@ public class GenerateValueNodeFromComponentWindow : OdinEditorWindow
 
         tree.Add(usings);
         tree.Add(new UsingSyntax("HECSFramework.Core"));
-        tree.Add(new UsingSyntax(field.FieldType.Namespace));
+        tree.Add(new UsingSyntax("Components"));
+        tree.AddUnique(new UsingSyntax(field.FieldType.Namespace));
 
         tree.Add(new NameSpaceSyntax("Strategies"));
         tree.Add(new LeftScopeSyntax());
@@ -86,7 +87,7 @@ public class GenerateValueNodeFromComponentWindow : OdinEditorWindow
 
         tree.Add(new TabSimpleSyntax(2, $"public override {field.FieldType.Name} Value(Entity entity)"));
         tree.Add(new LeftScopeSyntax(2));
-        tree.Add(new TabSimpleSyntax(3, $"return entity.Get{Component.Name}().{Field}; "));
+        tree.Add(new TabSimpleSyntax(3, $"return entity.GetComponent<{Component.Name}>().{Field}; "));
         tree.Add(new RightScopeSyntax(2));
 
         tree.Add(new RightScopeSyntax(1));
@@ -95,6 +96,7 @@ public class GenerateValueNodeFromComponentWindow : OdinEditorWindow
         InstallHECS.CheckFolder(InstallHECS.ScriptPath + InstallHECS.HECSGenerated + StrategyNodes);
         InstallHECS.SaveToFile(tree.ToString(), InstallHECS.ScriptPath + InstallHECS.HECSGenerated + StrategyNodes + $"{Component.Name}Get{Field}.cs");
         AssetDatabase.SaveAssets();
+        Close();
     }
 }
 

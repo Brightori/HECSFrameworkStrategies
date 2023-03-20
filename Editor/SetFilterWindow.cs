@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using HECSFramework.Core;
 using HECSFramework.Unity;
@@ -64,7 +65,15 @@ namespace Strategies
         [Button]
         public void SaveFilter()
         {
+            Close();
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
             Filter filter = new Filter();
+
+            indeces = indeces.Distinct().ToList();
 
             for (int i = 0; i < indeces.Count; i++)
             {
@@ -73,7 +82,7 @@ namespace Strategies
 
             fieldInfo.SetValue(drawNode.InnerNode, filter);
             EditorUtility.SetDirty(drawNode.InnerNode);
-            Close();
+            base.OnDestroy();
         }
     }
 }

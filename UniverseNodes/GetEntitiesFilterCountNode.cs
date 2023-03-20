@@ -22,4 +22,6 @@ namespace Strategies
             return Filter.Value(entity).Count;
         }
     }
+
+
 }
