@@ -68,9 +68,8 @@ namespace Strategies
             Close();
         }
 
-        protected override void OnDisable()
+        protected void OnDisable()
         {
-            base.OnDisable();
             Filter filter = new Filter();
 
             indeces = indeces.Distinct().ToList();
