@@ -385,7 +385,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
                             var currentValue = (int)field.GetValue(drawNode.InnerNode);
 
-                            if (currentValue == 0)
+                            if (currentValue == 0 && componentsList != null && componentsList.Count() > 0)
                             {
                                 currentValue = componentsList.First().Key;
                                 field.SetValue(drawNode.InnerNode, currentValue);
@@ -515,6 +515,13 @@ public class StrategyGraphView : GraphView, IDisposable
         }
 
         var currentValue = (int)field.GetValue(drawNode.InnerNode);
+
+        if (currentValue == 0 && abilitiesList != null && abilitiesList.Count() > 0)
+        {
+            currentValue = abilitiesList.First().Value;
+            field.SetValue(drawNode.InnerNode, currentValue);
+        }
+
         var lookForCurrentStringName = abilitiesList.FirstOrDefault(x => x.Value == currentValue);
 
         var defaultIndex = lookForCurrentStringName.Value == 0 ? 0 : newList.IndexOf(lookForCurrentStringName.Key);
@@ -553,6 +560,13 @@ public class StrategyGraphView : GraphView, IDisposable
         }
 
         var currentValue = (int)field.GetValue(drawNode.InnerNode);
+
+        if (currentValue == 0 && abilitiesList != null && abilitiesList.Count() > 0)
+        {
+            currentValue = abilitiesList.First().Id;
+            field.SetValue(drawNode.InnerNode, currentValue);
+        }
+
         var lookForCurrentStringName = abilitiesList.FirstOrDefault(x => x.Id== currentValue);
 
         var defaultIndex = lookForCurrentStringName == null ? 0 : newList.IndexOf(lookForCurrentStringName.name);
@@ -578,6 +592,13 @@ public class StrategyGraphView : GraphView, IDisposable
         }
 
         var currentValue = (int)field.GetValue(drawNode.InnerNode);
+
+        if (currentValue == 0 && abilitiesList != null && abilitiesList.Count() > 0)
+        {
+            currentValue = abilitiesList.First().Value;
+            field.SetValue(drawNode.InnerNode, currentValue);
+        }
+
         var lookForCurrentStringName = abilitiesList.FirstOrDefault(x => x.Value == currentValue);
 
         var defaultIndex = lookForCurrentStringName.Value == 0 ? 0 : newList.IndexOf(lookForCurrentStringName.Key);
