@@ -571,7 +571,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
         var defaultIndex = lookForCurrentStringName == null ? 0 : newList.IndexOf(lookForCurrentStringName.name);
 
-        var dropDown = new DropdownField("Select ability", newList, defaultIndex);
+        var dropDown = new DropdownField("Select identifier", newList, defaultIndex);
 
         var button = new Button(() => ReactOnComponentSearchClick(dropDown)) { text = "Search" };
         dropDown.Add(button);
