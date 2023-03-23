@@ -9,7 +9,7 @@ using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 
-public class GenerateValueNodeFromComponentWindow : OdinEditorWindow
+public class GenerateGetNodeForComponentWindow : OdinEditorWindow
 {
     [OnValueChanged(nameof(ClearField))]
     [ValueDropdown(nameof(GetComponents))]
@@ -21,10 +21,10 @@ public class GenerateValueNodeFromComponentWindow : OdinEditorWindow
 
     private const string StrategyNodes = "/StrategyNodes/";
 
-    [MenuItem("HECS Options/Helpers/Generate strategies nodes for components")]
+    [MenuItem("HECS Options/Helpers/Generate GetNode For Component")]
     public static void GetGenerateValueNodeFromComponentWindow()
     {
-        GetWindow<GenerateValueNodeFromComponentWindow>();
+        GetWindow<GenerateGetNodeForComponentWindow>();
     }
 
     private IEnumerable<Type> GetComponents()
