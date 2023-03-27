@@ -197,7 +197,7 @@ public class StrategyGraphView : GraphView, IDisposable
                     ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
                     ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Debug.LogWarning("nodes not match " + ex.Message);
                     graphViewChange.edgesToCreate.Remove(e);
@@ -355,8 +355,6 @@ public class StrategyGraphView : GraphView, IDisposable
     {
         var so = new SerializedObject(drawNode.InnerNode);
 
-
-
         if (drawNode.InnerNode != null)
         {
             if (drawNode.InnerNode.GetType().GetCustomAttributes().Any(x => x is DrawInNodeAttribute))
@@ -397,14 +395,33 @@ public class StrategyGraphView : GraphView, IDisposable
 
                             var dropDown = new DropdownField("Choose component", newList, defaultIndex);
 
-                            var button = new Button(()=>ReactOnComponentSearchClick(dropDown)) { text = "Search"};
+                            var button = new Button(() => ReactOnComponentSearchClick(dropDown)) { text = "Search" };
                             dropDown.Add(button);
                             dropDown.RegisterValueChangedCallback((evt) => ComponentsDropDownReact(evt, field, drawNode.InnerNode));
                             drawNode.contentContainer.Add(dropDown);
                         }
 
                         if (a is DrawEntitiesFilterAttribute)
+                        {
+                            var field = m as FieldInfo;
+                            var label = new Label($"{field.Name}");
+
+                            var filter = (Filter)field.GetValue(drawNode.InnerNode);
+
+                            drawNode.contentContainer.Add(label);
+
+                            for (int i = 0; i < filter.Lenght; i++)
+                            {
+                                if (TypesMap.GetComponentInfo(filter[i], out var componentInfo))
+                                {
+                                    var textField = new Label($"{componentInfo.ComponentName}");
+                                    textField.style.scale = new StyleScale { value = new Scale { value = Vector3.one*0.8f } };
+                                    drawNode.contentContainer.Add(textField);
+                                }
+                            }
+                          
                             DrawFilter(m, drawNode, so);
+                        }
 
                         if (a is AnimParameterDropDownAttribute)
                         {
@@ -495,7 +512,7 @@ public class StrategyGraphView : GraphView, IDisposable
         var button = new Button(() => ReactOnFilterClick(m, drawNode, so)) { text = m.Name };
         drawNode.Add(button);
     }
-    
+
     private void ReactOnFilterClick(MemberInfo memberInfo, DrawNodeViewGraph drawNode, SerializedObject so)
     {
         var window = EditorWindow.GetWindow<SetFilterWindow>();
@@ -567,7 +584,7 @@ public class StrategyGraphView : GraphView, IDisposable
             field.SetValue(drawNode.InnerNode, currentValue);
         }
 
-        var lookForCurrentStringName = abilitiesList.FirstOrDefault(x => x.Id== currentValue);
+        var lookForCurrentStringName = abilitiesList.FirstOrDefault(x => x.Id == currentValue);
 
         var defaultIndex = lookForCurrentStringName == null ? 0 : newList.IndexOf(lookForCurrentStringName.name);
 

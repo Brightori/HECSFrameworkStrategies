@@ -1,10 +1,11 @@
 ﻿using System;
 using HECSFramework.Core;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Strategies
 {
     [Documentation(Doc.HECS, Doc.Strategy, "this strategy node set filter of entites, here we can setup include and exclude filters for entities filters")]
-    public sealed class GetEntitiesFilterNode : GenericNode<EntitiesFilter>
+    public sealed class GetEntitiesFilterNode : GenericNode<EntitiesFilter>, IInitable
     {
         [DrawEntitiesFilter]
         public Filter Include;
@@ -24,6 +25,10 @@ namespace Strategies
         public override EntitiesFilter Value(Entity entity)
         {
             return entity.World.GetFilter(Include, Exclude);
+        }
+
+        public void Init()
+        {
         }
     }
 }
