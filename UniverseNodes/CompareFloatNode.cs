@@ -22,27 +22,42 @@ namespace Strategies
             {
                 case Operations.InEqual:
                     if (ValueA.Value(entity) == ValueB.Value(entity))
+                    {
                         Positive.Execute(entity);
+                        return;
+                    }
                     Negative.Execute(entity);
                     break;
                 case Operations.InMore:
                     if (ValueA.Value(entity) > ValueB.Value(entity))
+                    {
                         Positive.Execute(entity);
+                        return;
+                    }
                     Negative.Execute(entity);
                     break;
                 case Operations.InLess:
                     if (ValueA.Value(entity) < ValueB.Value(entity))
+                    {
                         Positive.Execute(entity);
+                        return;
+                    }
                     Negative.Execute(entity);
                     break;
                 case Operations.MoreOrEqual:
                     if (ValueA.Value(entity) >= ValueB.Value(entity))
+                    {
                         Positive.Execute(entity);
+                        return;
+                    }
                     Negative.Execute(entity);
                     break;
                 case Operations.LessOrEqual:
                     if (ValueA.Value(entity) <= ValueB.Value(entity))
+                    {
                         Positive.Execute(entity);
+                        return;
+                    }
                     Negative.Execute(entity);
                     break;
             }
