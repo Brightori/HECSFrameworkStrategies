@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Components;
 using HECSFramework.Core;
 using Strategies;
@@ -22,7 +23,7 @@ public sealed class CheckAbilityIsReady : DilemmaDecision
 
         if (abilityOwner != null)
         {
-            if (!Ready(abilityOwner))
+            if (!Ready(abilityOwner, entity))
             {
                 Negative.Execute(entity);
                 return;
@@ -30,7 +31,7 @@ public sealed class CheckAbilityIsReady : DilemmaDecision
         }
         else
         {
-            if (!Ready(entity))
+            if (!Ready(entity, entity))
             {
                 Negative.Execute(entity);
                 return;
@@ -40,15 +41,16 @@ public sealed class CheckAbilityIsReady : DilemmaDecision
         Positive.Execute(entity);
     }
 
-    private bool Ready(Entity entity)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool Ready(Entity abilityOwner, Entity logicEntity)
     {
-        if (entity.TryGetComponent(out AbilitiesHolderComponent abilitiesHolderComponent))
+        if (abilityOwner.TryGetComponent(out AbilitiesHolderComponent abilitiesHolderComponent))
         {
             if (abilitiesHolderComponent.IndexToAbility.TryGetValue(AbilityIndex, out var ability))
             {
                 if (ability.TryGetComponent(out AbilityPredicateComponent predicatesComponent))
                 {
-                    if (!predicatesComponent.TargetPredicates.IsReady(Target?.Value(entity), ability))
+                    if (!predicatesComponent.TargetPredicates.IsReady(Target.Value(logicEntity), ability))
                     {
                         return false;
                     }
@@ -58,7 +60,7 @@ public sealed class CheckAbilityIsReady : DilemmaDecision
                         return false;
                     }
 
-                    if (!predicatesComponent.AbilityOwnerPredicates.IsReady(entity, Target?.Value(entity)))
+                    if (!predicatesComponent.AbilityOwnerPredicates.IsReady(abilityOwner, Target?.Value(logicEntity)))
                     {
                         return false;
                     }
