@@ -13,6 +13,9 @@ namespace Strategies
         [DrawEntitiesFilter]
         public Filter Exclude;
 
+        [ExposeField]
+        public bool ForceUpdate;
+
         public override string TitleOfNode { get; } = "GetEntitiesFilterNode";
 
         [Connection(ConnectionPointType.Out, "Out <EntitiesFilter>")]
@@ -24,7 +27,12 @@ namespace Strategies
 
         public override EntitiesFilter Value(Entity entity)
         {
-            return entity.World.GetFilter(Include, Exclude);
+            var filter = entity.World.GetFilter(Include, Exclude);
+
+            if (ForceUpdate)
+                filter.ForceUpdateFilter();
+            
+            return filter;
         }
 
         public void Init()
