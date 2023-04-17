@@ -50,9 +50,12 @@ public sealed class CheckAbilityIsReady : DilemmaDecision
             {
                 if (ability.TryGetComponent(out AbilityPredicateComponent predicatesComponent))
                 {
-                    if (!predicatesComponent.TargetPredicates.IsReady(Target.Value(logicEntity), ability))
+                    if (Target != null)
                     {
-                        return false;
+                        if (!predicatesComponent.TargetPredicates.IsReady(Target.Value(logicEntity), ability))
+                        {
+                            return false;
+                        }
                     }
 
                     if (!predicatesComponent.AbilityPredicates.IsReady(ability))
