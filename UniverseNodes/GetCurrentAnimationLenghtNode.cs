@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Components;
+﻿using Components;
 using HECSFramework.Core;
 
 namespace Strategies
@@ -11,6 +6,9 @@ namespace Strategies
     public class GetCurrentAnimationLenghtNode : GenericNode<float>
     {
         public override string TitleOfNode { get; } = "GetCurrentAnimationTimeNode";
+
+        [Connection(ConnectionPointType.In, "<Entity> Animator Owner")]
+        public GenericNode<Entity> AnimatorOwner;
 
         [Connection(ConnectionPointType.Out, "<float>")]
         public BaseDecisionNode Out;
@@ -24,7 +22,9 @@ namespace Strategies
 
         public override float Value(Entity entity)
         {
-            if (entity.TryGetComponent(out AnimatorStateComponent animatorStateComponent))
+            var check = AnimatorOwner == null ? entity : AnimatorOwner.Value(entity);
+
+            if (check.TryGetComponent(out AnimatorStateComponent animatorStateComponent))
             {
                 var currentState = animatorStateComponent.Animator.GetCurrentAnimatorStateInfo(AnimationLayer);
                 return currentState.length;

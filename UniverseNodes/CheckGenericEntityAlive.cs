@@ -2,19 +2,36 @@
 
 namespace Strategies
 {
-    public class CheckGenericEntityAlive : DilemmaDecision
+    public class CheckGenericEntityAlive : GenericNode<Entity>
     {
         [Connection(ConnectionPointType.In, "<Entity>")]
         public GenericNode<Entity> InEntity;
 
-        public override string TitleOfNode { get; } = "CheckEntityAlive";
+        [Connection(ConnectionPointType.Out, "<CheckedEntity>")]
+        public BaseDecisionNode CheckedEntity;
 
-        protected override void Run(Entity entity)
+        [Connection(ConnectionPointType.In, "Input")]
+        public BaseDecisionNode Input;
+
+        [Connection(ConnectionPointType.Out, "Positive")]
+        public BaseDecisionNode Positive;
+
+        [Connection(ConnectionPointType.Out, "Negative")]
+        public BaseDecisionNode Negative;
+
+        public override string TitleOfNode { get; } = "CheckGenericEntityAlive";
+
+        public override void Execute(Entity entity)
         {
             if (InEntity.Value(entity).IsAlive())
                 Positive.Execute(entity);
             else
                 Negative.Execute(entity);
+        }
+
+        public override Entity Value(Entity entity)
+        {
+            return InEntity.Value(entity);
         }
     }
 }

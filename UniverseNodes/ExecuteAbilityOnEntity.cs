@@ -6,7 +6,7 @@ namespace Strategies
     [Documentation(Doc.HECS, Doc.Strategy, Doc.UniversalNodes, "we need this node when we want ")]
     public class ExecuteAbilityOnEntity : InterDecision
     {
-        [Connection(ConnectionPointType.In, "<Entity> Ability Owber")]
+        [Connection(ConnectionPointType.In, "<Entity> Ability Owner")]
         public GenericNode<Entity> EntityWithAbility;
 
         [Connection(ConnectionPointType.In, "<Entity> Target")]
@@ -33,6 +33,8 @@ namespace Strategies
                 Owner = EntityWithAbility.Value(entity),
                 Target = Target.Value(entity),
             });
+
+            Next.Execute(entity);
         }
     }
 }

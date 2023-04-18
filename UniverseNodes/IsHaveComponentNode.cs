@@ -10,13 +10,23 @@ namespace Strategies
     {
         public override string TitleOfNode { get; } = "Is Have Component";
 
+        [Connection(ConnectionPointType.In, "<Entity> Optional Target")]
+        public GenericNode<Entity> OptionalTarget;
+
         [ComponentMaskDropDown]
         [Field(0)]
         public int ComponentMask;
 
         protected override void Run(Entity entity)
         {
-            if (entity.ContainsMask(ComponentMask))
+            Entity target = null;
+
+            if (OptionalTarget != null)
+                target = OptionalTarget.Value(entity);
+            else
+                target = entity;
+
+            if (target.ContainsMask(ComponentMask))
                 Positive.Execute(entity);
             else
                 Negative.Execute(entity);

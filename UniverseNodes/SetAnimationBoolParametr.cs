@@ -6,6 +6,9 @@ namespace Strategies
     [Documentation(Doc.Animation, Doc.Strategy, "here we set animation bool parameter")]
     public class SetAnimationBoolParametr : InterDecision
     {
+        [Connection(ConnectionPointType.In, "<Entity> Animator Owner")]
+        public GenericNode<Entity> AnimatorOwner;
+
         [AnimParameterDropDown]
         public int boolWithIdentifier;
 
@@ -16,7 +19,9 @@ namespace Strategies
 
         protected override void Run(Entity entity)
         {
-            entity.GetComponent<AnimatorStateComponent>().State.SetBool(boolWithIdentifier, Value);
+            var check = AnimatorOwner != null ? AnimatorOwner.Value(entity) : entity;
+
+            check.GetComponent<AnimatorStateComponent>().State.SetBool(boolWithIdentifier, Value);
             Next.Execute(entity);
         }
     }

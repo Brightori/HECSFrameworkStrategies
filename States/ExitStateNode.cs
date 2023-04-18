@@ -9,7 +9,7 @@ namespace Strategies
         public override string TitleOfNode { get; } = "Exit State";
 
         [Connection(ConnectionPointType.In, "Input")]
-        public LogNode Input;
+        public BaseDecisionNode Input;
 
         [Connection(ConnectionPointType.Out, "On Exit")]
         public BaseDecisionNode CallNodesWhenExit;
