@@ -10,10 +10,8 @@ using HECSFramework.Unity.Helpers;
 using Strategies;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
-using UnityEditor.PackageManager.UI;
 using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using Button = UnityEngine.UIElements.Button;
 using Toggle = UnityEngine.UIElements.Toggle;
@@ -118,6 +116,8 @@ public class StrategyGraphView : GraphView, IDisposable
 
                     if (needed != null)
                         AddToSelection(needed);
+                    else
+                        continue;
 
                     RecursiveSelection(needed.ConnectedPorts, Direction.Input);
                 }
@@ -155,6 +155,9 @@ public class StrategyGraphView : GraphView, IDisposable
                 var node = c.Value.node;
 
                 var needed = drawNodes.FirstOrDefault(x => x.InnerNode == node);
+
+                if (needed == null)
+                    continue;
 
                 AddToSelection(needed);
                 RecursiveSelection(needed.ConnectedPorts, direction);
@@ -320,7 +323,9 @@ public class StrategyGraphView : GraphView, IDisposable
                             {
                                 if (neededNode.ConnectedPorts.TryGetValue(edge.input, out var info2))
                                 {
-
+                                    var nameInput = info2.member.Name;
+                                    dn.InnerNode.ConnectionContexts.Remove(new ConnectionContext { In = nameInput, Out = nameOut });
+                                    ((FieldInfo)info2.member).SetValue(info.node, null);
                                 }
                             }
 
@@ -867,9 +872,6 @@ public class StrategyGraphView : GraphView, IDisposable
                 if (a is ConnectionAttribute connection)
                 {
                     var nextNode = GetNodeFromField(m, drawNode.InnerNode);
-
-                    if (nextNode == null)
-                        continue;
 
                     switch (connection.ConnectionPointType)
                     {
