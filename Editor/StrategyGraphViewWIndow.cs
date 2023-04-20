@@ -29,7 +29,7 @@ public class StrategyGraphViewWIndow : EditorWindow
         this.strategy = strategy;
         assetPath = path;
 
-        graphView = new StrategyGraphView(strategy, path);
+        graphView = new StrategyGraphView(strategy, path, this);
         graphView.StretchToParentSize();
         rootVisualElement.Add(graphView);
         CreateMiniMap();

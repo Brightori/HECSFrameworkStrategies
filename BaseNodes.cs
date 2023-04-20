@@ -1,7 +1,7 @@
-﻿using HECSFramework.Core;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using HECSFramework.Core;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Strategies
 {
@@ -10,8 +10,19 @@ namespace Strategies
         public abstract string TitleOfNode { get; }
         [IgnoreDraw] public Vector2 coords;
 
+        [HideInInspectorCrossPlatform]
+        public List<ConnectionContext> ConnectionContexts = new List<ConnectionContext>();
+
         public abstract void Execute(Entity entity);
     }
+
+    [Serializable]
+    public struct ConnectionContext
+    {
+        public string In;
+        public string Out;
+    }
+
 
     public abstract class InterDecision : LogNode
     {

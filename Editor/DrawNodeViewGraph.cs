@@ -10,8 +10,10 @@ using HECSFramework.Unity.Helpers;
 using Strategies;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
+using UnityEditor.PackageManager.UI;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using Button = UnityEngine.UIElements.Button;
 using Toggle = UnityEngine.UIElements.Toggle;
@@ -21,7 +23,7 @@ public class DrawNodeViewGraph : Node
     public string GUID;
     public string Name;
     public BaseDecisionNode InnerNode;
-    public Dictionary<Port, (MemberInfo member, Direction direction)> ConnectedPorts = new Dictionary<Port, (MemberInfo member, Direction direction)>();
+    public Dictionary<Port, (MemberInfo member, Direction direction, BaseDecisionNode node)> ConnectedPorts = new Dictionary<Port, (MemberInfo member, Direction direction, BaseDecisionNode node)>();
 
     public void ClearConnections()
     {
@@ -46,11 +48,15 @@ public class StrategyGraphView : GraphView, IDisposable
 {
     private readonly BaseStrategy strategy;
     private readonly string path;
+    private readonly StrategyGraphViewWIndow strategyGraphViewWIndow;
     private List<DrawNodeViewGraph> drawNodes = new List<DrawNodeViewGraph>(16);
     private NodeSearchWindow _searchWindow;
     public static List<CopyNode> copyNodes = new List<CopyNode>();
+    private MouseUpEvent mouseData;
+    private Vector2 mousePosition;
+    private GridBackground grid;
 
-    public StrategyGraphView(BaseStrategy strategy, string path)
+    public StrategyGraphView(BaseStrategy strategy, string path, StrategyGraphViewWIndow strategyGraphViewWIndow)
     {
         styleSheets.Add(Resources.Load<StyleSheet>("StrategiesGraph"));
 
@@ -61,12 +67,12 @@ public class StrategyGraphView : GraphView, IDisposable
         this.AddManipulator(new RectangleSelector());
         this.AddManipulator(new FreehandSelector());
 
-        var grid = new GridBackground();
+        grid = new GridBackground();
         Insert(0, grid);
         grid.StretchToParentSize();
         this.strategy = strategy;
         this.path = path;
-
+        this.strategyGraphViewWIndow = strategyGraphViewWIndow;
         AddElement(EntryPoint(strategy));
 
         foreach (var dn in strategy.nodes)
@@ -79,8 +85,86 @@ public class StrategyGraphView : GraphView, IDisposable
 
         ConnectStrategyNodes();
         graphViewChanged += Changes;
+        RegisterCallback<MouseMoveEvent>(MouseReact);
+        RegisterCallback<KeyDownEvent>(KeyboradEventProcess);
 
         DelayFrameAll();
+    }
+
+    private void KeyboradEventProcess(KeyDownEvent evt)
+    {
+        if (evt.ctrlKey && evt.shiftKey && evt.keyCode == KeyCode.A)
+        {
+            SelectAllChilds();
+        }
+
+        if (evt.ctrlKey && evt.shiftKey && evt.keyCode == KeyCode.Z)
+        {
+            SelectAllParents();
+        }
+    }
+
+    private void SelectAllParents()
+    {
+        var currentSelection = selection.FirstOrDefault(x => x is DrawNodeViewGraph) as DrawNodeViewGraph;
+
+        if (currentSelection != null)
+        {
+            foreach (var c in currentSelection.ConnectedPorts)
+            {
+                if (c.Value.direction == Direction.Input)
+                {
+                    var needed = drawNodes.FirstOrDefault(x => x.InnerNode == c.Value.node);
+
+                    if (needed != null)
+                        AddToSelection(needed);
+
+                    RecursiveSelection(needed.ConnectedPorts, Direction.Input);
+                }
+            }
+        }
+    }
+
+    private void SelectAllChilds()
+    {
+        var currentSelection = selection.FirstOrDefault(x=> x is DrawNodeViewGraph) as DrawNodeViewGraph;
+
+        if (currentSelection != null)
+        {
+            foreach (var c in currentSelection.ConnectedPorts)
+            {
+                if (c.Value.direction == Direction.Output)
+                {
+                    var needed = drawNodes.FirstOrDefault(x => x.InnerNode == c.Value.node);
+
+                    if (needed != null)
+                        AddToSelection(needed);
+
+                    RecursiveSelection(needed.ConnectedPorts, Direction.Output);
+                }
+            }
+        }
+    }
+
+    private void RecursiveSelection(Dictionary<Port, (MemberInfo member, Direction direction, BaseDecisionNode node)> connections, Direction direction)
+    {
+        foreach (var c in connections)
+        {
+            if (c.Value.direction == direction)
+            {
+                var node = c.Value.node;
+
+                var needed = drawNodes.FirstOrDefault(x => x.InnerNode == node);
+
+                AddToSelection(needed);
+                RecursiveSelection(needed.ConnectedPorts, direction);
+            }
+        }
+    }
+
+    private void MouseReact(MouseMoveEvent evt)
+    {
+        mousePosition = evt.localMousePosition;
     }
 
     /// this because graph dont calculate data properly yet, and we need w8 for something
@@ -135,13 +219,15 @@ public class StrategyGraphView : GraphView, IDisposable
     {
         copyNodes.Clear();
 
+        var mousePosition = GetMousePosition();
+
         foreach (var n in selection)
         {
             if (n is DrawNodeViewGraph draw)
             {
                 copyNodes.Add(new CopyNode
                 {
-                    Coord = draw.InnerNode.coords,
+                    Coord = draw.InnerNode.coords - mousePosition,
                     Data = JsonUtility.ToJson(draw.InnerNode),
                     Type = draw.InnerNode.GetType(),
                 });
@@ -149,14 +235,22 @@ public class StrategyGraphView : GraphView, IDisposable
         }
     }
 
+    private Vector2 GetMousePosition()
+    {
+        var mousePosition = grid.ChangeCoordinatesTo(contentViewContainer, this.mousePosition);
+
+        return mousePosition;
+    }
+
     private void PasteNode()
     {
         ClearSelection();
         var toSelection = new List<ISelectable>();
+        var mousePos = GetMousePosition();
 
         foreach (var n in copyNodes)
         {
-            var newNode = AddNodeToStrategyGraph(n.Coord, n.Type);
+            var newNode = AddNodeToStrategyGraph((Vector3)mousePos + n.Coord, n.Type);
             JsonUtility.FromJsonOverwrite(n.Data, newNode.node);
             toSelection.Add(newNode.drawNode);
             newNode.drawNode.ClearConnections();
@@ -415,11 +509,11 @@ public class StrategyGraphView : GraphView, IDisposable
                                 if (TypesMap.GetComponentInfo(filter[i], out var componentInfo))
                                 {
                                     var textField = new Label($"{componentInfo.ComponentName}");
-                                    textField.style.scale = new StyleScale { value = new Scale { value = Vector3.one*0.8f } };
+                                    textField.style.scale = new StyleScale { value = new Scale { value = Vector3.one * 0.8f } };
                                     drawNode.contentContainer.Add(textField);
                                 }
                             }
-                          
+
                             DrawFilter(m, drawNode, so);
                         }
 
@@ -767,21 +861,36 @@ public class StrategyGraphView : GraphView, IDisposable
             {
                 if (a is ConnectionAttribute connection)
                 {
+                    var nextNode = GetNodeFromField(m, drawNode.InnerNode);
+
+                    if (nextNode == null)
+                        continue;
+
                     switch (connection.ConnectionPointType)
                     {
                         case ConnectionPointType.In:
                             var port = GeneratePort(drawNode, Direction.Input, connection.NameOfField, Port.Capacity.Single);
-                            drawNode.ConnectedPorts.Add(port, (m, Direction.Input));
+                            drawNode.ConnectedPorts.Add(port, (m, Direction.Input, nextNode));
                             break;
 
                         case ConnectionPointType.Out:
                             var port2 = GeneratePort(drawNode, Direction.Output, connection.NameOfField, Port.Capacity.Single);
-                            drawNode.ConnectedPorts.Add(port2, (m, Direction.Output));
+                            drawNode.ConnectedPorts.Add(port2, (m, Direction.Output, nextNode));
                             break;
                     }
                 }
             }
         }
+    }
+
+    private BaseDecisionNode GetNodeFromField(MemberInfo memberInfo, BaseDecisionNode baseDecisionNode)
+    {
+        if (memberInfo is FieldInfo field)
+            return field.GetValue(baseDecisionNode) as BaseDecisionNode;
+        else if (memberInfo is PropertyInfo property)
+            return property.GetValue(baseDecisionNode) as BaseDecisionNode;
+
+        return null;
     }
 
     private Port GeneratePort(DrawNodeViewGraph node, Direction direction, string portName, Port.Capacity capacity = Port.Capacity.Single)
