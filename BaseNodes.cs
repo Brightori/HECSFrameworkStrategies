@@ -10,6 +10,7 @@ namespace Strategies
         public abstract string TitleOfNode { get; }
         [IgnoreDraw] public Vector2 coords;
 
+        [IgnoreDraw]
         [HideInInspectorCrossPlatform]
         public List<ConnectionContext> ConnectionContexts = new List<ConnectionContext>();
 
@@ -17,10 +18,27 @@ namespace Strategies
     }
 
     [Serializable]
-    public struct ConnectionContext
+    public struct ConnectionContext : IEquatable<ConnectionContext>
     {
         public string In;
         public string Out;
+
+        public override bool Equals(object obj)
+        {
+            return obj is ConnectionContext context &&
+                   In == context.In &&
+                   Out == context.Out;
+        }
+
+        public bool Equals(ConnectionContext other)
+        {
+            return In == other.In && Out == other.Out;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(In, Out);
+        }
     }
 
 

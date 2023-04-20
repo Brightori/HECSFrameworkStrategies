@@ -290,6 +290,8 @@ public class StrategyGraphView : GraphView, IDisposable
                 {
                     ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
                     ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
+
+                    output.InnerNode.ConnectionContexts.Add(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name });
                 }
                 catch (Exception ex)
                 {
@@ -309,17 +311,20 @@ public class StrategyGraphView : GraphView, IDisposable
                 {
                     foreach (var dn in drawNodes)
                     {
-                        foreach (var portInfo in dn.ConnectedPorts.ToArray())
+                        if (dn.ConnectedPorts.TryGetValue(edge.output, out var info))
                         {
-                            if (portInfo.Key == edge.output && portInfo.Value.direction == Direction.Output)
+                            var nameOut = ((FieldInfo)info.member).Name;
+                            var neededNode = drawNodes.FirstOrDefault(x => x.InnerNode == info.node);
+
+                            if (neededNode != null)
                             {
-                                ((FieldInfo)portInfo.Value.member)?.SetValue(dn.InnerNode, null);
+                                if (neededNode.ConnectedPorts.TryGetValue(edge.input, out var info2))
+                                {
+
+                                }
                             }
 
-                            if (portInfo.Key == edge.input && portInfo.Value.direction == Direction.Input)
-                            {
-                                ((FieldInfo)portInfo.Value.member)?.SetValue(dn.InnerNode, null);
-                            }
+                            ((FieldInfo)info.member).SetValue(dn.InnerNode, null);
                         }
                     }
                 }
