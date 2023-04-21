@@ -368,33 +368,27 @@ public class StrategyGraphView : GraphView, IDisposable
                 if (portinfo.Value.direction == Direction.Input)
                     continue;
 
-                if (portinfo.Value.member is FieldInfo field)
+                if (portinfo.Value.node == null)
+                    continue;
+
+                var viewNode = drawNodes.FirstOrDefault(x => x.InnerNode == portinfo.Value.node);
+                var connect = portinfo.Value.node.ConnectionContexts.FirstOrDefault(x => x.Out == portinfo.Value.member.Name);
+                
+                if (string.IsNullOrEmpty(connect.In) || string.IsNullOrEmpty(connect.Out))
                 {
-                    var data = field.GetValue(dn.InnerNode) as BaseDecisionNode;
+                    LinkNodesTogether(portinfo.Key, viewNode.ConnectedPorts.FirstOrDefault(x=> x.Value.direction == Direction.Input).Key);
+                }
+                else
+                {
+                    var connectToPort = viewNode.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input && x.Value.member.Name == connect.Out);
 
-                    if (data != null)
+                    if (connectToPort.Key == null)
                     {
-                        if (data is BaseDecisionNode)
-                        {
-                            foreach (var dnOverall in drawNodes)
-                            {
-                                if ((BaseDecisionNode)data == dnOverall.InnerNode)
-                                {
-                                    //var port = dnOverall.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input);
-
-                                    foreach (var connection in dnOverall.ConnectedPorts)
-                                    {
-                                        if (connection.Value.direction == Direction.Input)
-                                        {
-                                            var connectedNode = (connection.Value.member as FieldInfo).GetValue(dnOverall.InnerNode) as BaseDecisionNode;
-
-                                            if (connectedNode == dn.InnerNode)
-                                                LinkNodesTogether(portinfo.Key, connection.Key);
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        LinkNodesTogether(portinfo.Key, viewNode.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input).Key);
+                    }
+                    else
+                    {
+                        LinkNodesTogether(portinfo.Key, connectToPort.Key);
                     }
                 }
             }
