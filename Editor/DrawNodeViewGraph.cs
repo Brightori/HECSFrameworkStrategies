@@ -7,6 +7,7 @@ using HECSFramework.Core;
 using HECSFramework.Core.Helpers;
 using HECSFramework.Unity;
 using HECSFramework.Unity.Helpers;
+using Sirenix.Utilities;
 using Strategies;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -14,6 +15,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Button = UnityEngine.UIElements.Button;
+using Direction = UnityEditor.Experimental.GraphView.Direction;
 using Toggle = UnityEngine.UIElements.Toggle;
 
 public class DrawNodeViewGraph : Node
@@ -291,10 +293,22 @@ public class StrategyGraphView : GraphView, IDisposable
 
                 try
                 {
-                    ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
-                    ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
+                    var inputType = (input.ConnectedPorts[e.input].member as FieldInfo).FieldType;
+                    var outType = (output.ConnectedPorts[e.output].member as FieldInfo).FieldType;
 
-                    output.InnerNode.ConnectionContexts.Add(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name });
+                    if (IsValidConnect(((FieldInfo)input.ConnectedPorts[e.input].member), ((FieldInfo)output.ConnectedPorts[e.output].member)))
+                    {
+                        ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
+                        ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
+
+                        output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("nodes not match");
+                        graphViewChange.edgesToCreate.Remove(e);
+                        return default;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -345,6 +359,62 @@ public class StrategyGraphView : GraphView, IDisposable
         return graphViewChange;
     }
 
+    private bool IsValidConnect(FieldInfo input, FieldInfo output)
+    {
+        var attr = output.GetAttribute<ConnectionAttribute>();
+        var comment = attr.NameOfField.ToLower();
+
+        if (input.FieldType.IsGenericType)
+        {
+            foreach (var g in input.FieldType.GetGenericArguments())
+            {
+                var name = FromDotNetTypeToCSharpType(g.Name);
+
+                if (comment.Contains(name.ToLower()))
+                    return true;
+            }
+
+            return false;
+        }
+
+        if (comment.Contains("<") && comment.Contains(">"))
+            return false;
+
+        return true;
+    }
+
+    public static string FromDotNetTypeToCSharpType(string dotNetTypeName, bool isNull = false)
+    {
+        string cstype = "";
+        string nullable = isNull ? "?" : "";
+        string prefix = "System.";
+        string typeName = dotNetTypeName.StartsWith(prefix) ? dotNetTypeName.Remove(0, prefix.Length) : dotNetTypeName;
+
+        switch (typeName)
+        {
+            case "Boolean": cstype = "bool"; break;
+            case "Byte": cstype = "byte"; break;
+            case "SByte": cstype = "sbyte"; break;
+            case "Char": cstype = "char"; break;
+            case "Decimal": cstype = "decimal"; break;
+            case "Double": cstype = "double"; break;
+            case "Single": cstype = "float"; break;
+            case "Int32": cstype = "int"; break;
+            case "UInt32": cstype = "uint"; break;
+            case "Int64": cstype = "long"; break;
+            case "UInt64": cstype = "ulong"; break;
+            case "Object": cstype = "object"; break;
+            case "Int16": cstype = "short"; break;
+            case "UInt16": cstype = "ushort"; break;
+            case "String": cstype = "string"; break;
+
+            default: cstype = typeName; break; // do nothing
+        }
+        return $"{cstype}{nullable}";
+
+    }
+
+
     private DrawNodeViewGraph NeededNode(Port port, Direction direction)
     {
         foreach (var dn in drawNodes)
@@ -372,7 +442,7 @@ public class StrategyGraphView : GraphView, IDisposable
                     continue;
 
                 var viewNode = drawNodes.FirstOrDefault(x => x.InnerNode == portinfo.Value.node);
-                var connect = portinfo.Value.node.ConnectionContexts.FirstOrDefault(x => x.Out == portinfo.Value.member.Name);
+                var connect = dn.InnerNode.ConnectionContexts.FirstOrDefault(x => x.Out == portinfo.Value.member.Name);
                 
                 if (string.IsNullOrEmpty(connect.In) || string.IsNullOrEmpty(connect.Out))
                 {
@@ -380,7 +450,7 @@ public class StrategyGraphView : GraphView, IDisposable
                 }
                 else
                 {
-                    var connectToPort = viewNode.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input && x.Value.member.Name == connect.Out);
+                    var connectToPort = viewNode.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input && x.Value.member.Name == connect.In);
 
                     if (connectToPort.Key == null)
                     {
