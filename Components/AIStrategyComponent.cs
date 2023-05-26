@@ -10,6 +10,9 @@ namespace Components
     public class AIStrategyComponent : BaseComponent
     {
         [SerializeField] private Strategy baseStrategy;
+        [SerializeField] private bool manualStart;
+        
+        public bool ManualStart { get => manualStart; }
         public Strategy Strategy => baseStrategy;
     }
 }

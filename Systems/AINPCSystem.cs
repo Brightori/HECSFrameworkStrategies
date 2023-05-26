@@ -30,6 +30,13 @@ namespace Systems
             currentStrategy = aIStrategyComponent.Strategy;
             currentStrategy?.Init();
 
+            if (aIStrategyComponent.ManualStart)
+            {
+                isStoped = true;
+                isNeedDecision = false;
+                return;
+            }
+
             if (currentStrategy == null)
                 isStoped = true;
 
