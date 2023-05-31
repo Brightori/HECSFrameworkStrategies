@@ -1,44 +1,49 @@
-﻿using Commands;
-using Components;
+﻿using Components;
 using HECSFramework.Core;
 using UnityEngine;
 
 namespace Strategies
 {
-    public delegate void WaitCallbackEntity(Entity entity);
-
-    public class WaitNode : InterDecision, IInitable
+    public class WaitNode : InterDecision
     {
         public override string TitleOfNode { get; } = "Wait";
 
         [SerializeField] public float WaitTime = 1;
         [SerializeField] public float MaxWaitTime = 1;
 
-        private WaitAndEntityCallbackCommand waitCommand;
-
-        protected override void Run(Entity entity)
+        protected override async void Run(Entity entity)
         {
             if (entity.TryGetComponent(out StateContextComponent stateContextComponent))
                 stateContextComponent.StrategyState = StrategyState.Pause;
 
-            waitCommand.Timer = Random.Range(WaitTime, MaxWaitTime);
-            waitCommand.CallBackWaiter = entity;
-            
-            EntityManager.Command(waitCommand);
-        }
+            var randomTime = Random.Range(WaitTime, MaxWaitTime);
 
-        public void React(Entity entity)
-        {
+            await new Wait(randomTime).RunJob(entity.World);
+
             if (entity.TryGetComponent(out StateContextComponent stateContextComponentAfter))
                 stateContextComponentAfter.StrategyState = StrategyState.Run;
 
             Next.Execute(entity);
         }
+    }
 
-        public void Init()
+    public struct Wait : IHecsJob
+    {
+        public float RemainingTime;
+
+        public Wait(float remainingTime)
         {
-            waitCommand.CallBack = React;
-            waitCommand.Timer = WaitTime;
+            RemainingTime = remainingTime;
+        }
+
+        public void Run()
+        {
+            RemainingTime -= Time.deltaTime;
+        }
+
+        public bool IsComplete()
+        {
+            return RemainingTime <= 0;
         }
     }
 }
