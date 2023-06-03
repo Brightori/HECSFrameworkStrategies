@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Strategies
@@ -13,7 +9,7 @@ namespace Strategies
     public class SearchComponentsWindow : OdinEditorWindow
     {
         [Searchable]
-        [ListDrawerSettings(Expanded = true, ShowPaging = true)]
+        [ListDrawerSettings(ShowFoldout = false, ShowPaging = true)]
         public List<DrawChoice> drawChoices = new List<DrawChoice>(256);
 
         public void Init(DropdownField dropdownField)
