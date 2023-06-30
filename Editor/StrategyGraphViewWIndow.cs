@@ -46,6 +46,9 @@ public class StrategyGraphViewWIndow : EditorWindow
 
     private void OnDisable()
     {
+        if (!strategy)
+            return;
+
         if (graphView != null)
         {
             rootVisualElement.Remove(graphView);
