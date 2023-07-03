@@ -13,9 +13,6 @@ namespace Strategies
     {
         public UpdateStateNode Update { get; private set; }
         public StartDecision StartDecision { get; private set; }
-        
-        private readonly HECSMask StateContextComponentMask = HMasks.GetMask<StateContextComponent>();
-
 
         public override void Init()
         {
