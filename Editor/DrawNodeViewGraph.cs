@@ -140,9 +140,10 @@ public class StrategyGraphView : GraphView, IDisposable
                     var needed = drawNodes.FirstOrDefault(x => x.InnerNode == c.Value.node);
 
                     if (needed != null)
+                    {
                         AddToSelection(needed);
-
-                    RecursiveSelection(needed.ConnectedPorts, Direction.Output);
+                        RecursiveSelection(needed.ConnectedPorts, Direction.Output);
+                    }
                 }
             }
         }
