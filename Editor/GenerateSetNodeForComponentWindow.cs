@@ -74,7 +74,7 @@ public class GenerateSetNodeForComponentWindow : OdinEditorWindow
 
         tree.Add(new TabSimpleSyntax(1, $"public sealed class {Component.Name}Set{Field} : InterDecision"));
         tree.Add(new LeftScopeSyntax(1));
-        tree.Add(new TabSimpleSyntax(2, $"public override string TitleOfNode {CParse.LeftScope} get; {CParse.RightScope} = {CParse.Quote}{Component.Name}Get{Field}{CParse.Quote};"));
+        tree.Add(new TabSimpleSyntax(2, $"public override string TitleOfNode {CParse.LeftScope} get; {CParse.RightScope} = {CParse.Quote}{Component.Name}Set{Field}{CParse.Quote};"));
 
         tree.Add(new TabSimpleSyntax(2, $"[Connection(ConnectionPointType.In, {CParse.Quote}<{field.FieldType.Name}> Set {field.Name}{CParse.Quote})]"));
         tree.Add(new TabSimpleSyntax(2, $"public GenericNode<{field.FieldType.Name}> Set{field.Name};"));
