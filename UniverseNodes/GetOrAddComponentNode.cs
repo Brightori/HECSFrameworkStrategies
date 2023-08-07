@@ -11,7 +11,7 @@ namespace Strategies
 
         public override string TitleOfNode { get; } = "GetOrAddComponentNode";
 
-        [Connection(ConnectionPointType.In, "<Entity> In")]
+        [Connection(ConnectionPointType.In, "<Entity> Optional Entity")]
         public GenericNode<Entity> AdditionalEntity;
 
         protected override void Run(Entity entity)
