@@ -53,6 +53,7 @@ namespace Systems
 
         public void CommandReact(ChangeStrategyCommand command)
         {
+            currentStrategy?.ForceStop(Owner);
             currentStrategy = command.Strategy;
             command.Strategy.Init();
             Owner.GetOrAddComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
@@ -68,6 +69,7 @@ namespace Systems
 
         public void CommandReact(SetDefaultStrategyCommand command)
         {
+            currentStrategy?.ForceStop(Owner);
             currentStrategy = aIStrategyComponent.Strategy;
             Owner.GetOrAddComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
             isNeedDecision = true;
@@ -90,6 +92,7 @@ namespace Systems
 
         public void CommandReact(ForceStopAICommand command)
         {
+            currentStrategy?.ForceStop(Owner);
             Owner.GetOrAddComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
             isNeedDecision = false;
             isStoped = true;

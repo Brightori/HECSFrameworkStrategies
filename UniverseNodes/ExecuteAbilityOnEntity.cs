@@ -4,7 +4,7 @@ using HECSFramework.Core;
 namespace Strategies
 {
     [Documentation(Doc.HECS, Doc.Strategy, Doc.UniversalNodes, "we need this node when we want ")]
-    public class ExecuteAbilityOnEntity : InterDecision
+    public sealed class ExecuteAbilityOnEntity : InterDecision
     {
         [Connection(ConnectionPointType.In, "<Entity> Ability Owner")]
         public GenericNode<Entity> EntityWithAbility;

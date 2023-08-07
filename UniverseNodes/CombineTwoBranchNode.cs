@@ -2,7 +2,7 @@
 
 namespace Strategies
 {
-    public class CombineTwoBranchNode : BaseDecisionNode
+    public sealed class CombineTwoBranchNode : BaseDecisionNode
     {
         public override string TitleOfNode { get; } = "CombineTwoBranchNode";
 

@@ -20,6 +20,8 @@ namespace Strategies
         [NonSerialized]
         protected bool isInited;
 
+        private OnForceStopNode onForceStopNode;
+
         public int StrategyIndex
         {
             get
@@ -52,15 +54,6 @@ namespace Strategies
 
         public virtual void Execute(Entity entity)
         {
-            if (start == null)
-                start = nodes.FirstOrDefault(x => x is StartDecision);
-
-            if (start == null)
-            {
-                Debug.LogAssertion("нет стартовой ноды у " + this.name);
-                return;
-            }
-
             start.Execute(entity);
         }
 
@@ -77,7 +70,13 @@ namespace Strategies
                 }
             }
 
+            onForceStopNode = nodes.FirstOrDefault(x => x is OnForceStopNode) as OnForceStopNode;
             start = nodes.FirstOrDefault(x => x is StartDecision);
+        }
+
+        public void ForceStop(Entity entity)
+        {
+            onForceStopNode?.Execute(entity);
         }
     }
 }
