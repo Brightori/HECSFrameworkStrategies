@@ -297,7 +297,16 @@ public class StrategyGraphView : GraphView, IDisposable
                     var inputType = (input.ConnectedPorts[e.input].member as FieldInfo).FieldType;
                     var outType = (output.ConnectedPorts[e.output].member as FieldInfo).FieldType;
 
+                    var check = output.InnerNode.GetType().InheritsFrom(inputType);
+
                     if (IsValidConnect(((FieldInfo)input.ConnectedPorts[e.input].member), ((FieldInfo)output.ConnectedPorts[e.output].member)))
+                    {
+                        ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
+                        ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
+
+                        output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
+                    }
+                    else if (check && inputType != typeof(BaseDecisionNode))
                     {
                         ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
                         ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
