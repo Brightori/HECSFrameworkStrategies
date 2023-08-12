@@ -5,17 +5,7 @@ using UnityEngine;
 
 namespace Strategies
 {
-    public abstract class BaseDecisionNode : ScriptableObject, IDecisionNode
-    {
-        public abstract string TitleOfNode { get; }
-        [IgnoreDraw] public Vector2 coords;
 
-        [IgnoreDraw]
-        [HideInInspectorCrossPlatform]
-        public List<ConnectionContext> ConnectionContexts = new List<ConnectionContext>();
-
-        public abstract void Execute(Entity entity);
-    }
 
     [Serializable]
     public struct ConnectionContext : IEquatable<ConnectionContext>
