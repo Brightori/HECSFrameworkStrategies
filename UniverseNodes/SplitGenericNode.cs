@@ -11,7 +11,7 @@ namespace Strategies
         [Connection(ConnectionPointType.Out, "Out A")]
         public BaseDecisionNode A;
 
-        [Connection(ConnectionPointType.Out, "Out A")]
+        [Connection(ConnectionPointType.Out, "Out B")]
         public BaseDecisionNode B;
 
         public override T Value(Entity entity)
