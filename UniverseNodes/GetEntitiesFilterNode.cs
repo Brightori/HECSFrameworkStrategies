@@ -1,6 +1,4 @@
-﻿using System;
-using HECSFramework.Core;
-using static UnityEngine.EventSystems.EventTrigger;
+﻿using HECSFramework.Core;
 
 namespace Strategies
 {
