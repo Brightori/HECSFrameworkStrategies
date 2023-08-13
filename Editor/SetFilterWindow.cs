@@ -8,6 +8,8 @@ using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 
+#pragma warning disable
+
 namespace Strategies
 {
     public class SetFilterWindow : OdinEditorWindow
