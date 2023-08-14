@@ -34,6 +34,8 @@ public class DrawNodeViewGraph : Node
                 fieldInfo.SetValue(InnerNode, null);
             }
         }
+
+        InnerNode.ConnectionContexts.Clear();
     }
 }
 
