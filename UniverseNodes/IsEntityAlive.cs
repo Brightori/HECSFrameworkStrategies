@@ -1,6 +1,5 @@
 using HECSFramework.Core;
 
-
 namespace Strategies
 {
     [Documentation(Doc.HECS, Doc.UniversalNodes, Doc.Strategy, "this node return is entity alive or not")]
