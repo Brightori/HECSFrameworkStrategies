@@ -4,14 +4,17 @@ using HECSFramework.Core;
 
 namespace Strategies
 {
-    [Documentation(Doc.Strategy, Doc.HECS, "here we check alive entity or not, and have it isdeadtag or not")]
-    public class EntityAliveAndNotDead : DilemmaDecision
+    [Documentation(Doc.HECS, Doc.Strategy, "IsStateNode")]
+    public class IsStateNode : DilemmaDecision
     {
-        public override string TitleOfNode { get; } = "EntityAliveAndNotDead";
+        public override string TitleOfNode { get; } = "Is State?";
+
+        [DropDownIdentifier("GameStateIdentifier")]
+        public int StateID;
 
         protected override void Run(Entity entity)
         {
-            if (entity.IsAlive() && !entity.ContainsMask<IsDeadTagComponent>())
+            if (entity.World.GetSingleComponent<GameStateComponent>().CurrentState == StateID)
             {
                 Positive.Execute(entity);
                 return;
