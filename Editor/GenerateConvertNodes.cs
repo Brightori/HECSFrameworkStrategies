@@ -43,7 +43,7 @@ public class GenerateConvertNodes : OdinEditorWindow
             foreach (var m in node.Methods)
             {
                 var method = m;
-                var returnValue = StrategyGraphView.FromDotNetTypeToCSharpType(m.ReturnType.ToString());
+                var returnValue = StrategyGraphView.FromDotNetTypeToCSharpType(m.ReturnType.Name.ToString());
                 var titleCaseReturnValue = returnValue.ToTitleCase();
                 var className = $"{node.NodeType.Name}{m.Name}_To_{titleCaseReturnValue}";
                 var data = GetConvertNode(node.NodeType, className, method.Name, returnValue, m.ReturnType.Namespace);
@@ -61,7 +61,8 @@ public class GenerateConvertNodes : OdinEditorWindow
 
         node.Add(namespaces);
         namespaces.Add(new UsingSyntax("HECSFramework.Core"));
-        namespaces.AddUnique(namespaces);
+        namespaces.AddUnique(new UsingSyntax(namespaceNeeded));
+        namespaces.AddUnique(new UsingSyntax(type.Namespace));
 
         node.Add(new NameSpaceSyntax("Strategies"));
         node.Add(new LeftScopeSyntax());
