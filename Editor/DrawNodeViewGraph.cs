@@ -992,7 +992,7 @@ public class StrategyGraphView : GraphView, IDisposable
         _searchWindow = ScriptableObject.CreateInstance<NodeSearchWindow>();
         _searchWindow.Configure(editorWindow, this);
         nodeCreationRequest = context =>
-            SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), _searchWindow);
+            SearchWindow.Open(new SearchWindowContext(context.screenMousePosition, requestedWidth: 800), _searchWindow);
     }
 
     public (BaseDecisionNode node, DrawNodeViewGraph drawNode) AddNodeToStrategyGraph(Vector2 position, Type type)
