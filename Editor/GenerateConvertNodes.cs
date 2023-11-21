@@ -30,7 +30,7 @@ public class GenerateConvertNodes : OdinEditorWindow
 
         foreach ( var node in nodes ) 
         { 
-            var methods = node.GetMethods().Where(x=> x.GetCustomAttribute<GetConvertNodeAttribue>() != null).ToArray();
+            var methods = node.GetMethods().Where(x=> x.GetCustomAttribute<GetConvertNodeAttribute>() != null).ToArray();
 
             if (methods != null && methods.Length > 0)
             {
