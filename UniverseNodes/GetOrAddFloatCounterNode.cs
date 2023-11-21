@@ -19,6 +19,8 @@ namespace Strategies
             {
                 holder.AddCounter(new DefaultFloatCounter { Id = CounterID });
             }
+
+            Next.Execute(entity);
         }
     }
 }
