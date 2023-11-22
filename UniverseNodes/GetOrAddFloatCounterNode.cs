@@ -11,6 +11,7 @@ namespace Strategies
         [DropDownIdentifier("CounterIdentifierContainer")]
         public int CounterID;
 
+
         protected override void Run(Entity entity)
         {
             var holder = entity.GetComponent<CountersHolderComponent>();
