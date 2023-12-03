@@ -14,14 +14,15 @@ namespace Components
         
         public Stack<IDecisionNode> ExitStateNodes = new Stack<IDecisionNode>(3); //выход из текущего стейта, сеттим на входе в стейт
 
-        public void ExitFromState()
+        public void ExitFromStates()
         {
             StrategyState = StrategyState.Stop;
+            ExitStateNodes.Clear();
         }
 
         public void Dispose()
         {
-            ExitFromState();
+            ExitFromStates();
             ExitStateNodes.Clear();
             CurrentState = null;
             EarlyUpdateNode = null;

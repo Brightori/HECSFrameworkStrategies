@@ -11,7 +11,11 @@ namespace Strategies
         {
             if (isInited)
                 return;
+
+            isInited = true;
+            
             base.Init();
+            
             foreach (var node in nodes)
             {
                 if (node is IOneWayLogicExit oneWayLogicExit)
@@ -19,7 +23,6 @@ namespace Strategies
                     oneWayLogicExit.Exit = Exit;
                 } 
             }
-            isInited = true;
         }
     }
 }

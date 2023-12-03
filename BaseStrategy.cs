@@ -59,8 +59,9 @@ namespace Strategies
 
         public virtual void Init()
         {
-            //if (isInited) return;
-            //isInited = true;
+            if (isInited) return;
+
+            isInited = true;
 
             foreach (var node in nodes)
             {
@@ -72,6 +73,12 @@ namespace Strategies
 
             onForceStopNode = nodes.FirstOrDefault(x => x is OnForceStopNode) as OnForceStopNode;
             start = nodes.FirstOrDefault(x => x is StartDecision);
+        }
+
+        public virtual void ForceInit(bool forceInit = false)
+        {
+            isInited = false;
+            Init();
         }
 
         public void ForceStop(Entity entity)

@@ -43,20 +43,12 @@ namespace Systems
             isNeedDecision = true;
         }
 
-        public void CommandReact(IsDeadCommand command)
-        {
-            if (Owner.TryGetComponent(out StateContextComponent stateContextComponent))
-                stateContextComponent.StrategyState = StrategyState.Stop;
-
-            isStoped = true;
-        }
-
         public void CommandReact(ChangeStrategyCommand command)
         {
             currentStrategy?.ForceStop(Owner);
             currentStrategy = command.Strategy;
             command.Strategy.Init();
-            Owner.GetOrAddComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
+            Owner.GetOrAddComponent<StateContextComponent>().ExitFromStates();
             isNeedDecision = true;
         }
 
@@ -101,7 +93,6 @@ namespace Systems
 
     public interface IAINPCSystem : ISystem, IUpdatable,
         IReactCommand<NeedDecisionCommand>,
-        IReactCommand<IsDeadCommand>,
         IReactCommand<SetDefaultStrategyCommand>,
         IReactCommand<ChangeStrategyCommand>,
         IReactCommand<ForceStopAICommand>,
