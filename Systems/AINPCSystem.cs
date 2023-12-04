@@ -1,21 +1,21 @@
+using System;
 using Commands;
 using Components;
 using HECSFramework.Core;
 using Strategies;
-using System;
 
 namespace Systems
 {
     [Serializable]
     [RequiredAtContainer(typeof(AIStrategyComponent))]
-    [Documentation(Doc.NPC, Doc.AI, Doc.HECS,  "This is default system for operate strategies on NPC")]
+    [Documentation(Doc.NPC, Doc.AI, Doc.HECS, "This is default system for operate strategies on NPC")]
     public class AINPCSystem : BaseSystem, IAINPCSystem
     {
         private Strategy currentStrategy;
         private bool isNeedDecision;
         private bool isStoped;
 
-        [Required] 
+        [Required]
         public AIStrategyComponent aIStrategyComponent;
 
         public void CommandReact(NeedDecisionCommand command)
@@ -29,6 +29,9 @@ namespace Systems
             Owner.GetOrAddComponent<StateContextComponent>();
             currentStrategy = aIStrategyComponent.Strategy;
             currentStrategy?.Init();
+
+            if (currentStrategy != null)
+                Owner.GetComponent<StateContextComponent>().CurrentStrategyIndex = currentStrategy.StrategyIndex;
 
             if (aIStrategyComponent.ManualStart)
             {
@@ -48,7 +51,10 @@ namespace Systems
             currentStrategy?.ForceStop(Owner);
             currentStrategy = command.Strategy;
             command.Strategy.Init();
+
             Owner.GetOrAddComponent<StateContextComponent>().ExitFromStates();
+            Owner.GetComponent<StateContextComponent>().CurrentStrategyIndex = currentStrategy.StrategyIndex;
+
             isNeedDecision = true;
         }
 
@@ -64,6 +70,7 @@ namespace Systems
             currentStrategy?.ForceStop(Owner);
             currentStrategy = aIStrategyComponent.Strategy;
             Owner.GetOrAddComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
+            Owner.GetComponent<StateContextComponent>().CurrentStrategyIndex = currentStrategy.StrategyIndex;
             isNeedDecision = true;
         }
 

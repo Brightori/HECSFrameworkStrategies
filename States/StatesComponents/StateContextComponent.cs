@@ -11,6 +11,7 @@ namespace Components
         public StrategyState StrategyState = StrategyState.Stop;
         public State CurrentState;
         public IDecisionNode EarlyUpdateNode;
+        public int CurrentStrategyIndex;
         
         public Stack<IDecisionNode> ExitStateNodes = new Stack<IDecisionNode>(3); //выход из текущего стейта, сеттим на входе в стейт
 

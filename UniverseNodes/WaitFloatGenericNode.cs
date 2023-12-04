@@ -16,9 +16,14 @@ namespace Strategies
                 stateContextComponent.StrategyState = StrategyState.Pause;
 
             var alive = new AliveEntity(entity);
+            var strategyIndex = stateContextComponent.CurrentStrategyIndex;
+
             await new Wait(TimeForWait.Value(entity)).RunJob(entity.World);
 
             if (!alive.IsAlive || stateContextComponent.StrategyState != StrategyState.Pause)
+                return;
+
+            if (strategyIndex != stateContextComponent.CurrentStrategyIndex)
                 return;
 
             if (entity.TryGetComponent(out StateContextComponent stateContextComponentAfter))
