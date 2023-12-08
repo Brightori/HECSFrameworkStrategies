@@ -1,5 +1,7 @@
+using System;
 using Components;
 using HECSFramework.Core;
+using UnityEngine;
 
 namespace Strategies
 {
@@ -9,17 +11,21 @@ namespace Strategies
 
         [Connection(ConnectionPointType.In, "<float> Time")]
         public GenericNode<float> TimeForWait;
-      
+
         protected override async void Run(Entity entity)
         {
-            bool isSetted = false;
+            bool onPause = false;
 
-            if (entity.TryGetComponent(out StateContextComponent stateContextComponent) && stateContextComponent.StrategyState == StrategyState.Run)
+            if (!entity.TryGetComponent(out StateContextComponent stateContextComponent))
+                return;
+
+            var currentIteration = stateContextComponent.CurrentIteration;
+            
+            if (stateContextComponent.StrategyState == StrategyState.Run)
             {
+                onPause = true;
                 stateContextComponent.StrategyState = StrategyState.Pause;
-                isSetted = true;
             }
-                
 
             var alive = new AliveEntity(entity);
             var strategyIndex = stateContextComponent.CurrentStrategyIndex;
@@ -29,14 +35,14 @@ namespace Strategies
             if (!alive.IsAlive)
                 return;
 
-            if (isSetted && stateContextComponent.StrategyState != StrategyState.Pause)
-                return;
-
             if (strategyIndex != stateContextComponent.CurrentStrategyIndex)
                 return;
 
-            if (entity.TryGetComponent(out StateContextComponent stateContextComponentAfter) && isSetted)
-                stateContextComponentAfter.StrategyState = StrategyState.Run;
+            if (currentIteration != stateContextComponent.CurrentIteration)
+                return;
+
+            if (onPause)
+                stateContextComponent.StrategyState = StrategyState.Run;
 
             Next.Execute(entity);
         }

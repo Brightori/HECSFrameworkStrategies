@@ -18,6 +18,9 @@ namespace Systems
         [Required]
         public AIStrategyComponent aIStrategyComponent;
 
+        [Required]
+        public StateContextComponent StateContextComponent;
+
         public void CommandReact(NeedDecisionCommand command)
         {
             Owner.GetComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
@@ -54,7 +57,7 @@ namespace Systems
 
             Owner.GetOrAddComponent<StateContextComponent>().ExitFromStates();
             Owner.GetComponent<StateContextComponent>().CurrentStrategyIndex = currentStrategy.StrategyIndex;
-
+            StateContextComponent.CurrentIteration++;
             isNeedDecision = true;
         }
 
@@ -62,6 +65,7 @@ namespace Systems
         {
             if (!isNeedDecision || isStoped) return;
             isNeedDecision = false;
+            StateContextComponent.CurrentIteration++;
             currentStrategy.Execute(Owner);
         }
 
@@ -69,6 +73,7 @@ namespace Systems
         {
             currentStrategy?.ForceStop(Owner);
             currentStrategy = aIStrategyComponent.Strategy;
+            StateContextComponent.CurrentIteration++;
             Owner.GetOrAddComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
             Owner.GetComponent<StateContextComponent>().CurrentStrategyIndex = currentStrategy.StrategyIndex;
             isNeedDecision = true;
@@ -93,6 +98,7 @@ namespace Systems
         {
             currentStrategy?.ForceStop(Owner);
             Owner.GetOrAddComponent<StateContextComponent>().StrategyState = StrategyState.Stop;
+            StateContextComponent.CurrentIteration++;
             isNeedDecision = false;
             isStoped = true;
         }
