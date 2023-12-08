@@ -1,7 +1,7 @@
-﻿using HECSFramework.Core;
-using Strategies;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using HECSFramework.Core;
+using Strategies;
 
 namespace Components
 {
@@ -24,7 +24,6 @@ namespace Components
         public void Dispose()
         {
             ExitFromStates();
-            ExitStateNodes.Clear();
             CurrentState = null;
             EarlyUpdateNode = null;
         }

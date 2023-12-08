@@ -1,13 +1,16 @@
-using System;
 using System.Linq;
 using Components;
 using HECSFramework.Core;
-using Sirenix.Utilities;
+
+#if UNITY_EDITOR || UNITY_2017_1_OR_NEWER
 using UnityEngine;
+#endif
 
 namespace Strategies
 {
+#if UNITY_EDITOR || UNITY_2017_1_OR_NEWER
     [CreateAssetMenu(menuName = "Strategies/State")]
+#endif
     [Documentation(Doc.Strategy, Doc.AI, "Это подвид стратегии - FSM")]
     public partial class State : BaseStrategy, IState, IInitable, IDecisionNode
     {
@@ -29,9 +32,21 @@ namespace Strategies
 
             StartDecision = nodes.FirstOrDefault(x => x is StartDecision) as StartDecision;
             Update = nodes.FirstOrDefault(x => x is UpdateStateNode) as UpdateStateNode;
-            nodes.OfType<IAddStateNode>().ForEach(x => x.AddState(this));
-            nodes.OfType<SetStateNode>().ForEach(x => x.ExternalState = (true, this));
-            nodes.OfType<IInitable>().ForEach(x => x.Init());
+            var addState = nodes.OfType<IAddStateNode>();
+
+            foreach (var n in addState)
+                n.AddState(this);
+
+            var setStateNodes = nodes.OfType<SetStateNode>();
+
+            foreach (var n in setStateNodes)
+                n.ExternalState = (true, this);
+
+
+            var initable = nodes.OfType<IInitable>();
+
+            foreach (var n in initable)
+                n.Init();
         }
 
         public void Pause(Entity pause)

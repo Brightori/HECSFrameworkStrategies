@@ -23,6 +23,10 @@ namespace Strategies
         protected override void Run(Entity entity)
         {
             var context = entity.GetComponent<StateContextComponent>();
+
+            if (context.StrategyState == StrategyState.Stop)
+                return;
+
             context.CurrentState = state;
             context.StrategyState = StrategyState.Run;
         }
