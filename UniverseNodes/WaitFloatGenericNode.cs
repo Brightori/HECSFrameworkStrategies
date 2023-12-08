@@ -12,21 +12,30 @@ namespace Strategies
       
         protected override async void Run(Entity entity)
         {
-            if (entity.TryGetComponent(out StateContextComponent stateContextComponent))
+            bool isSetted = false;
+
+            if (entity.TryGetComponent(out StateContextComponent stateContextComponent) && stateContextComponent.StrategyState == StrategyState.Run)
+            {
                 stateContextComponent.StrategyState = StrategyState.Pause;
+                isSetted = true;
+            }
+                
 
             var alive = new AliveEntity(entity);
             var strategyIndex = stateContextComponent.CurrentStrategyIndex;
 
             await new Wait(TimeForWait.Value(entity)).RunJob(entity.World);
 
-            if (!alive.IsAlive || stateContextComponent.StrategyState != StrategyState.Pause)
+            if (!alive.IsAlive)
+                return;
+
+            if (isSetted && stateContextComponent.StrategyState != StrategyState.Pause)
                 return;
 
             if (strategyIndex != stateContextComponent.CurrentStrategyIndex)
                 return;
 
-            if (entity.TryGetComponent(out StateContextComponent stateContextComponentAfter))
+            if (entity.TryGetComponent(out StateContextComponent stateContextComponentAfter) && isSetted)
                 stateContextComponentAfter.StrategyState = StrategyState.Run;
 
             Next.Execute(entity);
