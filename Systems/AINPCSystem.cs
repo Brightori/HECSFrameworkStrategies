@@ -18,7 +18,6 @@ namespace Systems
         [Required]
         public AIStrategyComponent aIStrategyComponent;
 
-        [Required]
         public StateContextComponent StateContextComponent;
 
         public void CommandReact(NeedDecisionCommand command)
@@ -29,7 +28,7 @@ namespace Systems
 
         public override void InitSystem()
         {
-            Owner.GetOrAddComponent<StateContextComponent>();
+            StateContextComponent = Owner.GetOrAddComponent<StateContextComponent>();
             currentStrategy = aIStrategyComponent.Strategy;
             currentStrategy?.Init();
 
