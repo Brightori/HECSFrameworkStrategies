@@ -23,6 +23,7 @@ namespace Systems
         public void CommandReact(NeedDecisionCommand command)
         {
             Owner.GetComponent<StateContextComponent>().ExitFromStates();
+            StateContextComponent.CurrentIteration++;
             isNeedDecision = true;
         }
 
@@ -89,6 +90,7 @@ namespace Systems
 
         public void CommandReact(ForceStartAICommand command)
         {
+            StateContextComponent.CurrentIteration++;
             isStoped = false;
             isNeedDecision = true;
         }

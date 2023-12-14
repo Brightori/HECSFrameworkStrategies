@@ -1,5 +1,4 @@
-﻿using System;
-using Components;
+﻿using Components;
 using HECSFramework.Core;
 using Strategies;
 
@@ -22,7 +21,13 @@ namespace Systems
                 if (needed.TryGetComponent(out StateContextComponent stateContextComponent))
                 {
                     if (stateContextComponent.StrategyState != StrategyState.Run) continue;
+
+                    var generation = stateContextComponent.CurrentIteration;
                     stateContextComponent.EarlyUpdateNode?.Execute(needed);
+
+                    if (generation != stateContextComponent.CurrentIteration)
+                        continue;
+
                     stateContextComponent.CurrentState.Update.Execute(needed);
                 }
             }

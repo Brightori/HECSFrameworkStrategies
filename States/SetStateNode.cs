@@ -1,6 +1,7 @@
 ﻿using Components;
 using HECSFramework.Core;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Strategies
 {
@@ -38,6 +39,7 @@ namespace Strategies
             State.Init();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void Run(Entity entity)
         {
             OnStartStateNodes?.Execute(entity);
