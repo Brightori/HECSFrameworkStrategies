@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Components
 {
     [Serializable, Documentation(Doc.AI, Doc.Strategy, Doc.State, "Это основной компонент стейта, он содержит сущности которые сейчас находятся в этом стейте, этот компонент лежит внутри ентити внутри " + nameof(State))]
-    public class StateDataComponent : BaseComponent, IInitable 
+    public class StateDataComponent : BaseComponent  
     {
         private List<Entity> entitiesInCurrentState;
         public ReadonlyList<Entity> EntitiesInCurrentState;
@@ -18,7 +18,7 @@ namespace Components
         public StrategyState State { get; private set; } = StrategyState.Run;
         [ShowInInspector, ReadOnly] public string OwnerID => Owner.ID;
 
-        public void Init()
+        public override void Init()
         {
             entitiesInCurrentState = new List<Entity>();
             EntitiesInCurrentState = new ReadonlyList<Entity>(entitiesInCurrentState);
