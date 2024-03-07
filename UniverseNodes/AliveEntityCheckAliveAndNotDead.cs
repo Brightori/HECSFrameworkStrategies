@@ -7,7 +7,7 @@ namespace Strategies
     {
         [Connection(ConnectionPointType.In, "<AliveEntity> AliveEntity")]
         public GenericNode<AliveEntity> AliveEntity;
-        public override string TitleOfNode { get; } = "AliveEntityCheckAlive";
+        public override string TitleOfNode { get; } = "AliveEntityCheckAliveAndNotDead";
         protected override void Run(Entity entity)
         {
             if (AliveEntity.Value(entity).IsAliveAndNotDead())
