@@ -10,7 +10,7 @@ namespace Strategies
         [Connection(ConnectionPointType.In, "Input")]
         public BaseDecisionNode Input;
 
-        [Connection(ConnectionPointType.In, "Execute on Start")]
+        [Connection(ConnectionPointType.Out, "Execute on Start")]
         public BaseDecisionNode OnStartStateNodes;
 
         [Connection(ConnectionPointType.Out, "Early Update")]
