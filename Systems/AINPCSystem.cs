@@ -98,7 +98,7 @@ namespace Systems
         public void CommandReact(ForceStopAICommand command)
         {
             currentStrategy?.ForceStop(Owner);
-            Owner.GetOrAddComponent<StateContextComponent>().ExitFromStates();
+            StateContextComponent.ExitFromStates();
             StateContextComponent.CurrentIteration++;
             isNeedDecision = false;
             isStoped = true;

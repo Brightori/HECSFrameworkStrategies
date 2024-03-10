@@ -20,7 +20,7 @@ namespace Strategies
         {
             currentState.Stop(entity);
             CallNodesWhenExit?.Execute(entity);
-            entity.GetComponent<StateContextComponent>().ExitStateNodes.Pop().Execute(entity);
+            entity.GetComponent<StateContextComponent>().ExitState(entity);
         }
 
         public void AddState(State state)

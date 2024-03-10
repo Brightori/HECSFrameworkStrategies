@@ -27,8 +27,6 @@ namespace Strategies
 
         public override string TitleOfNode { get; } = "Set State";
 
-        private readonly HECSMask stateContextMask = HMasks.GetMask<StateContextComponent>(); 
-
         public override void Execute(Entity entity)
         {
            Run(entity);
@@ -45,6 +43,7 @@ namespace Strategies
             OnStartStateNodes?.Execute(entity);
             var context = entity.GetOrAddComponent<StateContextComponent>();
             context.EarlyUpdateNode = EarlyUpdateNodes;
+            context.EnterState(this);
             State.Execute(entity, Exit);
         }
     }

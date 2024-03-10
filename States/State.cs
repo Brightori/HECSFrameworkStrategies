@@ -74,7 +74,6 @@ namespace Strategies
         {
             var context = entity.GetOrAddComponent<StateContextComponent>();
             context.CurrentState = this;
-            context.ExitStateNodes.Push(exitNode);
             context.StrategyState = StrategyState.Run;
             Execute(entity);
         }
