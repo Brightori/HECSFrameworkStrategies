@@ -25,7 +25,7 @@ namespace Systems
                     var generation = stateContextComponent.CurrentIteration;
                     stateContextComponent.EarlyUpdateNode?.Execute(needed);
 
-                    if (generation != stateContextComponent.CurrentIteration)
+                    if (generation != stateContextComponent.CurrentIteration || stateContextComponent.StrategyState != StrategyState.Run)
                         continue;
 
                     stateContextComponent.CurrentState.Update.Execute(needed);
