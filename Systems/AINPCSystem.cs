@@ -7,6 +7,7 @@ using Strategies;
 namespace Systems
 {
     [Serializable]
+    [Feature("DefaultNPC")]
     [RequiredAtContainer(typeof(AIStrategyComponent))]
     [Documentation(Doc.NPC, Doc.AI, Doc.HECS, "This is default system for operate strategies on NPC")]
     public class AINPCSystem : BaseSystem, IAINPCSystem
