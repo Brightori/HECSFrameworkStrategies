@@ -8,7 +8,7 @@ namespace Strategies
         public bool IsOnline = true;
         public bool PrintEntityGUID = false;
         public bool PauseApplication;
-
+        public bool ContainerID;
 
         public string DebugMessage = "Debug";
         public override string TitleOfNode { get; } = "Debug Node";
@@ -22,6 +22,9 @@ namespace Strategies
                     HECSDebug.LogWarning($"{entity.GUID.ToString()} -- {DebugMessage}");
                 else
                     HECSDebug.LogWarning($"{DebugMessage}");
+
+                if (ContainerID)
+                    HECSDebug.LogWarning($"{entity.ContainerID}");
             }
 
             if (PauseApplication)
