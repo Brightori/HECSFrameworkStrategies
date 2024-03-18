@@ -93,6 +93,22 @@ public class StrategyGraphView : GraphView, IDisposable
         DelayFrameAll();
     }
 
+    public void FocusOnNode(Vector2 vector)
+    {
+        foreach (var n in drawNodes)
+        {
+            if (n.InnerNode.coords == vector)
+            {
+                this.AddToSelection(n);
+                this.FrameSelection();
+                n.Focus();
+
+                grid.ChangeCoordinatesTo(contentViewContainer, vector);
+                return;
+            }
+        }
+    }
+
     private void KeyboradEventProcess(KeyDownEvent evt)
     {
         if (evt.ctrlKey && evt.shiftKey && evt.keyCode == KeyCode.A)

@@ -3,6 +3,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Strategies;
+using System;
 
 [InitializeOnLoad]
 public class StrategyGraphViewWIndow : EditorWindow
@@ -15,6 +16,20 @@ public class StrategyGraphViewWIndow : EditorWindow
     static StrategyGraphViewWIndow()
     {
         BaseStrategy.GetWindow += ShowWindowReact;
+        BaseStrategy.GetWindowAndFocus += ShowWindowReactFocus;
+    }
+
+    private static void ShowWindowReactFocus(BaseStrategy strategy, string arg2, Vector2 vector)
+    {
+        var window = CreateWindow<StrategyGraphViewWIndow>();
+        window.titleContent = new GUIContent(strategy.name);
+        window.OnInit(strategy, arg2, vector);
+    }
+
+    private void OnInit(BaseStrategy strategy, string arg2, Vector2 vector)
+    {
+        OnInit(strategy, arg2);
+        graphView.FocusOnNode(vector);
     }
 
     private static void ShowWindowReact(BaseStrategy strategy, string path)
@@ -34,6 +49,7 @@ public class StrategyGraphViewWIndow : EditorWindow
         rootVisualElement.Add(graphView);
         CreateMiniMap();
         graphView.AddSearchWindow(this);
+        graphView.FrameAll();
     }
 
     private void CreateMiniMap()

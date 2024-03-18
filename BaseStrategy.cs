@@ -36,15 +36,23 @@ namespace Strategies
         #region Editor
 #if UNITY_EDITOR //это для проброса в эдитор
         public static event Action<BaseStrategy, string> GetWindow;
+        public static event Action<BaseStrategy, string, Vector2> GetWindowAndFocus;
 #endif
 
 #if UNITY_EDITOR
         [Button(ButtonSizes.Large)]
-        private void OpenStrategy()
+        public void OpenStrategy()
         {
             OnOpenActions();
             var path = AssetDatabase.GetAssetPath(this);
             GetWindow.Invoke(this, path);
+        }
+
+        public void OpenStrategy(Vector2 vector2)
+        {
+            OnOpenActions();
+            var path = AssetDatabase.GetAssetPath(this);
+            GetWindowAndFocus.Invoke(this, path, vector2);
         }
 
         protected virtual void OnOpenActions() { }
