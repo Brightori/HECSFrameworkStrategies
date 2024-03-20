@@ -4,6 +4,7 @@ using HECSFramework.Core;
 
 namespace Strategies
 {
+    [NodeTypeAttribite("FinalNode")]
     public class ExitStateNode : LogNode, IAddStateNode
     {
         public override string TitleOfNode { get; } = "Exit State";

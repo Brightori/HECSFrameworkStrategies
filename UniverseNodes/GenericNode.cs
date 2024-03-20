@@ -1,7 +1,9 @@
+using System;
 using HECSFramework.Core;
 
 namespace Strategies
 {
+    [NodeTypeAttribite("Generic")]
     [Documentation(Doc.HECS, Doc.Strategy, "this is base for providing value by other node")]
     public abstract class GenericNode<T> : BaseDecisionNode, IGenericNode<T>
     {
@@ -20,5 +22,16 @@ namespace Strategies
     public interface IGenericNode<T>
     {
         abstract T Value(Entity entity);
+    }
+
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true, Inherited = true)]
+    public class NodeTypeAttribite : Attribute
+    {
+        public string NodeType;
+
+        public NodeTypeAttribite(string nodeType)
+        {
+            NodeType = nodeType;
+        }
     }
 }

@@ -1,9 +1,9 @@
 using Components;
 using HECSFramework.Core;
-using UnityEngine;
 
 namespace Strategies
 {
+    [NodeTypeAttribite("InnerNode")]
     public class DilemmaStrategyNode : DilemmaDecision, IInitable 
     {
         public override string TitleOfNode { get; } = "Dilemma Strategy Node";

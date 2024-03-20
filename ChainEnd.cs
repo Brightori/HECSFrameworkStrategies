@@ -4,6 +4,7 @@ using HECSFramework.Core;
 
 namespace Strategies
 {
+    [NodeTypeAttribite("FinalNode")]
     [Documentation(Doc.AI, Doc.Strategy, "эта нода для стейтов, для стратегий должна использоваться нода Strategy Complete")]
     [Documentation(Doc.AI, Doc.Strategy, "Это нода пустышка которую мы ставим в конце цепочки для того чтобы не проверять на налл каждую следующую ноду, отличает от Complete ноды тем, что также содержит дебаг функционал для стака выполнения стейта")]
     public sealed class ChainEnd : LogNode, IAddStateNode 

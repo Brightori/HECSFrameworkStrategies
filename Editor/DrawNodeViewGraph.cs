@@ -536,7 +536,24 @@ public class StrategyGraphView : GraphView, IDisposable
         drawNode.title = node.TitleOfNode;
         drawNode.GUID = Guid.NewGuid().ToString();
         drawNode.InnerNode = node;
-        drawNode.styleSheets.Add(Resources.Load<StyleSheet>("Node"));
+
+        var attrs = node.GetType().GetAttributes(true);
+        var nodeType = attrs.FirstOrDefault(x => x is NodeTypeAttribite) as NodeTypeAttribite;
+
+        if (nodeType != null && nodeType.NodeType == "Generic")
+        {
+            drawNode.styleSheets.Add(Resources.Load<StyleSheet>("GenericNode"));
+        }
+        else if (nodeType != null && nodeType.NodeType == "FinalNode")
+        {
+            drawNode.styleSheets.Add(Resources.Load<StyleSheet>("FinalNode"));
+        }
+        else if (nodeType != null && nodeType.NodeType == "InnerNode")
+        {
+            drawNode.styleSheets.Add(Resources.Load<StyleSheet>("InnerNode"));
+        }
+        else
+            drawNode.styleSheets.Add(Resources.Load<StyleSheet>("Node"));
 
         drawNode.SetPosition(new Rect(node.coords, new Vector2(150, 50)));
         GeneratePorts(drawNode);

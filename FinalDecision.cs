@@ -2,6 +2,7 @@
 
 namespace Strategies
 {
+    [NodeTypeAttribite("FinalNode")]
     public abstract class FinalDecision : LogNode
     {
         [HideInInspector, IgnoreDraw]

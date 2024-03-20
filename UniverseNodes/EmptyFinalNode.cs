@@ -2,6 +2,7 @@ using HECSFramework.Core;
 
 namespace Strategies
 {
+    [NodeTypeAttribite("FinalNode")]
     [Documentation(Doc.Strategy, Doc.HECS, "Empty node whithout logic for finaling chains|strategis")]
     public sealed class EmptyFinalNode : BaseDecisionNode
     {

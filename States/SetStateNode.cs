@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Strategies
 {
+    [NodeTypeAttribite("InnerNode")]
     public class SetStateNode : LogNode, IInitable
     {
         [Connection(ConnectionPointType.In, "Input")]
