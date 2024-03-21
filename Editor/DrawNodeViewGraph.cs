@@ -9,6 +9,7 @@ using HECSFramework.Unity;
 using HECSFramework.Unity.Helpers;
 using Sirenix.Utilities;
 using Strategies;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
@@ -319,10 +320,20 @@ public class StrategyGraphView : GraphView, IDisposable
 
                     if (IsValidConnect(((FieldInfo)input.ConnectedPorts[e.input].member), ((FieldInfo)output.ConnectedPorts[e.output].member)))
                     {
-                        ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
-                        ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
+                        var outputMember = (FieldInfo)output.ConnectedPorts[e.output].member;
 
-                        output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
+                        if (outputMember != null && outputMember.GetCustomAttribute<MetaNodeAttribute>(true) != null)
+                        {
+                            ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, outputMember.GetValue(output.InnerNode));
+                            output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
+                        }
+                        else
+                        {
+                            ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
+                            ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
+
+                            output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
+                        }
                     }
                     else if (check && inputType != typeof(BaseDecisionNode))
                     {
@@ -358,28 +369,74 @@ public class StrategyGraphView : GraphView, IDisposable
                     {
                         if (dn.ConnectedPorts.TryGetValue(edge.output, out var info))
                         {
+                            var field = (FieldInfo)info.member;
                             var nameOut = ((FieldInfo)info.member).Name;
-                            var neededNode = drawNodes.FirstOrDefault(x => x.InnerNode == info.node);
 
-                            if (neededNode != null)
+                            if (field == null)
+                                continue;
+
+                            foreach (var dn2 in drawNodes)
                             {
-                                if (neededNode.ConnectedPorts.TryGetValue(edge.input, out var info2))
+                                var neededConnection = dn2.ConnectedPorts.Where(x => x.Value.direction == Direction.Input);
+
+                                foreach (var connection in neededConnection)
                                 {
-                                    var nameInput = info2.member.Name;
-                                    dn.InnerNode.ConnectionContexts.Remove(new ConnectionContext { In = nameInput, Out = nameOut });
-                                    ((FieldInfo)info2.member).SetValue(info.node, null);
+                                    var connectionfield = (FieldInfo)connection.Value.member;
+
+                                    if (connectionfield == null)
+                                        continue;
+
+                                    var value = connectionfield.GetValue(dn2.InnerNode) as BaseDecisionNode;
+
+                                    var meta = dn.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true);
+
+                                    if (meta != null && meta.NodeType == "Meta")
+                                    {
+                                        var trueInnerNode = field.GetValue(dn.InnerNode);
+
+                                        if (value != null && value == trueInnerNode as BaseDecisionNode)
+                                        {
+                                            var nameInput = connection.Value.member.Name;
+                                            dn.InnerNode.ConnectionContexts.Remove(new ConnectionContext { In = nameInput, Out = nameOut });
+                                            ((FieldInfo)connection.Value.member).SetValue(dn2.InnerNode, null);
+                                        }
+
+                                    }
+                                    else if (value != null && value == dn.InnerNode)
+                                    {
+                                        var nameInput = connection.Value.member.Name;
+                                        dn.InnerNode.ConnectionContexts.Remove(new ConnectionContext { In = nameInput, Out = nameOut });
+                                        ((FieldInfo)connection.Value.member).SetValue(info.node, null);
+                                    }
                                 }
                             }
 
-                            ((FieldInfo)info.member).SetValue(dn.InnerNode, null);
+                            if (((FieldInfo)info.member).GetCustomAttribute<MetaNodeAttribute>(true) == null)
+                                ((FieldInfo)info.member).SetValue(dn.InnerNode, null);
                         }
                     }
                 }
 
                 if (remove is DrawNodeViewGraph node)
                 {
+                    var isMetanode = node.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true).NodeType == "Meta";
+
+                    if (isMetanode)
+                    {
+                        var array = strategy.Metanodes.ToArray();
+
+                        foreach (var i in array)
+                        {
+                            if (i.Parent == node.InnerNode)
+                            {
+                                RemoveNode(i.Child);
+                                strategy.Metanodes.Remove(i);
+                            }
+                        }
+                    }
+
                     strategy.nodes.AddOrRemoveElement(node.InnerNode, false);
-                    ClearNodes();
+                    RemoveNode(node.InnerNode);
                 }
             }
         }
@@ -391,6 +448,14 @@ public class StrategyGraphView : GraphView, IDisposable
     {
         var attr = output.GetAttribute<ConnectionAttribute>();
         var comment = attr.NameOfField.ToLower();
+
+        var metaNode = output.GetCustomAttribute<MetaNodeAttribute>(true);
+
+        if (metaNode != null)
+        {
+            if (output.FieldType.IsCastableTo(input.FieldType))
+                return true;
+        }
 
         if (input.FieldType.IsGenericType)
         {
@@ -469,9 +534,36 @@ public class StrategyGraphView : GraphView, IDisposable
                 if (portinfo.Value.node == null)
                     continue;
 
+
+                var nodetype = dn.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true);
+
+                if (nodetype != null && nodetype.NodeType == "Meta")
+                {
+                    foreach (var other in drawNodes)
+                    {
+                        foreach (var p in other.ConnectedPorts)
+                        {
+                            if (p.Value.direction == Direction.Input)
+                            {
+                                if (p.Value.member is FieldInfo info && info.GetValue(other.InnerNode) is BaseDecisionNode node && node == portinfo.Value.node)
+                                {
+                                    LinkNodesTogether(portinfo.Key, p.Key);
+                                    goto next;
+                                }
+                            }
+                        }
+                    }
+
+                    next:
+                    continue;
+                }
+
                 var viewNode = drawNodes.FirstOrDefault(x => x.InnerNode == portinfo.Value.node);
                 var connect = dn.InnerNode.ConnectionContexts.FirstOrDefault(x => x.Out == portinfo.Value.member.Name);
-                
+
+                if (viewNode == null)
+                    continue;
+
                 if (string.IsNullOrEmpty(connect.In) || string.IsNullOrEmpty(connect.Out))
                 {
                     LinkNodesTogether(portinfo.Key, viewNode.ConnectedPorts.FirstOrDefault(x=> x.Value.direction == Direction.Input).Key);
@@ -554,6 +646,11 @@ public class StrategyGraphView : GraphView, IDisposable
         }
         else
             drawNode.styleSheets.Add(Resources.Load<StyleSheet>("Node"));
+
+        if (nodeType != null && nodeType.NodeType == "Meta")
+        {
+
+        }
 
         drawNode.SetPosition(new Rect(node.coords, new Vector2(150, 50)));
         GeneratePorts(drawNode);
@@ -1045,24 +1142,51 @@ public class StrategyGraphView : GraphView, IDisposable
         asset.name = type.ToString();
         AssetDatabase.AddObjectToAsset(asset, parent);
         strategy.nodes.Add(asset as BaseDecisionNode);
-        AssetDatabase.SaveAssets();
         (asset as BaseDecisionNode).coords = mousePosition;
+
+        var nodeType = type.GetCustomAttribute<NodeTypeAttribite>(true);
+
+        if (nodeType != null)
+        {
+            if (nodeType.NodeType == "Meta")
+            {
+                var fields = type.GetFields();
+
+                foreach (var field in fields)
+                {
+                    var metaData = field.GetCustomAttribute<MetaNodeAttribute>(true);
+                    var connection = field.GetCustomAttribute<ConnectionAttribute>(true);
+
+                    if (metaData != null && connection != null)
+                    {
+                        if (connection.ConnectionPointType == ConnectionPointType.Out)
+                        {
+                            var metaNode = ScriptableObject.CreateInstance(field.FieldType);
+                            metaNode.name = type.ToString();
+
+                            field.SetValue(asset, metaNode);
+                            AssetDatabase.AddObjectToAsset(metaNode, parent);
+                            strategy.Metanodes.Add(new NodeToMetaNode { Child = metaNode as BaseDecisionNode, Parent = asset as BaseDecisionNode});
+                        }
+                    }
+                }
+            } 
+        }
+        
+        AssetDatabase.SaveAssets();
 
         return asset as BaseDecisionNode;
     }
 
-    private void ClearNodes()
+    private void RemoveNode(BaseDecisionNode innerNode)
     {
         var path = AssetDatabase.GetAssetPath(strategy);
         var allSo = AssetDatabase.LoadAllAssetRepresentationsAtPath(path);
 
         foreach (var go in allSo)
         {
-            if (!strategy.nodes.Contains(go))
+            if (go == innerNode)
             {
-                if (go == null)
-                    continue;
-
                 AssetDatabase.RemoveObjectFromAsset(go);
                 MonoBehaviour.DestroyImmediate(go);
             }

@@ -15,6 +15,7 @@ namespace Strategies
     {
         private int indexCash = -1;
         public List<BaseDecisionNode> nodes = new List<BaseDecisionNode>(16);
+        public List<NodeToMetaNode> Metanodes = new List<NodeToMetaNode>(16);
         private BaseDecisionNode start;
 
         [NonSerialized]
