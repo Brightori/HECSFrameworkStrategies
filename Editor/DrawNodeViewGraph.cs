@@ -644,6 +644,10 @@ public class StrategyGraphView : GraphView, IDisposable
         {
             drawNode.styleSheets.Add(Resources.Load<StyleSheet>("InnerNode"));
         }
+        else if (nodeType != null && nodeType.NodeType == "Meta")
+        {
+            drawNode.styleSheets.Add(Resources.Load<StyleSheet>("Meta"));
+        }
         else
             drawNode.styleSheets.Add(Resources.Load<StyleSheet>("Node"));
 
