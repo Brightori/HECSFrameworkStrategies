@@ -148,7 +148,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
     private void SelectAllChilds()
     {
-        var currentSelection = selection.FirstOrDefault(x=> x is DrawNodeViewGraph) as DrawNodeViewGraph;
+        var currentSelection = selection.FirstOrDefault(x => x is DrawNodeViewGraph) as DrawNodeViewGraph;
 
         if (currentSelection != null)
         {
@@ -342,6 +342,19 @@ public class StrategyGraphView : GraphView, IDisposable
 
                         output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
                     }
+                    else if (outType == typeof(BaseDecisionNode) && inputType == typeof(BaseDecisionNode))
+                    {
+                        var attr = output.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true);
+
+                        if (attr != null && attr.NodeType == "Generic")
+                            continue;
+                            
+
+                        ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
+                        ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
+
+                        output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
+                    }
                     else
                     {
                         Debug.LogWarning("nodes not match");
@@ -367,59 +380,34 @@ public class StrategyGraphView : GraphView, IDisposable
                 {
                     foreach (var dn in drawNodes)
                     {
-                        if (dn.ConnectedPorts.TryGetValue(edge.output, out var info))
+                        if (dn.ConnectedPorts.TryGetValue(edge.input, out var info))
                         {
                             var field = (FieldInfo)info.member;
                             var nameOut = ((FieldInfo)info.member).Name;
 
                             if (field == null)
                                 continue;
+                            
+                            var valueInConnection = field.GetValue(dn.InnerNode) as BaseDecisionNode;
+                            field.SetValue(dn.InnerNode, null);
 
-                            foreach (var dn2 in drawNodes)
+                            if (valueInConnection == null)
+                                continue;
+
+                            foreach (var dnOut in drawNodes)
                             {
-                                var neededConnection = dn2.ConnectedPorts.Where(x => x.Value.direction == Direction.Input);
-
-                                foreach (var connection in neededConnection)
+                                if (dnOut.InnerNode == valueInConnection) 
                                 {
-                                    var connectionfield = (FieldInfo)connection.Value.member;
-
-                                    if (connectionfield == null)
-                                        continue;
-
-                                    var value = connectionfield.GetValue(dn2.InnerNode) as BaseDecisionNode;
-
-                                    var meta = dn.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true);
-
-                                    if (meta != null && meta.NodeType == "Meta")
-                                    {
-                                        var trueInnerNode = field.GetValue(dn.InnerNode);
-
-                                        if (value != null && value == trueInnerNode as BaseDecisionNode)
-                                        {
-                                            var nameInput = connection.Value.member.Name;
-                                            dn.InnerNode.ConnectionContexts.Remove(new ConnectionContext { In = nameInput, Out = nameOut });
-                                            ((FieldInfo)connection.Value.member).SetValue(dn2.InnerNode, null);
-                                        }
-
-                                    }
-                                    else if (value != null && value == dn.InnerNode)
-                                    {
-                                        var nameInput = connection.Value.member.Name;
-                                        dn.InnerNode.ConnectionContexts.Remove(new ConnectionContext { In = nameInput, Out = nameOut });
-                                        ((FieldInfo)connection.Value.member).SetValue(info.node, null);
-                                    }
+                                    dnOut.InnerNode.ConnectionContexts.Remove(new ConnectionContext { Out = dnOut.ConnectedPorts[edge.output].member.Name, In = dn.ConnectedPorts[edge.input].member.Name });
                                 }
                             }
-
-                            if (((FieldInfo)info.member).GetCustomAttribute<MetaNodeAttribute>(true) == null)
-                                ((FieldInfo)info.member).SetValue(dn.InnerNode, null);
                         }
                     }
                 }
 
                 if (remove is DrawNodeViewGraph node)
                 {
-                    var isMetanode = node.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true).NodeType == "Meta";
+                    var isMetanode = node.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true)?.NodeType == "Meta";
 
                     if (isMetanode)
                     {
@@ -476,6 +464,7 @@ public class StrategyGraphView : GraphView, IDisposable
         return true;
     }
 
+    [Documentation(Doc.HECS, Doc.Strategy, "its helper for convert dotnet types to c#")]
     public static string FromDotNetTypeToCSharpType(string dotNetTypeName, bool isNull = false)
     {
         string cstype = "";
@@ -554,7 +543,7 @@ public class StrategyGraphView : GraphView, IDisposable
                         }
                     }
 
-                    next:
+                next:
                     continue;
                 }
 
@@ -566,7 +555,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
                 if (string.IsNullOrEmpty(connect.In) || string.IsNullOrEmpty(connect.Out))
                 {
-                    LinkNodesTogether(portinfo.Key, viewNode.ConnectedPorts.FirstOrDefault(x=> x.Value.direction == Direction.Input).Key);
+                    LinkNodesTogether(portinfo.Key, viewNode.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input).Key);
                 }
                 else
                 {
@@ -1170,13 +1159,13 @@ public class StrategyGraphView : GraphView, IDisposable
 
                             field.SetValue(asset, metaNode);
                             AssetDatabase.AddObjectToAsset(metaNode, parent);
-                            strategy.Metanodes.Add(new NodeToMetaNode { Child = metaNode as BaseDecisionNode, Parent = asset as BaseDecisionNode});
+                            strategy.Metanodes.Add(new NodeToMetaNode { Child = metaNode as BaseDecisionNode, Parent = asset as BaseDecisionNode });
                         }
                     }
                 }
-            } 
+            }
         }
-        
+
         AssetDatabase.SaveAssets();
 
         return asset as BaseDecisionNode;
