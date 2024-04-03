@@ -518,7 +518,25 @@ public class StrategyGraphView : GraphView, IDisposable
             foreach (var portinfo in dn.ConnectedPorts)
             {
                 if (portinfo.Value.direction == Direction.Input)
+                {
+                    var fieldInfo = portinfo.Value.member as FieldInfo;
+
+                    var node = fieldInfo.GetValue(dn.InnerNode) as BaseDecisionNode;
+
+                    if ( node != null)
+                    {
+                        var neededNode = drawNodes.FirstOrDefault(x => x.InnerNode == node);
+
+                        if (neededNode != null)
+                        {
+                            var neededInfo = neededNode.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Output && x.Value.node != null && x.Value.node == dn.InnerNode);
+
+                            if (neededInfo.Value.node != null)
+                                LinkNodesTogether(neededInfo.Key, portinfo.Key);
+                        }
+                    }
                     continue;
+                }
 
                 if (portinfo.Value.node == null)
                     continue;
@@ -545,30 +563,6 @@ public class StrategyGraphView : GraphView, IDisposable
 
                 next:
                     continue;
-                }
-
-                var viewNode = drawNodes.FirstOrDefault(x => x.InnerNode == portinfo.Value.node);
-                var connect = dn.InnerNode.ConnectionContexts.FirstOrDefault(x => x.Out == portinfo.Value.member.Name);
-
-                if (viewNode == null)
-                    continue;
-
-                if (string.IsNullOrEmpty(connect.In) || string.IsNullOrEmpty(connect.Out))
-                {
-                    LinkNodesTogether(portinfo.Key, viewNode.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input).Key);
-                }
-                else
-                {
-                    var connectToPort = viewNode.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input && x.Value.member.Name == connect.In);
-
-                    if (connectToPort.Key == null)
-                    {
-                        LinkNodesTogether(portinfo.Key, viewNode.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Input).Key);
-                    }
-                    else
-                    {
-                        LinkNodesTogether(portinfo.Key, connectToPort.Key);
-                    }
                 }
             }
         }

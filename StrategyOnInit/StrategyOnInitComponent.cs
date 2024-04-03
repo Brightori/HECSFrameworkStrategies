@@ -1,11 +1,12 @@
 using System;
-using Cysharp.Threading.Tasks;
 using HECSFramework.Core;
 using Strategies;
+using Systems;
 
 namespace Components
 {
     [Feature("StartStrategyOnInit")]
+    [RequiredAtContainer(typeof(StrategyOnInitSystem))]
     [Serializable][Documentation(Doc.HECS, Doc.Strategy,  "here we hold strategy to start on init")]
     public sealed class StrategyOnInitComponent : BaseComponent
     {
@@ -14,12 +15,6 @@ namespace Components
         public override void Init()
         {
             Strategy.Init();
-        }
-
-        public override async void AfterInit()
-        {
-            await UniTask.DelayFrame(1);
-            Strategy.Execute(Owner);
         }
     }
 }
