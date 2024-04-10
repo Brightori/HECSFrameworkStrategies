@@ -348,7 +348,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
                         if (attr != null && attr.NodeType == "Generic")
                             continue;
-                            
+
 
                         ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
                         ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
@@ -387,7 +387,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
                             if (field == null)
                                 continue;
-                            
+
                             var valueInConnection = field.GetValue(dn.InnerNode) as BaseDecisionNode;
                             field.SetValue(dn.InnerNode, null);
 
@@ -396,7 +396,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
                             foreach (var dnOut in drawNodes)
                             {
-                                if (dnOut.InnerNode == valueInConnection) 
+                                if (dnOut.InnerNode == valueInConnection)
                                 {
                                     dnOut.InnerNode.ConnectionContexts.Remove(new ConnectionContext { Out = dnOut.ConnectedPorts[edge.output].member.Name, In = dn.ConnectedPorts[edge.input].member.Name });
                                 }
@@ -523,9 +523,26 @@ public class StrategyGraphView : GraphView, IDisposable
 
                     var node = fieldInfo.GetValue(dn.InnerNode) as BaseDecisionNode;
 
-                    if ( node != null)
+                    if (node != null)
                     {
                         var neededNode = drawNodes.FirstOrDefault(x => x.InnerNode == node);
+
+                        if (neededNode == null)
+                        {
+                            var search = strategy.Metanodes.FirstOrDefault(x => x.Child == node);
+
+                            if (search.Parent != null)
+                            {
+                                var neededNodeParentDraw = drawNodes.FirstOrDefault(x => x.InnerNode == search.Parent);
+                                var port = neededNodeParentDraw.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Output && x.Value.node == node);
+                                
+                                if (port.Value.node != null)
+                                {
+                                    LinkNodesTogether(port.Key, portinfo.Key);
+                                    continue;
+                                }
+                            }
+                        }
 
                         if (neededNode != null)
                         {
@@ -535,34 +552,6 @@ public class StrategyGraphView : GraphView, IDisposable
                                 LinkNodesTogether(neededInfo.Key, portinfo.Key);
                         }
                     }
-                    continue;
-                }
-
-                if (portinfo.Value.node == null)
-                    continue;
-
-
-                var nodetype = dn.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true);
-
-                if (nodetype != null && nodetype.NodeType == "Meta")
-                {
-                    foreach (var other in drawNodes)
-                    {
-                        foreach (var p in other.ConnectedPorts)
-                        {
-                            if (p.Value.direction == Direction.Input)
-                            {
-                                if (p.Value.member is FieldInfo info && info.GetValue(other.InnerNode) is BaseDecisionNode node && node == portinfo.Value.node)
-                                {
-                                    LinkNodesTogether(portinfo.Key, p.Key);
-                                    goto next;
-                                }
-                            }
-                        }
-                    }
-
-                next:
-                    continue;
                 }
             }
         }
