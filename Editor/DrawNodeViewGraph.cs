@@ -9,7 +9,6 @@ using HECSFramework.Unity;
 using HECSFramework.Unity.Helpers;
 using Sirenix.Utilities;
 using Strategies;
-using Unity.Mathematics;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
@@ -32,6 +31,9 @@ public class DrawNodeViewGraph : Node
         {
             if (connection.Value.member is FieldInfo fieldInfo)
             {
+                if (fieldInfo.GetCustomAttribute<MetaNodeAttribute>(true) != null)
+                    continue;
+
                 fieldInfo.SetValue(InnerNode, null);
             }
         }
@@ -212,6 +214,7 @@ public class StrategyGraphView : GraphView, IDisposable
                 JsonUtility.FromJsonOverwrite(toJSON, newNode.node);
                 newSelection.Add(newNode.drawNode);
                 newNode.drawNode.ClearConnections();
+                FixMetaNodes(strategy, newNode.node);
             }
         }
 
@@ -219,6 +222,29 @@ public class StrategyGraphView : GraphView, IDisposable
 
         foreach (var n in newSelection)
             AddToSelection(n);
+    }
+
+    public static void FixMetaNodes(BaseStrategy strategy, BaseDecisionNode node)
+    {
+        var type = node.GetType();
+
+        var nodeType = type.GetCustomAttribute<NodeTypeAttribite>(true);
+
+        if (nodeType != null)
+        {
+            if (nodeType.NodeType == "Meta")
+            {
+                var fields = type.GetFields();
+
+               foreach (var metaNodes in strategy.Metanodes)
+                {
+                    if (metaNodes.Parent ==  node && !string.IsNullOrEmpty(metaNodes.FieldName))
+                    {
+                        type.GetField(metaNodes.FieldName).SetValue(metaNodes.Parent, metaNodes.Child);
+                    } 
+                }
+            }
+        }
     }
 
     public override void AddToSelection(ISelectable selectable)
@@ -318,7 +344,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
                     var check = output.InnerNode.GetType().InheritsFrom(inputType);
 
-                    if (IsValidConnect(((FieldInfo)input.ConnectedPorts[e.input].member), ((FieldInfo)output.ConnectedPorts[e.output].member)))
+                    if (IsValidConnect(((FieldInfo)input.ConnectedPorts[e.input].member), ((FieldInfo)output.ConnectedPorts[e.output].member), output.InnerNode))
                     {
                         var outputMember = (FieldInfo)output.ConnectedPorts[e.output].member;
 
@@ -432,7 +458,7 @@ public class StrategyGraphView : GraphView, IDisposable
         return graphViewChange;
     }
 
-    private bool IsValidConnect(FieldInfo input, FieldInfo output)
+    private bool IsValidConnect(FieldInfo input, FieldInfo output, BaseDecisionNode innerNode)
     {
         var attr = output.GetAttribute<ConnectionAttribute>();
         var comment = attr.NameOfField.ToLower();
@@ -447,12 +473,17 @@ public class StrategyGraphView : GraphView, IDisposable
 
         if (input.FieldType.IsGenericType)
         {
-            foreach (var g in input.FieldType.GetGenericArguments())
-            {
-                var name = FromDotNetTypeToCSharpType(g.Name);
+            var neededType = innerNode.GetType();
 
-                if (comment.Contains(name.ToLower()))
-                    return true;
+            if (neededType.IsGenericType || neededType.InheritsFrom(typeof(GenericNode<>)))
+            {
+                var arg = neededType.BaseType.GetGenericArguments().Single();
+
+                foreach (var g in input.FieldType.GetGenericArguments())
+                {
+                    if (arg.InheritsFrom(g))
+                        return true;
+                }
             }
 
             return false;
@@ -1142,7 +1173,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
                             field.SetValue(asset, metaNode);
                             AssetDatabase.AddObjectToAsset(metaNode, parent);
-                            strategy.Metanodes.Add(new NodeToMetaNode { Child = metaNode as BaseDecisionNode, Parent = asset as BaseDecisionNode });
+                            strategy.Metanodes.Add(new NodeToMetaNode {  FieldName = field.Name, Child = metaNode as BaseDecisionNode, Parent = asset as BaseDecisionNode });
                         }
                     }
                 }

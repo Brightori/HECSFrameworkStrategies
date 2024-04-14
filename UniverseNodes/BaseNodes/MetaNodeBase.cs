@@ -23,5 +23,6 @@ namespace Strategies
     {
         public BaseDecisionNode Parent;
         public BaseDecisionNode Child;
+        public string FieldName;
     }
 }
