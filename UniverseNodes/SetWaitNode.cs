@@ -3,7 +3,7 @@ using HECSFramework.Core;
 
 namespace Strategies
 {
-    public sealed class SetWaitNode : SetNode
+    public sealed class SetWaitNode : InterDecision
     {
         public override string TitleOfNode { get; } = "SetWaitNode by float";
 
@@ -12,7 +12,7 @@ namespace Strategies
 
         protected override void Run(Entity entity)
         {
-            entity.GetOrAddComponent<WaitStateComponent>().CurrentWaitTimer = Time.Value(entity); ;
+            entity.GetOrAddComponent<WaitStateComponent>().CurrentWaitTimer = Time.Value(entity); 
         }
     }
 }
