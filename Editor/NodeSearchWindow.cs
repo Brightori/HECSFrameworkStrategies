@@ -64,10 +64,7 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider
             var test = d.GetValue(instance);
 
             if (test == null)
-            {
-                Debug.LogAssertion("не прописан тайтл у " + t.Name);
                 continue;
-            }
 
             tree.Add(new SearchTreeEntry(new GUIContent(test.ToString()))
             {

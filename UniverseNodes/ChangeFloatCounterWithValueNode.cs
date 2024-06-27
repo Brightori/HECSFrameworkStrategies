@@ -4,6 +4,7 @@ using HECSFramework.Core.Helpers;
 
 namespace Strategies
 {
+    [Documentation(Doc.HECS, Doc.Strategy, "ChangeFloatCounterWithValueNode")]
     public sealed class ChangeFloatCounterWithValueNode : InterDecision
     {
         public override string TitleOfNode { get; } = "Change Float Counter with value in";
