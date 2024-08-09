@@ -264,6 +264,12 @@ public class StrategyGraphView : GraphView, IDisposable
         evt.menu.InsertAction(1, "Duplicate", (x) => DuplicateNode());
         evt.menu.InsertAction(2, "Copy", (x) => CopyNodes());
         evt.menu.InsertAction(3, "Paste Nodes", (x) => PasteNode());
+        evt.menu.InsertAction(4, "Fix Node", FixNode);
+    }
+
+    private void FixNode(DropdownMenuAction action)
+    {
+        var check = action;
     }
 
     private void CopyNodes()
