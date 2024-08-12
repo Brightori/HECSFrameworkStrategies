@@ -269,7 +269,19 @@ public class StrategyGraphView : GraphView, IDisposable
 
     private void FixNode(DropdownMenuAction action)
     {
-        var check = action;
+        var pos = GetMousePosition();
+
+        var needed = selection.FirstOrDefault();
+
+        if (needed != null)
+        {
+            if (needed is DrawNodeViewGraph node)
+            {
+                AddNodeToStrategyGraph(pos, node.InnerNode.GetType());
+                RemoveNodeIncludeMetaNode(node);
+                DeleteSelection();
+            }
+        }
     }
 
     private void CopyNodes()
@@ -439,29 +451,34 @@ public class StrategyGraphView : GraphView, IDisposable
 
                 if (remove is DrawNodeViewGraph node)
                 {
-                    var isMetanode = node.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true)?.NodeType == "Meta";
-
-                    if (isMetanode)
-                    {
-                        var array = strategy.Metanodes.ToArray();
-
-                        foreach (var i in array)
-                        {
-                            if (i.Parent == node.InnerNode)
-                            {
-                                RemoveNode(i.Child);
-                                strategy.Metanodes.Remove(i);
-                            }
-                        }
-                    }
-
-                    strategy.nodes.AddOrRemoveElement(node.InnerNode, false);
-                    RemoveNode(node.InnerNode);
+                   RemoveNodeIncludeMetaNode(node);
                 }
             }
         }
 
         return graphViewChange;
+    }
+
+    private void RemoveNodeIncludeMetaNode(DrawNodeViewGraph node)
+    {
+        var isMetanode = node.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true)?.NodeType == "Meta";
+
+        if (isMetanode)
+        {
+            var array = strategy.Metanodes.ToArray();
+
+            foreach (var i in array)
+            {
+                if (i.Parent == node.InnerNode)
+                {
+                    RemoveNode(i.Child);
+                    strategy.Metanodes.Remove(i);
+                }
+            }
+        }
+
+        strategy.nodes.AddOrRemoveElement(node.InnerNode, false);
+        RemoveNode(node.InnerNode);
     }
 
     private bool IsValidConnect(FieldInfo input, FieldInfo output, BaseDecisionNode innerNode)
