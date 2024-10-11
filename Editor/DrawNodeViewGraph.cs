@@ -829,6 +829,13 @@ public class StrategyGraphView : GraphView, IDisposable
                                 boolField.RegisterValueChangedCallback((evt) => BoolFieldReact(evt, field, drawNode.InnerNode));
                                 drawNode.contentContainer.Add(boolField);
                             }
+                            else if (field.FieldType == typeof(Color))
+                            {
+                                var boolField = new ColorField(m.Name + ":");
+                                boolField.value = (Color)field.GetValue(drawNode.InnerNode);
+                                boolField.RegisterValueChangedCallback((evt) => UpdateField(evt, field, drawNode.InnerNode));
+                                drawNode.contentContainer.Add(boolField);
+                            }
                             else
                             {
                                 var objectField = new ObjectField(m.Name + ":") { objectType = field.FieldType };
