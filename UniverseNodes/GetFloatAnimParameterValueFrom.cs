@@ -26,7 +26,7 @@ public sealed class GetFloatAnimParameterValueFrom : GenericNode<float>
         {
             if (animatorStateComponent.State.TryGetFloat(AnimIdentifer, out var parameter))
             {
-                return parameter.Value;
+                return parameter;
             }
         }
 
