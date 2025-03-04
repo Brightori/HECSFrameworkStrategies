@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Components;
 using HECSFramework.Core;
 using Strategies;
+using UnityEditor.Rendering;
 
 [Documentation(Doc.Strategy, Doc.HECS, "here we check predicates of needed ability, we try to take it from generic node, if entity not provided, we try to take ability from main strategy entity")]
 public sealed class CheckAbilityIsReady : DilemmaDecision
@@ -69,7 +70,11 @@ public sealed class CheckAbilityIsReady : DilemmaDecision
                     }
                 }
             }
+            else
+                return false;
         }
+        else
+            return false;
         
         return true;
     }

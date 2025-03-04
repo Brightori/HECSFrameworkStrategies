@@ -69,7 +69,11 @@ public sealed class CheckAbilityIsReadyByAdditionaID : DilemmaDecision
                     }
                 }
             }
+            else
+                return false;
         }
+        else
+            return false;
 
         return true;
     }
