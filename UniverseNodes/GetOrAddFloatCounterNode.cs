@@ -18,7 +18,7 @@ namespace Strategies
 
             if (!holder.TryGetCounter(CounterID, out ICounter _))
             {
-                holder.AddCounter(new DefaultFloatCounter { Id = CounterID });
+                holder.AddCounter(new DefaultFloatCounter (CounterID));
             }
 
             Next.Execute(entity);
