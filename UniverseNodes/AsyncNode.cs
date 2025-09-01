@@ -6,11 +6,6 @@ using Strategies;
 [Documentation(Doc.Strategy, Doc.UniversalNodes, "WaitFloatGenericNode")]
 public abstract class AsyncNode : InterDecision
 {
-    public override string TitleOfNode { get; } = "WaitFloatGenericNode";
-
-    [Connection(ConnectionPointType.In, "<float> Time")]
-    public GenericNode<float> TimeForWait;
-
     protected override async void Run(Entity entity)
     {
         bool onPause = false;
