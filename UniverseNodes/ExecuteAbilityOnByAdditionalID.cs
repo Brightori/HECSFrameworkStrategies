@@ -25,13 +25,17 @@ namespace Strategies
 
         protected override void Run(Entity entity)
         {
+            var abilityOwner = EntityWithAbility != null ? EntityWithAbility.Value(entity) : null;
+            var target = Target != null ? Target.Value(entity) : null;
+
+
             EntityWithAbility.Value(entity).Command(new ExecuteAbilityByIDCommand
             {
                 AbilityIndex = this.AbilityIndex,
                 Enable = Enable,
                 IgnorePredicates = IgnorePredicates,
-                Owner = EntityWithAbility.Value(entity),
-                Target = Target.Value(entity),
+                Owner = abilityOwner,
+                Target = target,
             });
 
             Next.Execute(entity);
