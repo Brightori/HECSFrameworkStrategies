@@ -18,15 +18,17 @@ namespace Strategies
 
             var randomTime = Random.Range(WaitTime, MaxWaitTime);
             var alive = entity.GetAliveEntity();
+            var gen = stateContextComponent.CurrentIteration;
 
             await new Wait(randomTime).RunJob(entity.World);
 
             if (!alive.IsAlive)
                 return;
 
-            if (entity.TryGetComponent(out StateContextComponent stateContextComponentAfter))
-                stateContextComponentAfter.StrategyState = StrategyState.Run;
+            if (stateContextComponent.StrategyState != StrategyState.Pause || stateContextComponent.CurrentIteration != gen)
+                return;
 
+            stateContextComponent.StrategyState = StrategyState.Run;
             Next.Execute(entity);
         }
     }
