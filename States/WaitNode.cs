@@ -13,9 +13,10 @@ namespace Strategies
 
         protected override async void Run(Entity entity)
         {
-            if (entity.TryGetComponent(out StateContextComponent stateContextComponent))
-                stateContextComponent.StrategyState = StrategyState.Pause;
+            if (!entity.TryGetComponent(out StateContextComponent stateContextComponent))
+                return;
 
+            stateContextComponent.StrategyState = StrategyState.Pause;
             var randomTime = Random.Range(WaitTime, MaxWaitTime);
             var alive = entity.GetAliveEntity();
             var gen = stateContextComponent.CurrentIteration;
