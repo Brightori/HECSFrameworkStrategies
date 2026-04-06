@@ -1222,6 +1222,9 @@ public class StrategyGraphView : GraphView, IDisposable
 
         foreach (var go in allSo)
         {
+            if (go == null)
+                continue;
+
             if (go == innerNode)
             {
                 AssetDatabase.RemoveObjectFromAsset(go);
