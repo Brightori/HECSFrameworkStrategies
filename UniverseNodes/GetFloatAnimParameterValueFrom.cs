@@ -1,4 +1,3 @@
-using System;
 using Components;
 using HECSFramework.Core;
 using Strategies;
@@ -12,9 +11,6 @@ public sealed class GetFloatAnimParameterValueFrom : GenericNode<float>
 
     [AnimParameterDropDown]
     public int AnimIdentifer;
-
-    [NonSerialized]
-    private HECSMask animatorStateComponentMask = HMasks.GetMask<AnimatorStateComponent>();
 
     public override void Execute(Entity entity)
     {

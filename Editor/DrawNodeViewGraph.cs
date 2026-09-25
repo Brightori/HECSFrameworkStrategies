@@ -712,7 +712,7 @@ public class StrategyGraphView : GraphView, IDisposable
                         if (a is ComponentMaskDropDownAttribute)
                         {
                             var field = m as FieldInfo;
-                            var componentsList = new TypesProvider().MapIndexes.OrderBy(x => x.Value.ComponentName);
+                            var componentsList = TypesMap.ComponentsInfo.OrderBy(x => x.Value.ComponentName);
 
                             var newList = new List<string>(512);
 
@@ -1002,7 +1002,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
     private void ComponentsDropDownReact(ChangeEvent<string> evt, FieldInfo field, BaseDecisionNode innerNode)
     {
-        var mask = new TypesProvider().MapIndexes[IndexGenerator.GenerateIndex(evt.newValue)];
+        var mask = TypesMap.ComponentsInfo[IndexGenerator.GenerateIndex(evt.newValue)];
         field.SetValue(innerNode, mask.ComponentsMask.TypeHashCode);
     }
 
