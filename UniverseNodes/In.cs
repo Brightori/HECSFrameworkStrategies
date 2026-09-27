@@ -10,7 +10,7 @@ namespace Strategies
         "Accepts the main output of any GenericNode<T> and any ValueN output of GenericNode<T1..T6> whose type matches " +
         "(exact type for value types, the type or a derived type for reference types). " +
         "Stores the source node, the 1-based output index and the output name. Old GenericNode<T> slots stay as they are.")]
-    public struct In<T>
+    public struct In<T> : IInSlot
     {
         public BaseDecisionNode Node;
 
@@ -34,6 +34,10 @@ namespace Strategies
         }
 
         public bool IsConnected => Node != null;
+
+        BaseDecisionNode IInSlot.Node => Node;
+        int IInSlot.Output => Output;
+        string IInSlot.OutputName => OutputName;
 
         public T Value(Entity entity)
         {
@@ -62,5 +66,13 @@ namespace Strategies
             resolvedNode = Node;
             resolvedOutput = Output;
         }
+    }
+
+    // Lets the editor read any In<T> field without reflecting over its generic type.
+    public interface IInSlot
+    {
+        BaseDecisionNode Node { get; }
+        int Output { get; }
+        string OutputName { get; }
     }
 }

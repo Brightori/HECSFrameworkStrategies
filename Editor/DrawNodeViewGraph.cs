@@ -24,6 +24,7 @@ public class DrawNodeViewGraph : Node
     public string Name;
     public BaseDecisionNode InnerNode;
     public Dictionary<Port, (MemberInfo member, Direction direction, BaseDecisionNode node)> ConnectedPorts = new Dictionary<Port, (MemberInfo member, Direction direction, BaseDecisionNode node)>();
+    public Dictionary<Port, PortInfo> PortInfos = new Dictionary<Port, PortInfo>();
 
     public void ClearConnections()
     {
@@ -34,7 +35,7 @@ public class DrawNodeViewGraph : Node
                 if (fieldInfo.GetCustomAttribute<MetaNodeAttribute>(true) != null)
                     continue;
 
-                fieldInfo.SetValue(InnerNode, null);
+                fieldInfo.SetValue(InnerNode, fieldInfo.FieldType.IsValueType ? Activator.CreateInstance(fieldInfo.FieldType) : null);
             }
         }
 
@@ -357,54 +358,7 @@ public class StrategyGraphView : GraphView, IDisposable
 
                 try
                 {
-                    var inputType = (input.ConnectedPorts[e.input].member as FieldInfo).FieldType;
-                    var outType = (output.ConnectedPorts[e.output].member as FieldInfo).FieldType;
-
-                    var check = output.InnerNode.GetType().InheritsFrom(inputType);
-
-                    if (IsValidConnect(((FieldInfo)input.ConnectedPorts[e.input].member), ((FieldInfo)output.ConnectedPorts[e.output].member), output.InnerNode))
-                    {
-                        var outputMember = (FieldInfo)output.ConnectedPorts[e.output].member;
-
-                        if (outputMember != null && outputMember.GetCustomAttribute<MetaNodeAttribute>(true) != null)
-                        {
-                            ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, outputMember.GetValue(output.InnerNode));
-                            output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
-                        }
-                        else
-                        {
-                            ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
-                            ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
-
-                            output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
-                        }
-                    }
-                    else if (check && inputType != typeof(BaseDecisionNode))
-                    {
-                        ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
-                        ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
-
-                        output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
-                    }
-                    else if (outType == typeof(BaseDecisionNode) && inputType == typeof(BaseDecisionNode))
-                    {
-                        var attr = output.InnerNode.GetType().GetCustomAttribute<NodeTypeAttribite>(true);
-
-                        if (attr != null && attr.NodeType == "Generic")
-                            continue;
-
-
-                        ((FieldInfo)output.ConnectedPorts[e.output].member).SetValue(output.InnerNode, input.InnerNode);
-                        ((FieldInfo)input.ConnectedPorts[e.input].member).SetValue(input.InnerNode, output.InnerNode);
-
-                        output.InnerNode.ConnectionContexts.AddOrRemoveElement(new ConnectionContext { Out = output.ConnectedPorts[e.output].member.Name, In = input.ConnectedPorts[e.input].member.Name }, true);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("nodes not match");
-                        graphViewChange.edgesToCreate.Remove(e);
-                        return default;
-                    }
+                    StrategyPorts.Connect(output.PortInfos[e.output], output.InnerNode, input.PortInfos[e.input], input.InnerNode);
                 }
                 catch (Exception ex)
                 {
@@ -422,31 +376,16 @@ public class StrategyGraphView : GraphView, IDisposable
             {
                 if (remove is Edge edge)
                 {
-                    foreach (var dn in drawNodes)
-                    {
-                        if (dn.ConnectedPorts.TryGetValue(edge.input, out var info))
-                        {
-                            var field = (FieldInfo)info.member;
-                            var nameOut = ((FieldInfo)info.member).Name;
+                    var input = NeededNode(edge.input, Direction.Input);
 
-                            if (field == null)
-                                continue;
+                    if (input == null || !input.PortInfos.TryGetValue(edge.input, out var inputPort))
+                        continue;
 
-                            var valueInConnection = field.GetValue(dn.InnerNode) as BaseDecisionNode;
-                            field.SetValue(dn.InnerNode, null);
+                    var output = NeededNode(edge.output, Direction.Output);
+                    PortInfo outputPort = null;
+                    output?.PortInfos.TryGetValue(edge.output, out outputPort);
 
-                            if (valueInConnection == null)
-                                continue;
-
-                            foreach (var dnOut in drawNodes)
-                            {
-                                if (dnOut.InnerNode == valueInConnection)
-                                {
-                                    dnOut.InnerNode.ConnectionContexts.Remove(new ConnectionContext { Out = dnOut.ConnectedPorts[edge.output].member.Name, In = dn.ConnectedPorts[edge.input].member.Name });
-                                }
-                            }
-                        }
-                    }
+                    StrategyPorts.Disconnect(inputPort, input.InnerNode, outputPort, output?.InnerNode);
                 }
 
                 if (remove is DrawNodeViewGraph node)
@@ -479,43 +418,6 @@ public class StrategyGraphView : GraphView, IDisposable
 
         strategy.nodes.AddOrRemoveElement(node.InnerNode, false);
         RemoveNode(node.InnerNode);
-    }
-
-    private bool IsValidConnect(FieldInfo input, FieldInfo output, BaseDecisionNode innerNode)
-    {
-        var attr = output.GetAttribute<ConnectionAttribute>();
-        var comment = attr.NameOfField.ToLower();
-
-        var metaNode = output.GetCustomAttribute<MetaNodeAttribute>(true);
-
-        if (metaNode != null)
-        {
-            if (output.FieldType.IsCastableTo(input.FieldType))
-                return true;
-        }
-
-        if (input.FieldType.IsGenericType)
-        {
-            var neededType = innerNode.GetType();
-
-            if (neededType.IsGenericType || neededType.InheritsFrom(typeof(GenericNode<>)))
-            {
-                var arg = neededType.BaseType.GetGenericArguments().Single();
-
-                foreach (var g in input.FieldType.GetGenericArguments())
-                {
-                    if (arg.InheritsFrom(g))
-                        return true;
-                }
-            }
-
-            return false;
-        }
-
-        if (comment.Contains("<") && comment.Contains(">"))
-            return false;
-
-        return true;
     }
 
     [Documentation(Doc.HECS, Doc.Strategy, "its helper for convert dotnet types to c#")]
@@ -567,48 +469,23 @@ public class StrategyGraphView : GraphView, IDisposable
 
     private void ConnectStrategyNodes()
     {
-        foreach (var dn in drawNodes)
+        foreach (var edge in StrategyPorts.RestoreEdges(strategy))
         {
-            foreach (var portinfo in dn.ConnectedPorts)
-            {
-                if (portinfo.Value.direction == Direction.Input)
-                {
-                    var fieldInfo = portinfo.Value.member as FieldInfo;
+            if (!edge.IsDrawn)
+                continue;
 
-                    var node = fieldInfo.GetValue(dn.InnerNode) as BaseDecisionNode;
+            var inputPort = PortOf(edge.Consumer, edge.In);
+            var outputPort = PortOf(edge.Provider, edge.Out);
 
-                    if (node != null)
-                    {
-                        var neededNode = drawNodes.FirstOrDefault(x => x.InnerNode == node);
-
-                        if (neededNode == null)
-                        {
-                            var search = strategy.Metanodes.FirstOrDefault(x => x.Child == node);
-
-                            if (search.Parent != null)
-                            {
-                                var neededNodeParentDraw = drawNodes.FirstOrDefault(x => x.InnerNode == search.Parent);
-                                var port = neededNodeParentDraw.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Output && x.Value.node == node);
-                                
-                                if (port.Value.node != null)
-                                {
-                                    LinkNodesTogether(port.Key, portinfo.Key);
-                                    continue;
-                                }
-                            }
-                        }
-
-                        if (neededNode != null)
-                        {
-                            var neededInfo = neededNode.ConnectedPorts.FirstOrDefault(x => x.Value.direction == Direction.Output && x.Value.node != null && x.Value.node == dn.InnerNode);
-
-                            if (neededInfo.Value.node != null)
-                                LinkNodesTogether(neededInfo.Key, portinfo.Key);
-                        }
-                    }
-                }
-            }
+            if (inputPort != null && outputPort != null)
+                LinkNodesTogether(outputPort, inputPort);
         }
+    }
+
+    private Port PortOf(BaseDecisionNode node, PortInfo info)
+    {
+        var drawNode = drawNodes.FirstOrDefault(x => x.InnerNode == node);
+        return drawNode?.PortInfos.FirstOrDefault(x => x.Value == info).Key;
     }
 
     private void LinkNodesTogether(Port outputSocket, Port inputSocket)
@@ -1090,12 +967,18 @@ public class StrategyGraphView : GraphView, IDisposable
     public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
     {
         var compatiblePorts = new List<Port>();
-        var startPortView = startPort;
 
         ports.ForEach((port) =>
         {
-            var portView = port;
-            if (startPortView != portView && startPortView.node != portView.node)
+            if (startPort == port || startPort.node == port.node || startPort.direction == port.direction)
+                return;
+
+            var output = startPort.direction == Direction.Output ? startPort : port;
+            var input = output == startPort ? port : startPort;
+
+            if (output.node is DrawNodeViewGraph outputNode && input.node is DrawNodeViewGraph inputNode
+                && outputNode.PortInfos.TryGetValue(output, out var outputInfo) && inputNode.PortInfos.TryGetValue(input, out var inputInfo)
+                && StrategyPorts.CanConnect(outputInfo, outputNode.InnerNode, inputInfo, inputNode.InnerNode))
                 compatiblePorts.Add(port);
         });
 
@@ -1104,43 +987,18 @@ public class StrategyGraphView : GraphView, IDisposable
 
     private void GeneratePorts(DrawNodeViewGraph drawNode)
     {
-        var members = drawNode.InnerNode.GetType().GetMembers();
-
-        foreach (var m in members)
+        foreach (var info in StrategyPorts.GetPorts(drawNode.InnerNode.GetType()))
         {
-            var atrs = m.GetCustomAttributes();
+            var direction = info.Direction == ConnectionPointType.In ? Direction.Input : Direction.Output;
+            var capacity = info.Slot == PortSlot.MethodOut ? Port.Capacity.Multi : Port.Capacity.Single;
+            var port = GeneratePort(drawNode, direction, info.Label, capacity);
 
-            foreach (var a in atrs)
-            {
-                if (a is ConnectionAttribute connection)
-                {
-                    var nextNode = GetNodeFromField(m, drawNode.InnerNode);
+            if (info.IsValue && info.ValueType != null)
+                port.portColor = StrategyPorts.PortColorOf(info.ValueType);
 
-                    switch (connection.ConnectionPointType)
-                    {
-                        case ConnectionPointType.In:
-                            var port = GeneratePort(drawNode, Direction.Input, connection.NameOfField, Port.Capacity.Single);
-                            drawNode.ConnectedPorts.Add(port, (m, Direction.Input, nextNode));
-                            break;
-
-                        case ConnectionPointType.Out:
-                            var port2 = GeneratePort(drawNode, Direction.Output, connection.NameOfField, Port.Capacity.Single);
-                            drawNode.ConnectedPorts.Add(port2, (m, Direction.Output, nextNode));
-                            break;
-                    }
-                }
-            }
+            drawNode.ConnectedPorts.Add(port, (info.Member, direction, StrategyPorts.LinkedNode(info, drawNode.InnerNode)));
+            drawNode.PortInfos.Add(port, info);
         }
-    }
-
-    private BaseDecisionNode GetNodeFromField(MemberInfo memberInfo, BaseDecisionNode baseDecisionNode)
-    {
-        if (memberInfo is FieldInfo field)
-            return field.GetValue(baseDecisionNode) as BaseDecisionNode;
-        else if (memberInfo is PropertyInfo property)
-            return property.GetValue(baseDecisionNode) as BaseDecisionNode;
-
-        return null;
     }
 
     private Port GeneratePort(DrawNodeViewGraph node, Direction direction, string portName, Port.Capacity capacity = Port.Capacity.Single)

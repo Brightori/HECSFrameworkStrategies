@@ -157,8 +157,7 @@ public static class StrategyConnectionsReport
 
             foreach (var port in Ports(node.GetType()))
             {
-                var target = ValueOf(port.Member, node);
-                var value = $"{node.GetType().Name}\t{port.Direction}\t{(listed.Contains(node) ? "listed" : "unlisted")}\t{Id(target, path)}";
+                var value = $"{node.GetType().Name}\t{port.Direction}\t{(listed.Contains(node) ? "listed" : "unlisted")}\t{TargetOf(port.Member, node, path)}";
                 report.Add($"FIELD\t{path}\t{LocalId(node)}\t{port.Member.Name}", value, ref report.Fields);
             }
         }
@@ -166,77 +165,22 @@ public static class StrategyConnectionsReport
         CollectEdges(report, path, strategy);
     }
 
-    // Mirrors StrategyGraphView constructor + ConnectStrategyNodes: which nodes get drawn and how each
-    // input port finds the output port it is linked to. Must stay in sync with DrawNodeViewGraph.cs,
-    // otherwise the snapshot stops describing what the graph editor shows.
+    // Edges come from the same StrategyPorts.RestoreEdges the graph editor draws from.
     private static void CollectEdges(Report report, string path, BaseStrategy strategy)
     {
-        var drawn = new List<BaseDecisionNode>();
-        var start = strategy.nodes.FirstOrDefault(x => x is StartDecision);
-
-        if (start != null)
-            drawn.Add(start);
-
-        drawn.AddRange(strategy.nodes.Where(x => x != null && !(x is StartDecision)));
-
-        foreach (var consumer in drawn)
+        foreach (var edge in StrategyPorts.RestoreEdges(strategy))
         {
-            foreach (var input in Ports(consumer.GetType()).Where(x => x.Direction == ConnectionPointType.In))
-            {
-                var source = ValueOf(input.Member, consumer);
+            var key = $"EDGE\t{path}\t{LocalId(edge.Consumer)}\t{edge.In.Member.Name}";
+            var from = edge.IsDrawn ? $"{Id(edge.Provider, path)}.{edge.Out.Member.Name}" : Id(edge.Source, path);
 
-                if (source == null)
-                    continue;
+            if (!report.Add(key, $"{edge.Status}\t{from}", ref report.Edges))
+                continue;
 
-                var key = $"EDGE\t{path}\t{LocalId(consumer)}\t{input.Member.Name}";
-                string status;
-                string from;
-
-                if (drawn.Contains(source))
-                {
-                    var output = OutputPointingTo(source, consumer);
-                    status = output != null ? "drawn" : "hidden:no-backlink";
-                    from = output != null ? $"{Id(source, path)}.{output.Name}" : Id(source, path);
-                }
-                else
-                {
-                    var meta = strategy.Metanodes.FirstOrDefault(x => x.Child == source);
-
-                    if (meta.Parent == null)
-                    {
-                        status = "hidden:source-not-drawn";
-                        from = Id(source, path);
-                    }
-                    else if (!drawn.Contains(meta.Parent))
-                    {
-                        status = "hidden:meta-parent-not-drawn";
-                        from = Id(source, path);
-                    }
-                    else
-                    {
-                        var output = OutputPointingTo(meta.Parent, source);
-                        status = output != null ? "drawn:meta" : "hidden:meta-port-not-found";
-                        from = output != null ? $"{Id(meta.Parent, path)}.{output.Name}" : Id(source, path);
-                    }
-                }
-
-                if (!report.Add(key, $"{status}\t{from}", ref report.Edges))
-                    continue;
-
-                if (status.StartsWith("hidden", StringComparison.Ordinal))
-                    report.HiddenEdges++;
-                else
-                    report.DrawnEdges++;
-            }
+            if (edge.IsDrawn)
+                report.DrawnEdges++;
+            else
+                report.HiddenEdges++;
         }
-    }
-
-    private static MemberInfo OutputPointingTo(BaseDecisionNode node, BaseDecisionNode target)
-    {
-        return Ports(node.GetType())
-            .Where(x => x.Direction == ConnectionPointType.Out)
-            .Select(x => x.Member)
-            .FirstOrDefault(x => ValueOf(x, node) == target);
     }
 
     private static IEnumerable<(MemberInfo Member, ConnectionPointType Direction)> Ports(Type type)
@@ -251,15 +195,14 @@ public static class StrategyConnectionsReport
         }
     }
 
-    private static BaseDecisionNode ValueOf(MemberInfo member, BaseDecisionNode node)
+    private static string TargetOf(MemberInfo member, BaseDecisionNode node, string path)
     {
-        if (member is FieldInfo field)
-            return field.GetValue(node) as BaseDecisionNode;
+        var value = member is FieldInfo field ? field.GetValue(node) : (member as PropertyInfo)?.GetValue(node);
 
-        if (member is PropertyInfo property)
-            return property.GetValue(node) as BaseDecisionNode;
+        if (value is IInSlot slot)
+            return slot.Node == null ? "null" : $"{Id(slot.Node, path)}:out{slot.Output}";
 
-        return null;
+        return Id(value as BaseDecisionNode, path);
     }
 
     private static long LocalId(UnityEngine.Object obj)
