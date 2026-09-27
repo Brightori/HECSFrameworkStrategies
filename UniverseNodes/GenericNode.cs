@@ -5,9 +5,24 @@ namespace Strategies
 {
     [NodeTypeAttribite("Generic")]
     [Documentation(Doc.HECS, Doc.Strategy, "this is base for providing value by other node")]
-    public abstract class GenericNode<T> : BaseDecisionNode, IGenericNode<T>
+    public abstract class GenericNode<T> : BaseDecisionNode, IGenericNode<T>, IValueOutputs
     {
         public abstract T Value(Entity entity);
+
+        public virtual Delegate GetOutput(int index)
+        {
+            if (index <= 1)
+                return new Func<Entity, T>(Value);
+
+            throw new ArgumentOutOfRangeException(nameof(index), index, $"{GetType().Name} has no output {index}");
+        }
+    }
+
+    // Non-generic so In<T> can reach any node's outputs without knowing its type arguments;
+    // a generic GetOutput<T> would be a generic virtual method, which IL2CPP may not have AOT code for.
+    public interface IValueOutputs
+    {
+        Delegate GetOutput(int index);
     }
 
     public delegate T ProxyGet<T>(Entity entity);

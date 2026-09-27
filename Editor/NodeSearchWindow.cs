@@ -21,7 +21,8 @@ public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider
 
         foreach (var item in a)
         {
-            if (item.IsSubclassOf(typeof(BaseDecisionNode)) && !item.IsAbstract)
+            // A nested class has no MonoScript, so a node of that type could not be saved into a strategy asset.
+            if (item.IsSubclassOf(typeof(BaseDecisionNode)) && !item.IsAbstract && !item.IsNested)
                 nodeTypes.Add(item);
         }
     }

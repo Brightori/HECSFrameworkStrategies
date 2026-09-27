@@ -13,10 +13,10 @@ namespace Strategies
         [Connection(ConnectionPointType.In, "Input")]
         public BaseDecisionNode Input;
 
-        [Connection(ConnectionPointType.Out, "Positive")]
+        [Connection(ConnectionPointType.Out, "Positive", Kind = PortKind.Flow)]
         public BaseDecisionNode Positive;
 
-        [Connection(ConnectionPointType.Out, "Negative")]
+        [Connection(ConnectionPointType.Out, "Negative", Kind = PortKind.Flow)]
         public BaseDecisionNode Negative;
 
         public override string TitleOfNode { get; } = "CheckGenericEntityAlive";

@@ -60,6 +60,7 @@ namespace Strategies
     {
         public ConnectionPointType ConnectionPointType;
         public string NameOfField = "Field";
+        public PortKind Kind = PortKind.Auto;
 
         public ConnectionAttribute(ConnectionPointType connectionPointType, string nameOfField)
         {
@@ -69,4 +70,8 @@ namespace Strategies
     }
 
     public enum ConnectionPointType { In, Out }
+
+    // Auto: the editor infers the kind from the field and node types. Set it explicitly only where
+    // inference is wrong, e.g. flow outputs on a GenericNode.
+    public enum PortKind { Auto, Flow, Value }
 }
