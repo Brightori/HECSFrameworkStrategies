@@ -4,6 +4,12 @@ using HECSFramework.Core;
 namespace Strategies
 {
     [Serializable]
+    [Documentation(Doc.HECS, Doc.Strategy,
+        "Value input slot of a strategy node for the new multi-output nodes: " +
+        "[Connection(ConnectionPointType.In, \"Count\")] public In<int> Count; read it with Count.Value(entity). " +
+        "Accepts the main output of any GenericNode<T> and any ValueN output of GenericNode<T1..T6> whose type matches " +
+        "(exact type for value types, the type or a derived type for reference types). " +
+        "Stores the source node, the 1-based output index and the output name. Old GenericNode<T> slots stay as they are.")]
     public struct In<T>
     {
         public BaseDecisionNode Node;

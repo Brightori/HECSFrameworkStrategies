@@ -20,6 +20,7 @@ namespace Strategies
 
     // Non-generic so In<T> can reach any node's outputs without knowing its type arguments;
     // a generic GetOutput<T> would be a generic virtual method, which IL2CPP may not have AOT code for.
+    [Documentation(Doc.HECS, Doc.Strategy, "Access to a node's value outputs by 1-based index (1 = Value, 2 = Value2 ..); implemented by every GenericNode, used by In<T>")]
     public interface IValueOutputs
     {
         Delegate GetOutput(int index);
