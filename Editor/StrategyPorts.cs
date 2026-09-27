@@ -310,7 +310,64 @@ public static class StrategyPorts
         if (output != null && outputNode != null && (previous == outputNode || input.Slot == PortSlot.InSlot))
             outputNode.ConnectionContexts.Remove(new ConnectionContext { Out = output.Member.Name, In = input.Member.Name });
 
+        // A flow link runs through the output field, so a deleted wire kept executing while this stayed set.
+        if (output != null && outputNode != null && output.Field != null && output.Slot != PortSlot.MetaOut
+            && output.Field.GetValue(outputNode) as BaseDecisionNode == inputNode)
+        {
+            output.Field.SetValue(outputNode, null);
+            EditorUtility.SetDirty(outputNode);
+        }
+
         EditorUtility.SetDirty(inputNode);
+    }
+
+    // An In<T> slot stores the output index; the [Output] name saved with it catches outputs that were
+    // reordered in code. Returns one message per slot that was rebound or could not be matched.
+    public static List<string> ReconcileOutputNames(BaseStrategy strategy)
+    {
+        var messages = new List<string>();
+        var drawn = DrawnNodes(strategy);
+        var rebound = false;
+
+        foreach (var consumer in drawn)
+        {
+            foreach (var input in GetPorts(consumer.GetType()))
+            {
+                if (input.Slot != PortSlot.InSlot)
+                    continue;
+
+                var slot = (IInSlot)input.Field.GetValue(consumer);
+
+                if (slot.Node == null || string.IsNullOrEmpty(slot.OutputName) || !drawn.Contains(slot.Node))
+                    continue;
+
+                var current = ValueOutput(slot.Node.GetType(), Math.Max(1, slot.Output));
+
+                if (current != null && current.OutputName == slot.OutputName)
+                    continue;
+
+                var match = GetPorts(slot.Node.GetType()).FirstOrDefault(x =>
+                    x.Direction == ConnectionPointType.Out && x.OutputIndex > 0 && x.Slot != PortSlot.MetaOut
+                    && x.OutputName == slot.OutputName && IsReadableAs(x.ValueType, input.ValueType));
+
+                var where = $"{strategy.name}: {consumer.GetType().Name}.{input.Member.Name} <- {slot.Node.GetType().Name}";
+
+                if (match != null)
+                {
+                    input.Field.SetValue(consumer, Activator.CreateInstance(input.Field.FieldType, slot.Node, match.OutputIndex, match.OutputName));
+                    EditorUtility.SetDirty(consumer);
+                    rebound = true;
+                    messages.Add($"{where}: output '{slot.OutputName}' moved from {slot.Output} to {match.OutputIndex}, slot rebound");
+                }
+                else
+                    messages.Add($"{where}: output '{slot.OutputName}' not found, slot stays on output {slot.Output} '{current?.OutputName}'");
+            }
+        }
+
+        if (rebound)
+            AssetDatabase.SaveAssets();
+
+        return messages;
     }
 
     public static List<RestoredEdge> RestoreEdges(BaseStrategy strategy)
@@ -533,9 +590,9 @@ public static class StrategyPorts
     private static readonly Dictionary<Type, Color> knownPortColors = new Dictionary<Type, Color>
     {
         { typeof(bool), new Color(0.93f, 0.33f, 0.33f) },
-        { typeof(int), new Color(1.00f, 0.62f, 0.25f) },
+        { typeof(int), new Color(0.40f, 0.92f, 0.70f) },
         { typeof(Vector3), new Color(0.98f, 0.92f, 0.40f) },
-        { typeof(float), new Color(0.55f, 0.90f, 0.35f) },
+        { typeof(float), new Color(0.62f, 0.90f, 0.30f) },
         { typeof(string), new Color(0.95f, 0.55f, 0.85f) },
         { typeof(Entity), new Color(0.72f, 0.62f, 1.00f) },
     };

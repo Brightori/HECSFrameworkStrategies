@@ -89,6 +89,9 @@ public class StrategyGraphView : GraphView, IDisposable
             AddNodeToDecision(dn);
         }
 
+        foreach (var message in StrategyPorts.ReconcileOutputNames(strategy))
+            Debug.LogWarning("[StrategyGraph] " + message);
+
         ConnectStrategyNodes();
         graphViewChanged += Changes;
         RegisterCallback<MouseMoveEvent>(MouseReact);

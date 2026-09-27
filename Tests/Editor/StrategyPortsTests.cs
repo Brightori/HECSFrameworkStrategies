@@ -181,6 +181,80 @@ public class StrategyPortsTests
         Assert.IsFalse(consumer.Count.IsConnected);
     }
 
+    [Test]
+    public void DisconnectingFlowWireClearsTheOutputFieldToo()
+    {
+        var from = Create<CheckGenericEntityAlive>();
+        var to = Create<CheckGenericEntityAlive>();
+        var positive = Port(typeof(CheckGenericEntityAlive), "Positive");
+        var input = Port(typeof(CheckGenericEntityAlive), "Input");
+
+        StrategyPorts.Connect(positive, from, input, to);
+        Assert.AreSame(to, from.Positive);
+
+        StrategyPorts.Disconnect(input, to, positive, from);
+
+        Assert.IsNull(to.Input);
+        Assert.IsNull(from.Positive);
+    }
+
+    private (ValueOutputsTests.SixOutputsTestNode six, ConsumerTestNode consumer, Strategy strategy) SlotFixture()
+    {
+        var six = Create<ValueOutputsTests.SixOutputsTestNode>();
+        var consumer = Create<ConsumerTestNode>();
+        var strategy = Create<Strategy>();
+        strategy.nodes.Add(six);
+        strategy.nodes.Add(consumer);
+        return (six, consumer, strategy);
+    }
+
+    [Test]
+    public void ReconcileRebindsSlotToOutputWithTheSameName()
+    {
+        var (six, consumer, strategy) = SlotFixture();
+        consumer.Count = new In<int>(six, 4, "count");
+
+        var messages = StrategyPorts.ReconcileOutputNames(strategy);
+
+        Assert.AreEqual(2, consumer.Count.Output);
+        Assert.AreEqual(2, consumer.Count.Value(null));
+        StringAssert.Contains("slot rebound", messages.Single());
+    }
+
+    [Test]
+    public void ReconcileKeepsSlotWhenNameIsGone()
+    {
+        var (six, consumer, strategy) = SlotFixture();
+        consumer.Count = new In<int>(six, 2, "bullets");
+
+        var messages = StrategyPorts.ReconcileOutputNames(strategy);
+
+        Assert.AreEqual(2, consumer.Count.Output);
+        StringAssert.Contains("not found", messages.Single());
+    }
+
+    [Test]
+    public void ReconcileLeavesMatchingSlotAlone()
+    {
+        var (six, consumer, strategy) = SlotFixture();
+        consumer.Count = new In<int>(six, 2, "count");
+
+        CollectionAssert.IsEmpty(StrategyPorts.ReconcileOutputNames(strategy));
+        Assert.AreEqual(2, consumer.Count.Output);
+    }
+
+    [Test]
+    public void ReconcileIgnoresSameNameOfIncompatibleType()
+    {
+        var (six, consumer, strategy) = SlotFixture();
+        consumer.Count = new In<int>(six, 2, "ratio");
+
+        var messages = StrategyPorts.ReconcileOutputNames(strategy);
+
+        Assert.AreEqual(2, consumer.Count.Output);
+        StringAssert.Contains("not found", messages.Single());
+    }
+
     public class ConsumerTestNode : BaseDecisionNode
     {
         public override string TitleOfNode { get; } = "ConsumerTestNode";
